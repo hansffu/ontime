@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/dark_background"
+    android:clickable="true"
+    android:orientation="horizontal"
+    android:padding="2dp"
+    android:weightSum="1">
+
+    <TextView
+        android:id="@+id/line_number"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/circle"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        tools:text="31E" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/destination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/colorAccent"
+            android:textSize="16sp"
+            tools:text="Fornebu Ekspress" />
+
+        <TextView
+            android:id="@+id/departs_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            tools:text="2 min  3min  4min  5min  6min  7min  8min" />
+    </LinearLayout>
+</LinearLayout>

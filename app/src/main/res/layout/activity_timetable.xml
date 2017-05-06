@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wearable.view.drawer.WearableDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_background"
+    tools:context="hansffu.ontime.TimetableActivity"
+    tools:deviceIds="wear">
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="40dp" />
+
+    <android.support.wearable.view.WearableRecyclerView
+        android:id="@+id/departure_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingBottom="50dp"
+        tools:listheader="@layout/timetable_list_header"
+        tools:listitem="@layout/timetable_list_item" />
+
+    <android.support.wearable.view.drawer.WearableActionDrawer
+        android:id="@+id/bottom_action_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/light_ui_elem"
+        app:action_menu="@menu/timetable_action_menu" />
+
+
+</android.support.wearable.view.drawer.WearableDrawerLayout>
