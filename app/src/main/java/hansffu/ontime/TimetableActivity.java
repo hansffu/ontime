@@ -132,7 +132,6 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
-        requestQueue.start();
     }
 
 

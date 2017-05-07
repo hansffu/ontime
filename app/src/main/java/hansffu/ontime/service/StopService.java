@@ -46,7 +46,6 @@ public class StopService implements Response.Listener<JSONArray>, Response.Error
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         requestQueue.add(request);
-        requestQueue.start();
     }
 
     @Override
