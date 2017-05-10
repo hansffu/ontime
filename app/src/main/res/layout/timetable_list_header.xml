@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:background="@color/light_background"
-    android:orientation="vertical">
+    android:layout_height="100dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/dark_background"
+    android:orientation="vertical"
+    >
 
     <TextView
         android:id="@+id/stop_name"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom"
+        app:layout_box="top|left|right"
+        android:ellipsize="end"
+        android:gravity="bottom|center"
         android:paddingBottom="12dp"
         android:textAlignment="center"
         android:textSize="23sp"
-        tools:text="Superstopp" />
+        android:maxLines="2"
+        tools:text="Superstopp med superlang tekst" />
 
-</LinearLayout>
+</android.support.wearable.view.BoxInsetLayout>

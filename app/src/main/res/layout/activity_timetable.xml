@@ -9,22 +9,30 @@
     tools:context="hansffu.ontime.TimetableActivity"
     tools:deviceIds="wear">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingTop="40dp" />
-
-    <android.support.wearable.view.WearableRecyclerView
-        android:id="@+id/departure_list"
+    <android.support.wearable.view.BoxInsetLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingBottom="50dp"
-        tools:listheader="@layout/timetable_list_header"
-        tools:listitem="@layout/timetable_list_item" />
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="40dp"
+            app:layout_box="all"/>
+
+        <android.support.wearable.view.WearableRecyclerView
+            android:id="@+id/departure_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingBottom="50dp"
+            tools:listheader="@layout/timetable_list_header"
+            tools:listitem="@layout/timetable_list_item"
+            />
+
+    </android.support.wearable.view.BoxInsetLayout>
 
     <android.support.wearable.view.drawer.WearableActionDrawer
         android:id="@+id/bottom_action_drawer"

@@ -83,11 +83,14 @@ public class NearbyFragment extends Fragment implements
         stops = new ArrayList<>(0);
 
         stopAdapter = new StopViewAdapter(stops);
-        stopAdapter.setListener(position -> {
-            Intent startTimetableActivity = new Intent(NearbyFragment.this.getActivity(), TimetableActivity.class);
-            startTimetableActivity.putExtra(STOP_ID, stops.get(position).getId());
-            startTimetableActivity.putExtra(STOP_NAME, stops.get(position).getName());
-            startActivity(startTimetableActivity);
+        stopAdapter.setListener(new StopViewAdapter.ItemSelectedListener() {
+            @Override
+            public void onItemSelected(int position) {
+                Intent startTimetableActivity = new Intent(NearbyFragment.this.getActivity(), TimetableActivity.class);
+                startTimetableActivity.putExtra(STOP_ID, stops.get(position).getId());
+                startTimetableActivity.putExtra(STOP_NAME, stops.get(position).getName());
+                NearbyFragment.this.startActivity(startTimetableActivity);
+            }
         });
 
         mStopListView.setAdapter(stopAdapter);

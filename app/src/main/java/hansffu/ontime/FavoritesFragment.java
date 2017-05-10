@@ -51,11 +51,14 @@ public class FavoritesFragment extends Fragment {
         final List<Stop> stops = favoriteService.getFavorites();
 
         StopViewAdapter adapter = new StopViewAdapter(stops);
-        adapter.setListener(position -> {
-            Intent startTimetableActivity = new Intent(FavoritesFragment.this.getActivity(), TimetableActivity.class);
-            startTimetableActivity.putExtra(STOP_ID, stops.get(position).getId());
-            startTimetableActivity.putExtra(STOP_NAME, stops.get(position).getName());
-            startActivity(startTimetableActivity);
+        adapter.setListener(new StopViewAdapter.ItemSelectedListener() {
+            @Override
+            public void onItemSelected(int position) {
+                Intent startTimetableActivity = new Intent(FavoritesFragment.this.getActivity(), TimetableActivity.class);
+                startTimetableActivity.putExtra(STOP_ID, stops.get(position).getId());
+                startTimetableActivity.putExtra(STOP_NAME, stops.get(position).getName());
+                FavoritesFragment.this.startActivity(startTimetableActivity);
+            }
         });
 
         mStopListView.setAdapter(adapter);

@@ -15,10 +15,13 @@ import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,6 +29,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +40,9 @@ import hansffu.ontime.model.Stop;
 import hansffu.ontime.service.FavoriteService;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class TimetableActivity extends Activity implements WearableActionDrawer.OnMenuItemClickListener {
@@ -75,9 +82,9 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
 
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(mStopListView.getContext(),
                 layoutManager.getOrientation());
-        mStopListView.addItemDecoration(mDividerItemDecoration);
+//        mStopListView.addItemDecoration(mDividerItemDecoration);
 
-        adapter = new TimetableAdapter(stopName, new ArrayList<>());
+        adapter = new TimetableAdapter(stopName, new ArrayList<List<Departure>>());
         mStopListView.setAdapter(adapter);
 
         mActionMenu.setOnMenuItemClickListener(this);
@@ -97,7 +104,7 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
 
     private void setListContent() {
 
-        adapter.setDepartures(new ArrayList<>());
+        adapter.setDepartures(new ArrayList<List<Departure>>());
         mProgressBar.setVisibility(View.VISIBLE);
         updateTimetibles(adapter);
 
@@ -107,25 +114,31 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
         String url = "http://reisapi.ruter.no/StopVisit/GetDepartures/" + stopId;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonArrayRequest request = new JsonArrayRequest(url, response -> {
+        JsonArrayRequest request = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
 
-            ArrayListValuedHashMap<LineDirectionRef, Departure> departures = new ArrayListValuedHashMap<>();
+                ArrayListValuedHashMap<LineDirectionRef, Departure> departures = new ArrayListValuedHashMap<>();
 
-            for (int i = 0; i < response.length(); i++) {
-                try {
-                    Departure departure = mapJsonResponseToDeparture(response.getJSONObject(i));
-                    departures.put(departure.getLineDirectionRef(), departure);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        Departure departure = TimetableActivity.this.mapJsonResponseToDeparture(response.getJSONObject(i));
+                        departures.put(departure.getLineDirectionRef(), departure);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            adapter.setDepartures(multimapToLSortedistOfListsOfDepartures(departures));
-            mProgressBar.setVisibility(View.GONE);
+                adapter.setDepartures(TimetableActivity.this.multimapToLSortedistOfListsOfDepartures(departures));
+                mProgressBar.setVisibility(View.GONE);
+            }
         },
-                error -> {
-                    Log.e(TAG, "Error getting timetables", error);
-                    Toast.makeText(TimetableActivity.this, "Fant ikke holdeplass", Toast.LENGTH_LONG).show();
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "Error getting timetables", error);
+                        Toast.makeText(TimetableActivity.this, "Fant ikke holdeplass", Toast.LENGTH_LONG).show();
+                    }
                 });
 
         request.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 0,
@@ -140,7 +153,12 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
         for (LineDirectionRef lineDirectionRef : multimap.keySet()) {
             list.add(multimap.get(lineDirectionRef));
         }
-        Collections.sort(list, (o1, o2) -> o1.get(0).getTime().compareTo(o2.get(0).getTime()));
+        Collections.sort(list, new Comparator<List<Departure>>() {
+            @Override
+            public int compare(List<Departure> o1, List<Departure> o2) {
+                return o1.get(0).getTime().compareTo(o2.get(0).getTime());
+            }
+        });
         return list;
     }
 
@@ -173,14 +191,24 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
+    public boolean onMenuItemClick(final MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.toggle_favorite:
                 Observable.just(new Stop(stopName, stopId))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
-                        .map(favoriteService::toggleFavorite)
-                        .subscribe(isFavorite -> toggleFavorite(isFavorite, menuItem));
+                        .map(new Function<Stop, Boolean>() {
+                            @Override
+                            public Boolean apply(@NonNull Stop stop) throws Exception {
+                                return favoriteService.toggleFavorite(stop);
+                            }
+                        })
+                        .subscribe(new Consumer<Boolean>() {
+                            @Override
+                            public void accept(@NonNull Boolean isFavorite) throws Exception {
+                                TimetableActivity.this.toggleFavorite(isFavorite, menuItem);
+                            }
+                        });
                 return true;
             default:
                 return false;
