@@ -17,7 +17,6 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
-        android:layout_marginStart="16dp"
         android:background="@drawable/circle"
         android:gravity="center"
         android:textColor="@color/white"
@@ -35,9 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginStart="5dp"
-            android:ellipsize="end"
-            android:maxLines="1"
+            android:maxLines="2"
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
             tools:text="Fornebu Ekspress" />
@@ -47,11 +44,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginStart="5dp"
-            android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/white"
             android:textSize="14sp"
-            tools:text="2 min  3min  4min  5min  6min  7min  8min" />
+            tools:text="2 min  3min  19:30  5min  6min  7min  8min" />
     </LinearLayout>
 </LinearLayout>

@@ -11,11 +11,12 @@
 
     <android.support.wearable.view.BoxInsetLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <ProgressBar
             android:id="@+id/progress_bar"
-            style="?android:progressBarStyle"
+            style="@android:style/Widget.Material.ProgressBar.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -25,11 +26,12 @@
         <android.support.wearable.view.WearableRecyclerView
             android:id="@+id/departure_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
+            android:layout_height="match_parent"
             android:paddingBottom="50dp"
+            android:clipToPadding="true"
             tools:listheader="@layout/timetable_list_header"
             tools:listitem="@layout/timetable_list_item"
+            app:layout_box="left|right"
             />
 
     </android.support.wearable.view.BoxInsetLayout>

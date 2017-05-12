@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:deviceIds="wear">
-
 
     <android.support.wearable.view.WearableRecyclerView
         android:id="@+id/stop_list"
@@ -14,17 +14,17 @@
         android:clipToPadding="false"
         android:paddingBottom="50dp"
         android:paddingTop="50dp"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"
+        app:layout_box="left|right"/>
 
     <ProgressBar
         android:id="@+id/stop_list_progress_bar"
-        style="?android:progressBarStyle"
+        style="@android:style/Widget.Material.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:paddingTop="90dp"
-        android:visibility="gone" />
+        app:layout_box="all"/>
 
 
 </android.support.wearable.view.BoxInsetLayout>

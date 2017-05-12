@@ -110,7 +110,7 @@ public class TimetableAdapter extends RecyclerView.Adapter {
 //                    times.append(SimpleDateFormat.getTimeInstance().format(departure.getTime())).append("  ");
 
                 } else {
-                    times.append(timeMins + " min   ");
+                    times.append(timeMins + "\u00A0min  ");
                 }
             }
             this.departsIn.setText(times.toString());
