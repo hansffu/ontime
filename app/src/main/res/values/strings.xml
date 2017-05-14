@@ -8,4 +8,5 @@
     <string name="favorite">Favoritt</string>
     <string name="add_favorite">Legg til favoritt</string>
     <string name="remove_favorite">Fjern favoritt</string>
+    <string name="favorites_header">Favoritter</string>
 </resources>

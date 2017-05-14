@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/dark_background"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_box="top"
+        android:gravity="bottom|center"
+        android:paddingBottom="12dp"
+        android:textAlignment="center"
+        android:textSize="23sp"
+        android:maxLines="1"
+        tools:text="@string/favorites_header" />
+
+</android.support.wearable.view.BoxInsetLayout>
