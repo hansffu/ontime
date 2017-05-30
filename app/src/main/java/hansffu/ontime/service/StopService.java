@@ -74,7 +74,6 @@ public class StopService implements Response.Listener<JSONArray>, Response.Error
     public void onErrorResponse(VolleyError error) {
         Log.e(TAG, "Find stops error", error);
         if (callbackHanlder != null && callbackHanlder.getContext() != null) {
-            Toast.makeText(callbackHanlder.getContext(), "Kunne ikke hente stopp", Toast.LENGTH_SHORT).show();
             callbackHanlder.stopServiceCallback(new ArrayList<Stop>(0));
         }
     }

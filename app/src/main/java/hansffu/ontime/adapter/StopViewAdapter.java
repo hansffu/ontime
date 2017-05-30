@@ -20,8 +20,8 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
 
     private static final int TYPE_HEADER = 111;
     private static final int TYPE_ITEM = 333;
-    private String headerText;
-    private List<Stop> stops;
+    private String headerText, noStopsText=null;
+    private final List<Stop> stops;
     private ItemSelectedListener itemSelectedListener;
 
     public StopViewAdapter(String headerText, List<Stop> stops) {
@@ -30,7 +30,14 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
     }
 
     public void updateStops(List<Stop> stops) {
-        this.stops = stops;
+        this.stops.clear();
+        this.stops.addAll(stops);
+        notifyDataSetChanged();
+    }
+
+    public void setNoStopsText(String noStopsText) {
+        stops.clear();
+        this.noStopsText = noStopsText;
         notifyDataSetChanged();
     }
 
@@ -59,6 +66,9 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.textView.setText(stops.get(lookupStoplistIndex).getName());
             viewHolder.bind(lookupStoplistIndex, itemSelectedListener);
+        } else if (noStopsText != null && holder instanceof ViewHolder) {
+            ViewHolder viewHolder = (ViewHolder) holder;
+            viewHolder.textView.setText(noStopsText);
         }
     }
 
@@ -77,10 +87,14 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        if (headerText != null) {
-            return stops.size() + 1;
+        int size = stops.size();
+        if (stops.isEmpty() && noStopsText != null) {
+            size = 1;
         }
-        return stops.size();
+        if (headerText != null) {
+            size++;
+        }
+        return size;
     }
 
     public List<Stop> getStops() {

@@ -10,4 +10,6 @@
     <string name="remove_favorite">Fjern favoritt</string>
     <string name="favorites_header">Favoritter</string>
     <string name="nearby_header">I nærheten</string>
+    <string name="favorites_tips">Finn nye favoritter i nærheten</string>
+    <string name="no_stops_found">Fant ingen stopp i nærheten</string>
 </resources>

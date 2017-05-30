@@ -9,13 +9,6 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <!--<View-->
-        <!--android:layout_width="40dp"-->
-        <!--android:layout_height="40dp"-->
-        <!--android:layout_gravity="center_vertical"-->
-        <!--android:background="@drawable/circle" />-->
-
-
     <TextView
         android:id="@+id/short_stop_name"
         android:layout_width="match_parent"

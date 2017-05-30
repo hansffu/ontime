@@ -203,6 +203,11 @@ public class NearbyFragment extends Fragment implements
     public void stopServiceCallback(List<Stop> stops) {
         this.stops = stops;
         mProgressBar.setVisibility(View.GONE);
-        stopAdapter.updateStops(stops);
+        if (!stops.isEmpty()) {
+            stopAdapter.updateStops(stops);
+        } else{
+            stopAdapter.setNoStopsText(getContext().getString(R.string.no_stops_found));
+        }
+
     }
 }

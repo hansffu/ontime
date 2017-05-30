@@ -21,9 +21,9 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "hansffu.ontime"
-        minSdkVersion 23
+        minSdkVersion 25
         targetSdkVersion 25
-        versionCode 5
+        versionCode 6
         versionName "1.0"
         signingConfig signingConfigs.config
 
