@@ -119,12 +119,12 @@ public class TimetableAdapter extends RecyclerView.Adapter {
     }
 
     //our header/footer RecyclerView.ViewHolder is just a FrameLayout
-    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+    private static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView stopNameView;
 
         HeaderViewHolder(View itemView) {
             super(itemView);
-            stopNameView = (TextView) itemView.findViewById(R.id.stop_name);
+            stopNameView = (TextView) itemView.findViewById(R.id.short_stop_name);
         }
 
         void update(String stopName) {

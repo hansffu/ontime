@@ -9,14 +9,14 @@
     >
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/stop_list_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_box="top"
         android:gravity="bottom|center"
         android:paddingBottom="12dp"
         android:textAlignment="center"
-        android:textSize="23sp"
+        android:textSize="22sp"
         android:maxLines="1"
         tools:text="@string/favorites_header" />
 

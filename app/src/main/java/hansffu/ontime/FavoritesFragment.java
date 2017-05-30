@@ -50,7 +50,7 @@ public class FavoritesFragment extends Fragment {
     private void setListContent() {
         final List<Stop> stops = favoriteService.getFavorites();
 
-        StopViewAdapter adapter = new StopViewAdapter(stops);
+        StopViewAdapter adapter = new StopViewAdapter(getContext().getString(R.string.favorites_header), stops);
         adapter.setListener(new StopViewAdapter.ItemSelectedListener() {
             @Override
             public void onItemSelected(int position) {

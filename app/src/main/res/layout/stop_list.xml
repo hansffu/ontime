@@ -13,19 +13,22 @@
         android:background="@color/dark_background"
         android:clipToPadding="false"
         android:paddingBottom="50dp"
-        android:paddingTop="50dp"
         android:scrollbars="vertical"
         app:layout_box="left|right"/>
 
-    <ProgressBar
-        android:id="@+id/stop_list_progress_bar"
-        style="@android:style/Widget.Material.ProgressBar.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingTop="90dp"
-        android:visibility="gone"
-        app:layout_box="all"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_box="all">
+        <ProgressBar
+            android:id="@+id/stop_list_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            />
+
+    </FrameLayout>
 
 
 </android.support.wearable.view.BoxInsetLayout>

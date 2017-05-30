@@ -21,7 +21,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "hansffu.ontime"
-        minSdkVersion 25
+        minSdkVersion 23
         targetSdkVersion 25
         versionCode 5
         versionName "1.0"
@@ -45,10 +45,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.android.support:wearable:2.0.1'
-    compile 'com.google.android.gms:play-services-wearable:10.2.4'
-    provided 'com.google.android.wearable:wearable:2.0.1'
-    compile 'com.google.android.gms:play-services-location:10.2.4'
+    compile 'com.google.android.support:wearable:2.0.2'
+    provided 'com.google.android.wearable:wearable:2.0.2'
+    compile 'com.google.android.gms:play-services-wearable:10.2.6'
+    compile 'com.google.android.gms:play-services-location:10.2.6'
     compile 'com.android.volley:volley:1.0.0'
     compile 'org.apache.commons:commons-collections4:4.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'

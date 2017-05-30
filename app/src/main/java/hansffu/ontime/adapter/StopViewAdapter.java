@@ -18,10 +18,14 @@ import hansffu.ontime.model.Stop;
 
 public class StopViewAdapter extends WearableRecyclerView.Adapter {
 
+    private static final int TYPE_HEADER = 111;
+    private static final int TYPE_ITEM = 333;
+    private String headerText;
     private List<Stop> stops;
     private ItemSelectedListener itemSelectedListener;
 
-    public StopViewAdapter(List<Stop> stops) {
+    public StopViewAdapter(String headerText, List<Stop> stops) {
+        this.headerText = headerText;
         this.stops = stops;
     }
 
@@ -32,18 +36,40 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == TYPE_HEADER) {
+            return new HeaderViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.stop_list_header, parent, false));
+        }
         return new ViewHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.stop_list_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        int lookupStoplistIndex = position;
+        if (headerText != null) {
+            lookupStoplistIndex--;
+            if (position == 0 && holder instanceof HeaderViewHolder) {//is header
+                HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
+                headerViewHolder.update(headerText);
+                return;
+            }
+        }
         if (!stops.isEmpty() && holder instanceof ViewHolder) {
             ViewHolder viewHolder = (ViewHolder) holder;
-            viewHolder.textView.setText(stops.get(position).getName());
-            viewHolder.bind(position, itemSelectedListener);
+            viewHolder.textView.setText(stops.get(lookupStoplistIndex).getName());
+            viewHolder.bind(lookupStoplistIndex, itemSelectedListener);
         }
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0 && headerText != null) {
+            return TYPE_HEADER;
+        }
+        return TYPE_ITEM;
+    }
+
 
     public void setListener(ItemSelectedListener itemSelectedListener) {
         this.itemSelectedListener = itemSelectedListener;
@@ -51,6 +77,9 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
+        if (headerText != null) {
+            return stops.size() + 1;
+        }
         return stops.size();
     }
 
@@ -58,17 +87,21 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
         return stops;
     }
 
+    public void setHeaderText(String headerText) {
+        this.headerText = headerText;
+    }
+
     public interface ItemSelectedListener {
         void onItemSelected(int position);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView textView;
 
         ViewHolder(View itemView) {
             super(itemView);
-            textView = (TextView) itemView.findViewById(R.id.text_item);
+            textView = (TextView) itemView.findViewById(R.id.short_stop_name);
         }
 
         void bind(final int position, final ItemSelectedListener listener) {
@@ -83,5 +116,19 @@ public class StopViewAdapter extends WearableRecyclerView.Adapter {
             });
         }
 
+    }
+
+    //our header/footer RecyclerView.ViewHolder is just a FrameLayout
+    private static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        TextView textView;
+
+        HeaderViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.stop_list_header);
+        }
+
+        void update(String headerText) {
+            this.textView.setText(headerText);
+        }
     }
 }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.wearable.view.CurvedChildLayoutManager;
 import android.support.wearable.view.WearableRecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -82,7 +83,7 @@ public class NearbyFragment extends Fragment implements
     private void setListContent() {
         stops = new ArrayList<>(0);
 
-        stopAdapter = new StopViewAdapter(stops);
+        stopAdapter = new StopViewAdapter(getString(R.string.nearby_header), stops);
         stopAdapter.setListener(new StopViewAdapter.ItemSelectedListener() {
             @Override
             public void onItemSelected(int position) {
