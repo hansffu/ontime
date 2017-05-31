@@ -14,7 +14,7 @@
         android:clipToPadding="false"
         android:paddingBottom="50dp"
         android:scrollbars="vertical"
-        app:layout_box="left|right"/>
+        />
 
     <FrameLayout
         android:layout_width="match_parent"
