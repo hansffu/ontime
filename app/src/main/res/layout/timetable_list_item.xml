@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
@@ -39,14 +38,22 @@
             android:textSize="16sp"
             tools:text="Fornebu Ekspress" />
 
-        <TextView
-            android:id="@+id/departs_in"
-            android:layout_width="wrap_content"
+        <!--<TextView-->
+            <!--android:id="@+id/departs_in"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="start"-->
+            <!--android:maxLines="1"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:textSize="14sp"-->
+            <!--tools:text="2 min  3min  19:30  5min  6min  7min  8min" />-->
+
+        <android.support.wearable.view.WearableRecyclerView
+            android:id="@+id/departs_in_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:maxLines="1"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            tools:text="2 min  3min  19:30  5min  6min  7min  8min" />
+            android:orientation="horizontal"
+            android:scrollbars="none"
+            tools:listitem="@layout/departs_in_list_item"/>
     </LinearLayout>
 </LinearLayout>

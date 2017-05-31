@@ -84,7 +84,7 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
                 layoutManager.getOrientation());
 //        mStopListView.addItemDecoration(mDividerItemDecoration);
 
-        adapter = new TimetableAdapter(stopName, new ArrayList<List<Departure>>());
+        adapter = new TimetableAdapter(this, stopName, new ArrayList<List<Departure>>());
         mStopListView.setAdapter(adapter);
 
         mActionMenu.setOnMenuItemClickListener(this);
