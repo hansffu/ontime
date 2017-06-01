@@ -28,9 +28,10 @@
             android:layout_height="match_parent"
             android:paddingBottom="50dp"
             android:clipToPadding="true"
+            android:scrollbars="vertical"
+            android:clickable="true"
             tools:listheader="@layout/timetable_list_header"
             tools:listitem="@layout/timetable_list_item"
-            app:layout_box="left|right"
             />
 
     </android.support.wearable.view.BoxInsetLayout>

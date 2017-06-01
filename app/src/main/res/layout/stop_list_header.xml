@@ -12,7 +12,7 @@
         android:id="@+id/stop_list_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_box="top"
+        app:layout_box="top|left|right"
         android:gravity="bottom|center"
         android:paddingBottom="12dp"
         android:textAlignment="center"

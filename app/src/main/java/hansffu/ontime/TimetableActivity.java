@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.WearableRecyclerView;
 import android.support.wearable.view.drawer.WearableActionDrawer;
 import android.util.Log;
@@ -82,9 +83,9 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
 
         DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(mStopListView.getContext(),
                 layoutManager.getOrientation());
-//        mStopListView.addItemDecoration(mDividerItemDecoration);
+        mStopListView.addItemDecoration(mDividerItemDecoration);
 
-        adapter = new TimetableAdapter(stopName, new ArrayList<List<Departure>>());
+        adapter = new TimetableAdapter(this, stopName, new ArrayList<List<Departure>>());
         mStopListView.setAdapter(adapter);
 
         mActionMenu.setOnMenuItemClickListener(this);
