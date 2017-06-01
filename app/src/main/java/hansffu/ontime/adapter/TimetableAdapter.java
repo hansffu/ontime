@@ -74,6 +74,7 @@ public class TimetableAdapter extends RecyclerView.Adapter {
         if (!departures.isEmpty() && holder instanceof ViewHolder) {
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.update(departures.get(lookupStoplistIndex));
+//            viewHolder.setBrighterColor(lookupStoplistIndex % 2 == 0);
         }
     }
 
@@ -100,6 +101,7 @@ public class TimetableAdapter extends RecyclerView.Adapter {
         private TextView lineNumber;
         private TextView destination;
         private WearableRecyclerView departsInList;
+        private View itemView;
         private LinearLayoutManager stopTimesLayoutManager;
         boolean isExpanded = false;
 
@@ -109,7 +111,8 @@ public class TimetableAdapter extends RecyclerView.Adapter {
             destination = (TextView) itemView.findViewById(R.id.destination);
 //            departsIn = (TextView) itemView.findViewById(R.id.departs_in);
             departsInList = (WearableRecyclerView) itemView.findViewById(R.id.departs_in_list);
-            stopTimesAdapter = new StopTimesAdapter();
+            this.itemView = itemView;
+            stopTimesAdapter = new StopTimesAdapter(this);
             departsInList.setAdapter(stopTimesAdapter);
 
             stopTimesLayoutManager = new LinearLayoutManager(context, HORIZONTAL, false);
@@ -140,11 +143,21 @@ public class TimetableAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onClick(View v) {
-            stopTimesLayoutManager.setOrientation(isExpanded ? HORIZONTAL : VERTICAL);
-            stopTimesAdapter.setExpanded(!isExpanded);
-//            v.setBackgroundColor(context.getColor(isExpanded ? R.color.dark_background : R.color.light_background));
-            isExpanded = !isExpanded;
+            toggleExpanded();
         }
+
+        private void toggleExpanded() {
+            isExpanded = !isExpanded;
+            stopTimesLayoutManager.setOrientation(isExpanded ? VERTICAL : HORIZONTAL);
+            stopTimesAdapter.setExpanded(isExpanded);
+            setBrighterColor(isExpanded);
+            destination.setMaxLines(isExpanded ? 3 : 1);
+        }
+
+        void setBrighterColor(boolean brighterColor) {
+            itemView.setBackgroundColor(context.getColor(brighterColor ? R.color.light_background : R.color.dark_background));
+        }
+
     }
 
     //our header/footer RecyclerView.ViewHolder is just a FrameLayout
@@ -159,6 +172,8 @@ public class TimetableAdapter extends RecyclerView.Adapter {
         void update(String stopName) {
             this.stopNameView.setText(stopName);
         }
+
+
     }
 
 }

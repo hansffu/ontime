@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout"
+    android:id="@+id/view_holder1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/dark_background"
@@ -11,49 +12,51 @@
     android:padding="2dp"
     android:weightSum="1">
 
-    <TextView
-        android:id="@+id/line_number"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center"
-        android:background="@drawable/circle"
-        android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        tools:text="31E" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:orientation="vertical">
+
+        android:id="@+id/view_holder2"
+        app:layout_box="left|right">
 
         <TextView
-            android:id="@+id/destination"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:maxLines="2"
-            android:textColor="@color/colorAccent"
-            android:textSize="16sp"
-            tools:text="Fornebu Ekspress" />
+            android:id="@+id/line_number"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/circle"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            tools:text="31E" />
 
-        <!--<TextView-->
-            <!--android:id="@+id/departs_in"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="start"-->
-            <!--android:maxLines="1"-->
-            <!--android:textColor="@color/white"-->
-            <!--android:textSize="14sp"-->
-            <!--tools:text="2 min  3min  19:30  5min  6min  7min  8min" />-->
-
-        <android.support.wearable.view.WearableRecyclerView
-            android:id="@+id/departs_in_list"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:scrollbars="none"
-            tools:listitem="@layout/departs_in_list_item"/>
+            android:id="@+id/view_holder3"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/destination"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                tools:text="Fornebu Ekspress" />
+
+
+            <android.support.wearable.view.WearableRecyclerView
+                android:id="@+id/departs_in_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:scrollbars="none"
+                android:clickable="true"
+                tools:listitem="@layout/departs_in_list_item"/>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</android.support.wearable.view.BoxInsetLayout>

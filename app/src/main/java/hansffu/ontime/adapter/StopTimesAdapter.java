@@ -20,8 +20,10 @@ public class StopTimesAdapter extends WearableRecyclerView.Adapter {
 
     private final List<String> timeList;
     private boolean isExpanded = false;
+    private View.OnClickListener listener;
 
-    public StopTimesAdapter() {
+    public StopTimesAdapter(View.OnClickListener listener) {
+        this.listener = listener;
         this.timeList = new ArrayList<>();
     }
 
@@ -34,6 +36,7 @@ public class StopTimesAdapter extends WearableRecyclerView.Adapter {
         this.isExpanded = isExpanded;
         notifyDataSetChanged();
     }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -58,10 +61,12 @@ public class StopTimesAdapter extends WearableRecyclerView.Adapter {
         TextViewHolder(View view) {
             super(view);
             this.textView = (TextView) view.findViewById(R.id.departs_in_item);
+            view.setOnClickListener(listener);
         }
 
         private void update(String time) {
             textView.setText(time);
         }
+
     }
 }
