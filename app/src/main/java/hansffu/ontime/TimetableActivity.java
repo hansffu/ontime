@@ -164,12 +164,13 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
     }
 
     private Departure mapJsonResponseToDeparture(JSONObject departureJSON) throws JSONException {
-        String lineRef, direction, lineNumber, name, rawTime;
+        String lineRef, direction, lineNumber, destName, destRef, rawTime;
 
         lineRef = departureJSON.getJSONObject("MonitoredVehicleJourney").getString("LineRef");
         direction = departureJSON.getJSONObject("MonitoredVehicleJourney").getString("DirectionRef");
         lineNumber = departureJSON.getJSONObject("MonitoredVehicleJourney").getString("PublishedLineName");
-        name = departureJSON.getJSONObject("MonitoredVehicleJourney").getString("DestinationName");
+        destName = departureJSON.getJSONObject("MonitoredVehicleJourney").getString("DestinationName");
+        destRef = departureJSON.getJSONObject("MonitoredVehicleJourney").getString("DestinationRef");
         rawTime = departureJSON.getJSONObject("MonitoredVehicleJourney").
                 getJSONObject("MonitoredCall").getString("ExpectedDepartureTime");
 
@@ -183,7 +184,7 @@ public class TimetableActivity extends Activity implements WearableActionDrawer.
             departureTime = new Date();
         }
 
-        return new Departure(lineRef, direction, lineNumber, name, departureTime);
+        return new Departure(lineRef, direction, lineNumber, destName, destRef, departureTime);
     }
 
     private void toggleFavorite(boolean isFavorite, MenuItem menuItem) {

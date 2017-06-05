@@ -9,13 +9,15 @@ import java.util.Date;
 public class Departure {
     private final LineDirectionRef lineDirectionRef;
     private final String lineNumber, destination;
+    private final String destinationRef;
     private final Date time;
 
-    public Departure(String lineRef, String direction, String lineNumber, String destination, Date time) {
+    public Departure(String lineRef, String direction, String lineNumber, String destination, String destinationRef, Date time) {
         this.lineNumber = lineNumber;
         this.destination = destination;
+        this.destinationRef = destinationRef;
         this.time = time;
-        this.lineDirectionRef = LineDirectionRefFactory.create(lineRef, direction);
+        this.lineDirectionRef = LineDirectionRefFactory.create(lineRef, destinationRef);
     }
 
     public String getLineNumber() {

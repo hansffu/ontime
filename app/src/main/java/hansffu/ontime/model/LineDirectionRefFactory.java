@@ -10,8 +10,8 @@ import java.util.List;
 public class LineDirectionRefFactory {
     static List<LineDirectionRef> existing = new LinkedList<>();
 
-    public static LineDirectionRef create(String lineRef, String direction) {
-        LineDirectionRef newRef = new LineDirectionRef(lineRef, direction);
+    public static LineDirectionRef create(String lineRef, String destinationRef) {
+        LineDirectionRef newRef = new LineDirectionRef(lineRef, destinationRef);
         for (LineDirectionRef oldRef : existing) {
             if (newRef.equals(oldRef)) {
                 return oldRef;

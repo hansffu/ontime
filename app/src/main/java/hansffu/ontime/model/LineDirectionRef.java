@@ -7,17 +7,17 @@ public class LineDirectionRef {
     private final String lineRef;
     private final String direction;
 
-    LineDirectionRef(String lineRef, String direction) {
+    LineDirectionRef(String lineRef, String destinationRef) {
 
         this.lineRef = lineRef;
-        this.direction = direction;
+        this.direction = destinationRef;
     }
 
     public String getLineRef() {
         return lineRef;
     }
 
-    public String getDirection() {
+    public String getDestinationRef() {
         return direction;
     }
 
@@ -25,7 +25,7 @@ public class LineDirectionRef {
     public boolean equals(Object otherObj) {
         if (otherObj instanceof LineDirectionRef) {
             LineDirectionRef other = (LineDirectionRef) otherObj;
-            return lineRef.equals(other.getLineRef()) && direction.equals(other.getDirection());
+            return lineRef.equals(other.getLineRef()) && direction.equals(other.getDestinationRef());
         }
         return false;
     }
