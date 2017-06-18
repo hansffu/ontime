@@ -30,6 +30,7 @@ public class StopTimesAdapter extends WearableRecyclerView.Adapter {
     void update(List<String> times) {
         timeList.clear();
         timeList.addAll(times);
+        notifyDataSetChanged();
     }
 
     void setExpanded(boolean isExpanded) {
