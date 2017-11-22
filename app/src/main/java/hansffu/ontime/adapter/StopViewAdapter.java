@@ -1,7 +1,7 @@
 package hansffu.ontime.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.support.wearable.view.WearableRecyclerView;
+import android.support.wear.widget.WearableRecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +11,6 @@ import java.util.List;
 
 import hansffu.ontime.R;
 import hansffu.ontime.model.Stop;
-
-/**
- * Created by hansffu on 04.02.17.
- */
 
 public class StopViewAdapter extends WearableRecyclerView.Adapter {
 
