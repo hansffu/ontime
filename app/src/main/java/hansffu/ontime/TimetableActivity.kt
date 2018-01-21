@@ -14,6 +14,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import hansffu.ontime.adapter.TimetableAdapter
+import hansffu.ontime.extensions.mapToList
 import hansffu.ontime.model.Departure
 import hansffu.ontime.model.LineDirectionRef
 import hansffu.ontime.model.Stop
@@ -80,8 +81,7 @@ class TimetableActivity : Activity(), WearableActionDrawer.OnMenuItemClickListen
         val requestQueue = Volley.newRequestQueue(this)
         val request = JsonArrayRequest(url, Response.Listener { response ->
             val departures = ArrayListValuedHashMap<LineDirectionRef, Departure>()
-            (0 until response.length())
-                    .map { mapJsonResponseToDeparture(response.getJSONObject(it)) }
+            response.mapToList { mapJsonResponseToDeparture(it) }
                     .forEach { departures.put(it.lineDirectionRef, it) }
 
             adapter.setDepartures(multimapToLSortedistOfListsOfDepartures(departures))

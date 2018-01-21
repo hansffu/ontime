@@ -2,6 +2,7 @@ package hansffu.ontime
 
 import android.Manifest
 import android.app.Fragment
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -152,7 +153,7 @@ class NearbyFragment : Fragment(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         }
     }
 
-    override fun stopServiceCallback(stops: MutableList<Stop>) {
+    override fun stopServiceCallback(stops: List<Stop>) {
         this.stops.clear()
         this.stops.addAll(stops)
         stop_list_progress_bar.visibility = View.GONE
