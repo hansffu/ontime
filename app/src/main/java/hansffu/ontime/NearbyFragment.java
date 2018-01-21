@@ -34,10 +34,6 @@ import hansffu.ontime.conversion.Deg2UTM;
 import hansffu.ontime.model.Stop;
 import hansffu.ontime.service.StopService;
 
-import static hansffu.ontime.TimetableActivity.STOP_ID;
-import static hansffu.ontime.TimetableActivity.STOP_NAME;
-
-
 public class NearbyFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -87,8 +83,8 @@ public class NearbyFragment extends Fragment implements
             @Override
             public void onItemSelected(int position) {
                 Intent startTimetableActivity = new Intent(NearbyFragment.this.getActivity(), TimetableActivity.class);
-                startTimetableActivity.putExtra(STOP_ID, stops.get(position).getId());
-                startTimetableActivity.putExtra(STOP_NAME, stops.get(position).getName());
+                startTimetableActivity.putExtra(TimetableActivity.STOP_ID, stops.get(position).getId());
+                startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, stops.get(position).getName());
                 NearbyFragment.this.startActivity(startTimetableActivity);
             }
         });
@@ -134,8 +130,6 @@ public class NearbyFragment extends Fragment implements
 
                 } else {
                     Toast.makeText(getContext(), "Ikke tilgang til plassering", Toast.LENGTH_SHORT).show();
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
             }
 

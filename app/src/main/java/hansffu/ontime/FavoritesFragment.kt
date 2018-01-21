@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import hansffu.ontime.TimetableActivity.STOP_ID
-import hansffu.ontime.TimetableActivity.STOP_NAME
+import hansffu.ontime.TimetableActivity.Companion.STOP_ID
+import hansffu.ontime.TimetableActivity.Companion.STOP_NAME
 import hansffu.ontime.adapter.StopViewAdapter
 import hansffu.ontime.service.FavoriteService
 import kotlinx.android.synthetic.main.stop_list.*
