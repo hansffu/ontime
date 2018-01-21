@@ -8,6 +8,8 @@ import android.widget.TextView
 
 import hansffu.ontime.R
 import hansffu.ontime.model.Stop
+import kotlinx.android.synthetic.main.stop_list_header.view.*
+import kotlinx.android.synthetic.main.stop_list_item.view.*
 
 class StopViewAdapter(private var headerText: String, private val stops: MutableList<Stop>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var noStopsText: String? = null
@@ -35,16 +37,16 @@ class StopViewAdapter(private var headerText: String, private val stops: Mutable
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is HeaderViewHolder) {
-            holder.update(headerText)
+            holder.headerText = headerText
             return
         }
 
         val lookupStoplistIndex = position - 1
         if (!stops.isEmpty() && holder is StopViewHolder) {
-            holder.textView.text = stops[lookupStoplistIndex].name
+            holder.stopName = stops[lookupStoplistIndex].name
             holder.bind(lookupStoplistIndex, itemSelectedListener)
         } else if (noStopsText != null && holder is StopViewHolder) {
-            holder.textView.text = noStopsText
+            holder.stopName = noStopsText as String
         }
     }
 
@@ -78,12 +80,15 @@ class StopViewAdapter(private var headerText: String, private val stops: Mutable
     }
 }
 
-private class StopViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
+private class StopViewHolder internal constructor(item: View) : RecyclerView.ViewHolder(item) {
 
-    internal var textView: TextView = itemView.findViewById<View>(R.id.short_stop_name) as TextView
+    internal var stopName: String
+    set(value) {
+        itemView.short_stop_name.text = value
+    }
+    get() = itemView.short_stop_name.text.toString()
 
     internal fun bind(position: Int, listener: StopViewAdapter.ItemSelectedListener?) {
-
         itemView.setOnClickListener {
             listener?.onItemSelected(position)
         }
@@ -91,11 +96,11 @@ private class StopViewHolder internal constructor(itemView: View) : RecyclerView
 
 }
 
-//our header/footer RecyclerView.StopViewHolder is just a FrameLayout
-private class HeaderViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    internal var textView: TextView = itemView.findViewById<View>(R.id.stop_list_header) as TextView
+private class HeaderViewHolder internal constructor(item: View) : RecyclerView.ViewHolder(item) {
 
-    internal fun update(headerText: String) {
-        this.textView.text = headerText
-    }
+    internal var headerText: String
+        set(value) {
+            itemView.stop_list_header.text = value
+        }
+        get() = itemView.stop_list_header.text.toString()
 }
