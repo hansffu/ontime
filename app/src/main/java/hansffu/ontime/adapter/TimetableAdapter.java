@@ -159,7 +159,7 @@ public class TimetableAdapter extends RecyclerView.Adapter {
 
     }
 
-    //our header/footer RecyclerView.ViewHolder is just a FrameLayout
+    //our header/footer RecyclerView.StopViewHolder is just a FrameLayout
     private static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView stopNameView;
 
