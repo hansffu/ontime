@@ -76,7 +76,7 @@ class TimetableActivity : Activity(), WearableActionDrawer.OnMenuItemClickListen
     }
 
     private fun updateTimetibles(adapter: TimetableAdapter) {
-        val url = "http://reisapi.ruter.no/StopVisit/GetDepartures/" + stopId
+        val url = "https://reisapi.ruter.no/StopVisit/GetDepartures/" + stopId
 
         val requestQueue = Volley.newRequestQueue(this)
         val request = JsonArrayRequest(url, Response.Listener { response ->

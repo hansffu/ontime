@@ -18,13 +18,13 @@ android {
             }
         }
     }
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "hansffu.ontime"
         minSdkVersion 25
-        targetSdkVersion 26
-        versionCode 12
+        targetSdkVersion 27
+        versionCode 13
         versionName "1.1"
         signingConfig signingConfigs.config
 

@@ -23,7 +23,7 @@ class StopService(private val callbackHandler: StopServiceCallbackHandler) : Res
 
 
     fun findStopsNear(east: Double?, north: Double?) {
-        val url = String.format("http://reisapi.ruter.no/Place/GetClosestStops?coordinates=(x=%d,y=%d)", east!!.toInt(), north!!.toInt())
+        val url = String.format("https://reisapi.ruter.no/Place/GetClosestStops?coordinates=(x=%d,y=%d)", east!!.toInt(), north!!.toInt())
         Log.d(TAG, "Closest stops url: " + url)
 
         val requestQueue = Volley.newRequestQueue(callbackHandler.getContext())
