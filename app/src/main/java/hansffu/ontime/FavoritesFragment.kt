@@ -28,7 +28,7 @@ class FavoritesFragment : Fragment() {
     }
 
     private fun setListContent() {
-        val stops = favoriteService.favorites.toMutableList()
+        val stops = favoriteService.getFavorites().toMutableList()
 
         val adapter = StopViewAdapter(context!!.getString(R.string.favorites_header), stops)
         adapter.setListener(object : StopViewAdapter.ItemSelectedListener {

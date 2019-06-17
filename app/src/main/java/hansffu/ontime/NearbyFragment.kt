@@ -14,11 +14,7 @@ import com.google.android.gms.common.api.Status
 import hansffu.ontime.adapter.StopViewAdapter
 import hansffu.ontime.conversion.Deg2UTM
 import hansffu.ontime.model.Stop
-import hansffu.ontime.service.StopService
-import hansffu.ontime.service.checkLocationPermission
-import hansffu.ontime.service.handlePermissionResult
-import hansffu.ontime.service.requestLocationPermission
-import hansffu.ontime.service.requestWatchLocation
+import hansffu.ontime.service.*
 import kotlinx.android.synthetic.main.stop_list.*
 
 class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServiceCallbackHandler {
@@ -35,6 +31,12 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
         super.onActivityCreated(savedInstanceState)
 
         setListContent()
+//        activity?.let { requestLocation(it) }
+
+        val location = Location("flp")
+        location.longitude = 10.796757
+        location.latitude = 59.932715
+        onLocationChanged(location)
     }
 
     private fun setListContent() {

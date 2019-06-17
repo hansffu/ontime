@@ -2,15 +2,13 @@ package hansffu.ontime
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.wearable.view.drawer.WearableActionDrawer
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Response
+import com.android.volley.Response.Listener
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import hansffu.ontime.adapter.TimetableAdapter
@@ -19,18 +17,15 @@ import hansffu.ontime.model.Departure
 import hansffu.ontime.model.LineDirectionRef
 import hansffu.ontime.model.Stop
 import hansffu.ontime.service.FavoriteService
+import hansffu.ontime.service.mapJsonResponseToDeparture
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_timetable.*
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap
-import org.json.JSONException
-import org.json.JSONObject
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
-class TimetableActivity : Activity(), WearableActionDrawer.OnMenuItemClickListener {
+class TimetableActivity : Activity() {
 
 
     private val adapter: TimetableAdapter by lazy { TimetableAdapter(this, stopName, ArrayList()) }
@@ -42,18 +37,19 @@ class TimetableActivity : Activity(), WearableActionDrawer.OnMenuItemClickListen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable)
 
-        val layoutManager = LinearLayoutManager(this)
-        departure_list.layoutManager = layoutManager
+//        val layoutManager = LinearLayoutManager(this)
+//        departure_list.layoutManager = layoutManager
 
         departure_list.setHasFixedSize(true)
 
-        val mDividerItemDecoration = DividerItemDecoration(departure_list.context,
-                layoutManager.orientation)
-        departure_list.addItemDecoration(mDividerItemDecoration)
+//        val mDividerItemDecoration = DividerItemDecoration(departure_list.context,
+//                layoutManager.orientation)
+//        departure_list.addItemDecoration(mDividerItemDecoration)
 
         departure_list.adapter = adapter
 
-        bottom_action_drawer.setOnMenuItemClickListener(this)
+        bottom_action_drawer.setOnMenuItemClickListener { onMenuItemClick(it) }
+        bottom_action_drawer.controller.peekDrawer()
 
         val toggleFavoriteMenuItem = bottom_action_drawer.menu.findItem(R.id.toggle_favorite)
         val favorite = favoriteService.isFavorite(Stop(stopName, stopId))
@@ -79,9 +75,9 @@ class TimetableActivity : Activity(), WearableActionDrawer.OnMenuItemClickListen
         val url = "https://reisapi.ruter.no/StopVisit/GetDepartures/" + stopId
 
         val requestQueue = Volley.newRequestQueue(this)
-        val request = JsonArrayRequest(url, Response.Listener { response ->
+        val request = JsonArrayRequest(url, Listener { response ->
             val departures = ArrayListValuedHashMap<LineDirectionRef, Departure>()
-            response.mapToList { mapJsonResponseToDeparture(it) }
+            response.mapToList { mapJsonResponseToDeparture(TAG, it) }
                     .forEach { departures.put(it.lineDirectionRef, it) }
 
             adapter.setDepartures(multimapToLSortedistOfListsOfDepartures(departures))
@@ -108,42 +104,19 @@ class TimetableActivity : Activity(), WearableActionDrawer.OnMenuItemClickListen
         return list
     }
 
-    @Throws(JSONException::class)
-    private fun mapJsonResponseToDeparture(departureJSON: JSONObject): Departure {
-        val mvj = departureJSON.getJSONObject("MonitoredVehicleJourney")
-        val lineRef: String = mvj.getString("LineRef")
-        val direction: String = mvj.getString("DirectionRef")
-        val lineNumber: String = mvj.getString("PublishedLineName")
-        val destName: String = mvj.getString("DestinationName")
-        val destRef: String = mvj.getString("DestinationRef")
-        val rawTime: String = mvj.getJSONObject("MonitoredCall").getString("ExpectedDepartureTime")
-
-        //2017-02-07T00:18:03.7026463+01:00
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-        var departureTime: Date
-        try {
-            departureTime = sdf.parse(rawTime)
-        } catch (e: ParseException) {
-            Log.e(TAG, "parse error: " + rawTime, e)
-            departureTime = Date()
-        }
-
-        return Departure(lineRef, direction, lineNumber, destName, destRef, departureTime)
-    }
 
     private fun toggleFavorite(isFavorite: Boolean, menuItem: MenuItem) {
         menuItem.setIcon(if (isFavorite) R.drawable.ic_favorite_white_48dp else R.drawable.ic_favorite_border_white_48dp)
         menuItem.setTitle(if (isFavorite) R.string.add_favorite else R.string.remove_favorite)
     }
 
-    override fun onMenuItemClick(menuItem: MenuItem): Boolean {
+    private fun onMenuItemClick(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.toggle_favorite) {
             Observable.just(Stop(stopName, stopId))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .map { stop -> favoriteService.toggleFavorite(stop) }
                     .subscribe({ toggleFavorite(it, menuItem) })
-
             return true
         }
         return false
