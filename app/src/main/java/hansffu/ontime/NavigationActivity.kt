@@ -17,7 +17,7 @@ class NavigationActivity : FragmentActivity() {
         top_navigation_drawer.addOnItemSelectedListener { onItemSelected(it) }
         top_navigation_drawer.controller.peekDrawer()
 
-        if (FavoriteService(this).favorites.isEmpty()) {
+        if (FavoriteService(this).getFavorites().isEmpty()) {
             onItemSelected(1)
         } else {
             onItemSelected(0)
