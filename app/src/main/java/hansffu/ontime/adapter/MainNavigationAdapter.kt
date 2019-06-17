@@ -1,7 +1,8 @@
 package hansffu.ontime.adapter
 
-import android.app.Fragment
 import android.graphics.drawable.Drawable
+import android.support.v4.app.Fragment
+import android.support.wear.widget.drawer.WearableNavigationDrawerView
 import android.support.wearable.view.drawer.WearableNavigationDrawer
 import android.util.Log
 import hansffu.ontime.FavoritesFragment
@@ -9,13 +10,9 @@ import hansffu.ontime.NavigationActivity
 import hansffu.ontime.NearbyFragment
 import hansffu.ontime.R
 
-class MainNavigationAdapter(private val navigationActivity: NavigationActivity) : WearableNavigationDrawer.WearableNavigationDrawerAdapter() {
+class MainNavigationAdapter(private val navigationActivity: NavigationActivity) : WearableNavigationDrawerView.WearableNavigationDrawerAdapter() {
 
     private val TAG = "MainNavigationAdapter"
-
-    init {
-        onItemSelected(0)
-    }
 
     override fun getItemText(i: Int): String =
             navigationActivity.getString(MenuItem.values()[i].textId)
@@ -23,17 +20,6 @@ class MainNavigationAdapter(private val navigationActivity: NavigationActivity) 
     override fun getItemDrawable(i: Int): Drawable? =
             navigationActivity.getDrawable(MenuItem.values()[i].iconId)
 
-    override fun onItemSelected(i: Int) {
-        val fragmentManager = navigationActivity.fragmentManager
-        try {
-            fragmentManager.beginTransaction().replace(R.id.content, MenuItem.values()[i].contentFragment.newInstance()).commit()
-        } catch (e: InstantiationException) {
-            Log.e(TAG, "Could not create fragment: " + MenuItem.values()[i].contentFragment.name)
-        } catch (e: IllegalAccessException) {
-            Log.e(TAG, "Could not create fragment: " + MenuItem.values()[i].contentFragment.name)
-        }
-
-    }
 
     override fun getCount() = MenuItem.values().size
 

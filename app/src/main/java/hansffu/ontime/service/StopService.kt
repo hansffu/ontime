@@ -53,7 +53,7 @@ class StopService(private val callbackHandler: StopServiceCallbackHandler) : Res
     }
 
     interface StopServiceCallbackHandler {
-        fun getContext(): Context
+        fun getContext(): Context?
         fun stopServiceCallback(stops: List<Stop>)
     }
 

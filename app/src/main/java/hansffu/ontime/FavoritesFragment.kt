@@ -1,8 +1,8 @@
 package hansffu.ontime
 
-import android.app.Fragment
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.stop_list.*
 
 class FavoritesFragment : Fragment() {
 
-    private val favoriteService: FavoriteService by lazy { FavoriteService(context) }
+    private val favoriteService: FavoriteService by lazy { FavoriteService(this.context!!) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -30,7 +30,7 @@ class FavoritesFragment : Fragment() {
     private fun setListContent() {
         val stops = favoriteService.favorites.toMutableList()
 
-        val adapter = StopViewAdapter(context.getString(R.string.favorites_header), stops)
+        val adapter = StopViewAdapter(context!!.getString(R.string.favorites_header), stops)
         adapter.setListener(object : StopViewAdapter.ItemSelectedListener {
             override fun onItemSelected(position: Int) {
                 val startTimetableActivity = Intent(activity, TimetableActivity::class.java)
@@ -41,7 +41,7 @@ class FavoritesFragment : Fragment() {
         })
 
         if (stops.isEmpty()) {
-            adapter.setNoStopsText(context.getString(R.string.favorites_tips))
+            adapter.setNoStopsText(context!!.getString(R.string.favorites_tips))
         }
         stop_list.adapter = adapter
     }
