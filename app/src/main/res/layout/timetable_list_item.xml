@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/view_holder1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark_background"
-    android:clickable="true"
     android:orientation="horizontal"
     android:padding="2dp"
     android:weightSum="1">
@@ -49,7 +47,7 @@
                 tools:text="Fornebu Ekspress" />
 
 
-            <android.support.wearable.view.WearableRecyclerView
+            <android.support.wear.widget.WearableRecyclerView
                 android:id="@+id/departs_in_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,4 +57,4 @@
                 tools:listitem="@layout/departs_in_list_item"/>
         </LinearLayout>
     </LinearLayout>
-</android.support.wearable.view.BoxInsetLayout>
+</android.support.wear.widget.BoxInsetLayout>

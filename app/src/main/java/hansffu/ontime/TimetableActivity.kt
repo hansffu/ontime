@@ -2,6 +2,7 @@ package hansffu.ontime
 
 import android.app.Activity
 import android.os.Bundle
+import android.support.wear.widget.WearableLinearLayoutManager
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -27,26 +28,27 @@ import java.util.*
 
 class TimetableActivity : Activity() {
 
-
-    private val adapter: TimetableAdapter by lazy { TimetableAdapter(this, stopName, ArrayList()) }
-    private val stopId: Long by lazy { intent.getLongExtra(STOP_ID, 0) }
-    private val stopName: String by lazy { intent.getStringExtra(STOP_NAME) }
-    private val favoriteService: FavoriteService by lazy { FavoriteService(this) }
+    private lateinit var timetableAdapter: TimetableAdapter
+    private var stopId: Long = 0
+    private lateinit var stopName: String
+    private lateinit var favoriteService: FavoriteService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable)
 
-//        val layoutManager = LinearLayoutManager(this)
-//        departure_list.layoutManager = layoutManager
+        stopId = intent.getLongExtra(STOP_ID, 0)
+        stopName = intent.getStringExtra(STOP_NAME)
+        favoriteService = FavoriteService(this)
 
-        departure_list.setHasFixedSize(true)
+        timetableAdapter = TimetableAdapter(this, stopName)
+        departure_list.adapter = timetableAdapter
 
-//        val mDividerItemDecoration = DividerItemDecoration(departure_list.context,
-//                layoutManager.orientation)
-//        departure_list.addItemDecoration(mDividerItemDecoration)
-
-        departure_list.adapter = adapter
+        departure_list.apply {
+            adapter = timetableAdapter
+            layoutManager = WearableLinearLayoutManager(this@TimetableActivity)
+            isEdgeItemsCenteringEnabled = true
+        }
 
         bottom_action_drawer.setOnMenuItemClickListener { onMenuItemClick(it) }
         bottom_action_drawer.controller.peekDrawer()
@@ -65,9 +67,9 @@ class TimetableActivity : Activity() {
 
     private fun setListContent() {
 
-        adapter.setDepartures(ArrayList())
+        timetableAdapter.departures = ArrayList()
         progress_bar.visibility = View.VISIBLE
-        updateTimetibles(adapter)
+        updateTimetibles(timetableAdapter)
 
     }
 
@@ -80,7 +82,7 @@ class TimetableActivity : Activity() {
             response.mapToList { mapJsonResponseToDeparture(TAG, it) }
                     .forEach { departures.put(it.lineDirectionRef, it) }
 
-            adapter.setDepartures(multimapToLSortedistOfListsOfDepartures(departures))
+            adapter.departures = multimapToLSortedistOfListsOfDepartures(departures)
             progress_bar.visibility = View.GONE
         },
                 Response.ErrorListener { error ->

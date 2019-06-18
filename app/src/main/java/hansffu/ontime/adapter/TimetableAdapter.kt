@@ -8,21 +8,20 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import hansffu.ontime.R
 import hansffu.ontime.model.Departure
-import kotlinx.android.synthetic.main.timetable_list_item.view.*
 import kotlinx.android.synthetic.main.timetable_list_header.view.*
+import kotlinx.android.synthetic.main.timetable_list_item.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TimetableAdapter(private val context: Context, private var stopName: String, private var departures: List<List<Departure>>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    fun setDepartures(departures: List<List<Departure>>) {
-        this.departures = departures
-        notifyDataSetChanged()
-    }
+class TimetableAdapter(private val context: Context, private var stopName: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    var departures: List<List<Departure>> = emptyList()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == TYPE_HEADER) {
@@ -81,8 +80,12 @@ private class TimeHolder internal constructor(private val item: View, private va
     init {
         item.departs_in_list.adapter = stopTimesAdapter
         stopTimesLayoutManager = LinearLayoutManager(context, HORIZONTAL, false)
-        item.departs_in_list.layoutManager = stopTimesLayoutManager
         itemView.setOnClickListener(this)
+        item.departs_in_list.apply {
+            layoutManager = stopTimesLayoutManager
+            isFocusableInTouchMode = false
+        }
+
     }
 
     internal fun update(lineDepartures: List<Departure>) {
@@ -105,7 +108,7 @@ private class TimeHolder internal constructor(private val item: View, private va
 
 
     override fun onClick(v: View) {
-        toggleExpanded()
+//        toggleExpanded()
     }
 
     private fun toggleExpanded() {
