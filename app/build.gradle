@@ -20,7 +20,7 @@ android {
         }
     }
     compileSdkVersion 28
-    buildToolsVersion '26.0.3'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "hansffu.ontime"
         minSdkVersion 25
@@ -46,10 +46,10 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.google.android.support:wearable:2.4.0'
-    provided 'com.google.android.wearable:wearable:2.4.0'
+    compileOnly 'com.google.android.wearable:wearable:2.4.0'
     implementation 'com.google.android.gms:play-services-wearable:16.0.1'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.android.volley:volley:1.1.0'
