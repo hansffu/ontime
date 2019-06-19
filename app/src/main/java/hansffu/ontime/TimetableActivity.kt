@@ -48,7 +48,7 @@ class TimetableActivity : Activity() {
         departure_list.apply {
             adapter = timetableAdapter
             layoutManager = WearableLinearLayoutManager(this@TimetableActivity)
-//            isEdgeItemsCenteringEnabled = true
+            isEdgeItemsCenteringEnabled = true
         }
 
         bottom_action_drawer.setOnMenuItemClickListener { onMenuItemClick(it) }
