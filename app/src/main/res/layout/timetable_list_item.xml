@@ -1,60 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/view_holder1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="2dp"
-    android:weightSum="1">
+
+    android:id="@+id/view_holder2"
+    app:layout_box="left|right">
+
+    <TextView
+        android:id="@+id/line_number"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/circle"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        tools:text="31E" />
 
     <LinearLayout
+        android:id="@+id/view_holder3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:id="@+id/view_holder2"
-        app:layout_box="left|right">
+        android:layout_marginStart="16dp"
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/line_number"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="2dp"
-            android:background="@drawable/circle"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            tools:text="31E" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/destination"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/view_holder3"
-            android:layout_marginStart="16dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/destination"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/colorAccent"
-                android:textSize="16sp"
-                tools:text="Fornebu Ekspress" />
+            android:layout_gravity="start"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/colorAccent"
+            android:textSize="16sp"
+            tools:text="Fornebu Ekspress" />
 
 
-            <android.support.wear.widget.WearableRecyclerView
-                android:id="@+id/departs_in_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:scrollbars="none"
-                android:clickable="true"
-                tools:listitem="@layout/departs_in_list_item"/>
-        </LinearLayout>
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/departs_in_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="4dp"
+            tools:text="Nå 4 min 8 min 19:33 19:44 19:45 20:00" />
     </LinearLayout>
-</android.support.wear.widget.BoxInsetLayout>
+</LinearLayout>

@@ -8,11 +8,12 @@ import android.support.v4.app.ActivityCompat
 import android.widget.Toast
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 
 internal const val PERMISSIONS_REQUEST_FINE_LOCATION = 1
 
-fun checkLocationPermission(activity: Activity) =
-    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+fun hasLocationPermission(activity: Activity) =
+    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
 fun requestLocationPermission(activity: Activity) =
     ActivityCompat.requestPermissions(activity,
@@ -27,6 +28,10 @@ fun handlePermissionResult(activity: Activity, grantResults: IntArray): Task<Loc
 }
 
 fun requestWatchLocation(activity: Activity): Task<Location> {
-    val locationProvider = LocationServices.getFusedLocationProviderClient(activity)
-    return locationProvider.lastLocation
+    return if (hasLocationPermission(activity)) {
+        val locationProvider = LocationServices.getFusedLocationProviderClient(activity)
+        locationProvider.lastLocation
+    } else {
+        Tasks.forCanceled<Location>()
+    }
 }

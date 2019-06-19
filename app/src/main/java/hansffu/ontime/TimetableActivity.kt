@@ -1,5 +1,6 @@
 package hansffu.ontime
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.support.wear.widget.WearableLinearLayoutManager
@@ -70,6 +71,7 @@ class TimetableActivity : Activity() {
         timetableAdapter.departures = ArrayList()
         progress_bar.visibility = View.VISIBLE
         updateTimetibles(timetableAdapter)
+        departure_list.requestFocus()
 
     }
 
@@ -82,8 +84,9 @@ class TimetableActivity : Activity() {
             response.mapToList { mapJsonResponseToDeparture(TAG, it) }
                     .forEach { departures.put(it.lineDirectionRef, it) }
 
-            adapter.departures = multimapToLSortedistOfListsOfDepartures(departures)
+            adapter.departures = multimapToLSortedListOfListsOfDepartures(departures)
             progress_bar.visibility = View.GONE
+            departure_list.requestFocus()
         },
                 Response.ErrorListener { error ->
                     Log.e(TAG, "Error getting timetables", error)
@@ -97,14 +100,10 @@ class TimetableActivity : Activity() {
     }
 
 
-    private fun multimapToLSortedistOfListsOfDepartures(multimap: ArrayListValuedHashMap<LineDirectionRef, Departure>): List<List<Departure>> {
-        val list = ArrayList<List<Departure>>(multimap.keySet().size)
-        for (lineDirectionRef in multimap.keySet()) {
-            list.add(multimap.get(lineDirectionRef))
-        }
-        Collections.sort(list) { o1, o2 -> o1[0].time.compareTo(o2[0].time) }
-        return list
-    }
+    private fun multimapToLSortedListOfListsOfDepartures(multimap: ArrayListValuedHashMap<LineDirectionRef, Departure>) =
+            multimap.keySet()
+                    .map { multimap.get(it) }
+                    .sortedBy { it[0].time }
 
 
     private fun toggleFavorite(isFavorite: Boolean, menuItem: MenuItem) {
@@ -112,13 +111,14 @@ class TimetableActivity : Activity() {
         menuItem.setTitle(if (isFavorite) R.string.add_favorite else R.string.remove_favorite)
     }
 
+    @SuppressLint("CheckResult")
     private fun onMenuItemClick(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.toggle_favorite) {
             Observable.just(Stop(stopName, stopId))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .map { stop -> favoriteService.toggleFavorite(stop) }
-                    .subscribe({ toggleFavorite(it, menuItem) })
+                    .subscribe { toggleFavorite(it, menuItem) }
             return true
         }
         return false
@@ -126,11 +126,9 @@ class TimetableActivity : Activity() {
 
     companion object {
 
-        val TAG = "Stop Selector"
-        @JvmField
-        val STOP_ID = "stopId"
-        @JvmField
-        val STOP_NAME = "stopName"
+        const val TAG = "Stop Selector"
+        const val STOP_ID = "stopId"
+        const val STOP_NAME = "stopName"
     }
 
 }

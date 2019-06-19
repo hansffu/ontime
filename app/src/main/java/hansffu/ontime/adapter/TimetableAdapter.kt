@@ -28,29 +28,30 @@ class TimetableAdapter(private val context: Context, private var stopName: Strin
             StopNameHolder(LayoutInflater.from(parent.context)
                     .inflate(R.layout.timetable_list_header, parent, false))
         } else TimeHolder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.timetable_list_item, parent, false), context)
+                .inflate(R.layout.timetable_list_item, parent, false))
 
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
-        if (holder is StopNameHolder) {//is header
+        if (holder is StopNameHolder) {
             holder.update(stopName)
         }
 
-        val lookupStopListIndex = index - 1
+        val lookupStopListIndex = index
         if (holder is TimeHolder) {
             holder.update(departures[lookupStopListIndex])
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) {
-            TYPE_HEADER
-        } else TYPE_ITEM
+        return TYPE_ITEM
+//        return if (position == 0) {
+//            TYPE_HEADER
+//        } else TYPE_ITEM
     }
 
     override fun getItemCount(): Int {
-        return departures.size + 1
+        return departures.size
     }
 
 
@@ -58,8 +59,8 @@ class TimetableAdapter(private val context: Context, private var stopName: Strin
 
     companion object {
 
-        private val TYPE_HEADER = 111
-        private val TYPE_ITEM = 333
+        private const val TYPE_HEADER = 1
+        private const val TYPE_ITEM = 2
     }
 
 }
@@ -71,56 +72,23 @@ private class StopNameHolder internal constructor(private val item: View) : Recy
     }
 }
 
-private class TimeHolder internal constructor(private val item: View, private val context: Context) : RecyclerView.ViewHolder(item), View.OnClickListener {
+private class TimeHolder internal constructor(private val item: View) : RecyclerView.ViewHolder(item) {
 
-    private val stopTimesAdapter: StopTimesAdapter = StopTimesAdapter(this)
-    private val stopTimesLayoutManager: LinearLayoutManager
-    internal var isExpanded = false
 
-    init {
-        item.departs_in_list.adapter = stopTimesAdapter
-        stopTimesLayoutManager = LinearLayoutManager(context, HORIZONTAL, false)
-        itemView.setOnClickListener(this)
-        item.departs_in_list.apply {
-            layoutManager = stopTimesLayoutManager
-            isFocusableInTouchMode = false
+    private fun toTimeString(departure: Departure): String {
+        val timeMins = (departure.time.time - Date().time) / 60000
+        return when {
+            timeMins <= 0 -> "Nå"
+            timeMins >= 20 -> SimpleDateFormat("HH:mm").format(departure.time)
+            else -> "$timeMins\u00A0min"
         }
-
     }
 
     internal fun update(lineDepartures: List<Departure>) {
         item.line_number.text = lineDepartures[0].lineNumber
         item.destination.text = lineDepartures[0].destination
-        val times = ArrayList<String>(lineDepartures.size)
-        for (departure in lineDepartures) {
-            val timeMins = (departure.time.time - Date().time) / 60000
-            if (timeMins <= 0) {
-                times.add("Nå")
-            } else if (timeMins >= 20) {
-                times.add(SimpleDateFormat("HH:mm").format(departure.time))
-            } else {
-                times.add(timeMins.toString() + "\u00A0min")
-            }
-        }
-        stopTimesAdapter.update(times)
+        val times = lineDepartures.map { toTimeString(it) }.joinToString(separator = "  ") { it }
+        item.departs_in_item.text = times
 
     }
-
-
-    override fun onClick(v: View) {
-//        toggleExpanded()
-    }
-
-    private fun toggleExpanded() {
-        isExpanded = !isExpanded
-        stopTimesLayoutManager.orientation = if (isExpanded) VERTICAL else HORIZONTAL
-        stopTimesAdapter.isExpanded = isExpanded
-        setBrighterColor(isExpanded)
-        item.destination.maxLines = if (isExpanded) 3 else 1
-    }
-
-    internal fun setBrighterColor(brighterColor: Boolean) {
-        itemView.setBackgroundColor(context.getColor(if (brighterColor) R.color.light_background else R.color.dark_background))
-    }
-
 }

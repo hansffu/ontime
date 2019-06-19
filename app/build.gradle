@@ -23,7 +23,7 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "hansffu.ontime"
-        minSdkVersion 25
+        minSdkVersion 26
         targetSdkVersion 28
         versionCode 13
         versionName "1.1"
