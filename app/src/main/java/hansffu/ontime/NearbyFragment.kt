@@ -31,12 +31,17 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
         super.onActivityCreated(savedInstanceState)
 
         setListContent()
-//        activity?.let { requestLocation(it) }
+        activity?.let { requestLocation(it) }
 
-        val location = Location("flp")
-        location.longitude = 10.796757
-        location.latitude = 59.932715
-        onLocationChanged(location)
+//        val location = Location("flp")
+//        location.longitude = 10.796757
+//        location.latitude = 59.932715
+//        onLocationChanged(location)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.let { requestLocation(it) }
     }
 
     private fun setListContent() {
@@ -55,7 +60,7 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
 
     private fun requestLocation(activity: Activity) {
         when (hasLocationPermission(activity)) {
-            false -> requestLocationPermission(activity)
+            false -> requestLocationPermission(this)
             true -> requestWatchLocation(activity).addOnSuccessListener(this::onLocationChanged)
         }
     }
@@ -63,7 +68,9 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {
         when (requestCode) {
-            PERMISSIONS_REQUEST_FINE_LOCATION -> activity?.let { handlePermissionResult(it, grantResults) }
+            PERMISSIONS_LOCATION -> activity?.let { activity ->
+                handlePermissionResult(activity, grantResults).addOnSuccessListener { onLocationChanged(it) }
+            }
         }
 
     }
@@ -102,7 +109,6 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
 
     companion object {
 
-        private val PERMISSIONS_REQUEST_FINE_LOCATION = 1
         private val TAG = "NearybyFragment"
     }
 }
