@@ -4,8 +4,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-
 import hansffu.ontime.R
 import hansffu.ontime.model.Stop
 import kotlinx.android.synthetic.main.stop_list_header.view.*
@@ -74,9 +72,8 @@ class StopViewAdapter(private var headerText: String, private val stops: Mutable
 
 
     companion object {
-
-        private val TYPE_HEADER = 111
-        private val TYPE_ITEM = 333
+        private const val TYPE_HEADER = 1
+        private const val TYPE_ITEM = 2
     }
 }
 

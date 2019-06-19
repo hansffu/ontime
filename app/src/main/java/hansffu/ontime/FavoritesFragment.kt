@@ -44,6 +44,7 @@ class FavoritesFragment : Fragment() {
             adapter.setNoStopsText(context!!.getString(R.string.favorites_tips))
         }
         stop_list.adapter = adapter
+        stop_list.requestFocus()
     }
 
 

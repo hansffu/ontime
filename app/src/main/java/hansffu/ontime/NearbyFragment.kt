@@ -54,7 +54,7 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
     }
 
     private fun requestLocation(activity: Activity) {
-        when (checkLocationPermission(activity)) {
+        when (hasLocationPermission(activity)) {
             false -> requestLocationPermission(activity)
             true -> requestWatchLocation(activity).addOnSuccessListener(this::onLocationChanged)
         }
@@ -93,6 +93,7 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
         stop_list_progress_bar.visibility = View.GONE
         if (!stops.isEmpty()) {
             stopAdapter.updateStops(stops)
+            stop_list.requestFocus()
         } else {
             context?.let { stopAdapter.setNoStopsText(it.getString(R.string.no_stops_found)) }
         }
