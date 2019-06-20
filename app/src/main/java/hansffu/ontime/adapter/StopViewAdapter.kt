@@ -1,6 +1,7 @@
 package hansffu.ontime.adapter
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,18 +10,20 @@ import hansffu.ontime.model.Stop
 import kotlinx.android.synthetic.main.stop_list_header.view.*
 import kotlinx.android.synthetic.main.stop_list_item.view.*
 
-class StopViewAdapter(private var headerText: String, private val stops: MutableList<Stop>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class StopViewAdapter(private var headerText: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var noStopsText: String? = null
     private var itemSelectedListener: ItemSelectedListener? = null
+    private var stops: List<Stop> = emptyList()
 
     fun updateStops(stops: List<Stop>) {
-        this.stops.clear()
-        this.stops.addAll(stops)
+        stops.forEach{
+            Log.d("updateStops", it.toString())
+        }
+        this.stops = stops
         notifyDataSetChanged()
     }
 
     fun setNoStopsText(noStopsText: String) {
-        stops.clear()
         this.noStopsText = noStopsText
         notifyDataSetChanged()
     }

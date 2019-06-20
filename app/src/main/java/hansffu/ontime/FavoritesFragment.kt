@@ -30,7 +30,7 @@ class FavoritesFragment : Fragment() {
     private fun setListContent() {
         val stops = favoriteService.getFavorites().toMutableList()
 
-        val adapter = StopViewAdapter(context!!.getString(R.string.favorites_header), stops)
+        val adapter = StopViewAdapter(context!!.getString(R.string.favorites_header)).apply { updateStops(stops) }
         adapter.setListener(object : StopViewAdapter.ItemSelectedListener {
             override fun onItemSelected(position: Int) {
                 val startTimetableActivity = Intent(activity, TimetableActivity::class.java)
