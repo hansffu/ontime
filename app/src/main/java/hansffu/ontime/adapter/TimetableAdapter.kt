@@ -37,21 +37,21 @@ class TimetableAdapter(private val context: Context, private var stopName: Strin
             holder.update(stopName)
         }
 
-        val lookupStopListIndex = index
+        val lookupStopListIndex = index - 1
         if (holder is TimeHolder) {
             holder.update(departures[lookupStopListIndex])
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return TYPE_ITEM
-//        return if (position == 0) {
-//            TYPE_HEADER
-//        } else TYPE_ITEM
+//        return TYPE_ITEM
+        return if (position == 0) {
+            TYPE_HEADER
+        } else TYPE_ITEM
     }
 
     override fun getItemCount(): Int {
-        return departures.size
+        return departures.size + 1
     }
 
 

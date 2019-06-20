@@ -3,6 +3,8 @@ package hansffu.ontime
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
+import android.support.v7.widget.RecyclerView
+import android.support.wear.widget.CurvingLayoutCallback
 import android.support.wear.widget.WearableLinearLayoutManager
 import android.util.Log
 import android.view.MenuItem
@@ -45,18 +47,25 @@ class TimetableActivity : Activity() {
         timetableAdapter = TimetableAdapter(this, stopName)
         departure_list.adapter = timetableAdapter
 
+
+        val defaultLayoutCallback = CurvingLayoutCallback(this)
         departure_list.apply {
             adapter = timetableAdapter
-            layoutManager = WearableLinearLayoutManager(this@TimetableActivity)
-            isEdgeItemsCenteringEnabled = true
+            layoutManager = WearableLinearLayoutManager(this@TimetableActivity, object : WearableLinearLayoutManager.LayoutCallback() {
+                override fun onLayoutFinished(child: View, parent: RecyclerView) {
+                    if (child.id != R.id.timetable_header) defaultLayoutCallback.onLayoutFinished(child, parent)
+                }
+            })
         }
 
         bottom_action_drawer.setOnMenuItemClickListener { onMenuItemClick(it) }
-        bottom_action_drawer.controller.peekDrawer()
 
         val toggleFavoriteMenuItem = bottom_action_drawer.menu.findItem(R.id.toggle_favorite)
         val favorite = favoriteService.isFavorite(Stop(stopName, stopId))
         toggleFavorite(favorite, toggleFavoriteMenuItem)
+        if(!favorite) {
+            bottom_action_drawer.controller.peekDrawer()
+        }
 
     }
 

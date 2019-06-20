@@ -22,6 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
+        android:paddingBottom="70dp"
+        android:clipToPadding="true"
         tools:listheader="@layout/timetable_list_header"
         tools:listitem="@layout/timetable_list_item" />
 

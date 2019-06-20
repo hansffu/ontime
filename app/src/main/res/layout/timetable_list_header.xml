@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@color/dark_background"
     android:orientation="vertical"
+    android:id="@+id/timetable_header"
     >
 
     <TextView
@@ -14,8 +15,9 @@
         android:ellipsize="end"
         android:paddingTop="22dp"
         android:paddingBottom="12dp"
-        android:paddingHorizontal="5dp"
         android:textSize="22sp"
+        android:gravity="center|bottom"
+        android:textAlignment="center"
         tools:text="Superstopp med lang tekst" />
 
 </android.support.wear.widget.BoxInsetLayout>
