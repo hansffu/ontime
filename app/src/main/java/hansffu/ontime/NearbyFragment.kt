@@ -1,50 +1,60 @@
 package hansffu.ontime
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.gms.common.api.ResultCallback
-import com.google.android.gms.common.api.Status
 import hansffu.ontime.adapter.StopViewAdapter
-import hansffu.ontime.conversion.Deg2UTM
 import hansffu.ontime.model.Stop
-import hansffu.ontime.service.*
+import hansffu.ontime.service.findStopsNear
+import hansffu.ontime.service.requestLocation
+import hansffu.ontime.service.requestLocationPermission
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.stop_list.*
 
-class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServiceCallbackHandler {
-    private val stopService: StopService by lazy { StopService(this) }
-    private val stops: MutableList<Stop> = ArrayList(0)
-    private val stopAdapter: StopViewAdapter by lazy { StopViewAdapter(getString(R.string.nearby_header), stops) }
+private val TAG = "NearybyFragment"
+
+class NearbyFragment : Fragment() {
+    private lateinit var stopAdapter: StopViewAdapter
+    private lateinit var stopFetcher: Disposable
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.stop_list, container, false)
     }
 
+    fun getStopsForLocation(ctx: Context) = requestLocation(ctx).flatMapObservable { findStopsNear(ctx, it) }
+
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        stopAdapter = StopViewAdapter(getString(R.string.nearby_header))
+        stop_list.adapter = stopAdapter
 
-        setListContent()
-        activity?.let { requestLocation(it) }
-
-//        val location = Location("flp")
-//        location.longitude = 10.796757
-//        location.latitude = 59.932715
-//        onLocationChanged(location)
+        context?.let { ctx ->
+            stopFetcher = requestLocationPermission(ctx)
+                    .flatMapObservable { getStopsForLocation(ctx) }
+                    .subscribe { updateStops(it) }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
-        activity?.let { requestLocation(it) }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        stopFetcher.dispose()
     }
 
-    private fun setListContent() {
+//    override fun onResume() {
+//        super.onResume()
+//        context?.let { ctx ->
+//            stopFetcher = getStopsForLocation(ctx) .subscribe { updateStops(it) }
+//        }
+//    }
+
+    fun addListener(stops: List<Stop>){
         stopAdapter.setListener(object : StopViewAdapter.ItemSelectedListener {
             override fun onItemSelected(position: Int) {
                 val startTimetableActivity = Intent(activity, TimetableActivity::class.java)
@@ -53,62 +63,18 @@ class NearbyFragment : Fragment(), ResultCallback<Status>, StopService.StopServi
                 startActivity(startTimetableActivity)
             }
         })
-
-        stop_list.adapter = stopAdapter
-        stop_list_progress_bar.visibility = View.VISIBLE
     }
 
-    private fun requestLocation(activity: Activity) {
-        when (hasLocationPermission(activity)) {
-            false -> requestLocationPermission(this)
-            true -> requestWatchLocation(activity).addOnSuccessListener(this::onLocationChanged)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSIONS_LOCATION -> activity?.let { activity ->
-                handlePermissionResult(activity, grantResults).addOnSuccessListener { onLocationChanged(it) }
-            }
-        }
-
-    }
-
-
-    private fun onLocationChanged(location: Location) {
-        val utmLocation = Deg2UTM(location.latitude, location.longitude)
-        stopService.findStopsNear(utmLocation.easting, utmLocation.northing)
-    }
-
-    override fun onResult(status: Status) {
-        if (status.status.isSuccess) {
-            Log.d(TAG, "Successfully requested location updates")
-        } else {
-            Log.e(TAG,
-                    "Failed in requesting location updates, "
-                            + "status code: "
-                            + status.statusCode
-                            + ", message: "
-                            + status.statusMessage)
-        }
-    }
-
-    override fun stopServiceCallback(stops: List<Stop>) {
-        this.stops.clear()
-        this.stops.addAll(stops)
+    private fun updateStops(stops: List<Stop>) {
+        Log.d(TAG, "updateStops: $stops")
         stop_list_progress_bar.visibility = View.GONE
-        if (!stops.isEmpty()) {
+        addListener(stops)
+        if (stops.isNotEmpty()) {
             stopAdapter.updateStops(stops)
             stop_list.requestFocus()
         } else {
             context?.let { stopAdapter.setNoStopsText(it.getString(R.string.no_stops_found)) }
         }
 
-    }
-
-    companion object {
-
-        private val TAG = "NearybyFragment"
     }
 }
