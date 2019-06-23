@@ -32,7 +32,7 @@ import java.util.*
 class TimetableActivity : Activity() {
 
     private lateinit var timetableAdapter: TimetableAdapter
-    private var stopId: Long = 0
+    private lateinit var stopId: String
     private lateinit var stopName: String
     private lateinit var favoriteService: FavoriteService
 
@@ -40,7 +40,7 @@ class TimetableActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable)
 
-        stopId = intent.getLongExtra(STOP_ID, 0)
+        stopId = intent.getStringExtra(STOP_ID)
         stopName = intent.getStringExtra(STOP_NAME)
         favoriteService = FavoriteService(this)
 
@@ -63,7 +63,7 @@ class TimetableActivity : Activity() {
         val toggleFavoriteMenuItem = bottom_action_drawer.menu.findItem(R.id.toggle_favorite)
         val favorite = favoriteService.isFavorite(Stop(stopName, stopId))
         toggleFavorite(favorite, toggleFavoriteMenuItem)
-        if(!favorite) {
+        if (!favorite) {
             bottom_action_drawer.controller.peekDrawer()
         }
 
@@ -88,15 +88,16 @@ class TimetableActivity : Activity() {
         val url = "https://reisapi.ruter.no/StopVisit/GetDepartures/" + stopId
 
         val requestQueue = Volley.newRequestQueue(this)
-        val request = JsonArrayRequest(url, Listener { response ->
-            val departures = ArrayListValuedHashMap<LineDirectionRef, Departure>()
-            response.mapToList { mapJsonResponseToDeparture(TAG, it) }
-                    .forEach { departures.put(it.lineDirectionRef, it) }
+        val request = JsonArrayRequest(url,
+                Listener { response ->
+                    val departures = ArrayListValuedHashMap<LineDirectionRef, Departure>()
+                    response.mapToList { mapJsonResponseToDeparture(TAG, it) }
+                            .forEach { departures.put(it.lineDirectionRef, it) }
 
-            adapter.departures = multimapToLSortedListOfListsOfDepartures(departures)
-            progress_bar.visibility = View.GONE
-            departure_list.requestFocus()
-        },
+                    adapter.departures = multimapToLSortedListOfListsOfDepartures(departures)
+                    progress_bar.visibility = View.GONE
+                    departure_list.requestFocus()
+                },
                 Response.ErrorListener { error ->
                     Log.e(TAG, "Error getting timetables", error)
                     Toast.makeText(this@TimetableActivity, "Fant ikke holdeplass", Toast.LENGTH_LONG).show()

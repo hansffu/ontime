@@ -1,8 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.apollographql.android'
 
 android {
-    
+
     signingConfigs {
         config {
             def Properties localProps = new Properties()
@@ -62,9 +64,13 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
     implementation 'com.patloew.rxlocation:rxlocation:1.0.5'
-    implementation 'com.vanniktech:rxpermission:0.7.0'
-    apply plugin: 'kotlin-android'
-    apply plugin: 'kotlin-android-extensions'
+    implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.6.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+    implementation "com.apollographql.apollo:apollo-runtime:$apollo_version"
+    compileOnly 'org.jetbrains:annotations:13.0'
+    testCompileOnly 'org.jetbrains:annotations:13.0'
 }
 repositories {
     mavenCentral()
