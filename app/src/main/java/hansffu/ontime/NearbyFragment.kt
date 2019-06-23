@@ -1,6 +1,5 @@
 package hansffu.ontime
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -8,26 +7,32 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.patloew.rxlocation.RxLocation
+import com.tbruyelle.rxpermissions2.RxPermissions
 import hansffu.ontime.adapter.StopViewAdapter
 import hansffu.ontime.model.Stop
-import hansffu.ontime.service.findStopsNear
+import hansffu.ontime.service.StopService
 import hansffu.ontime.service.requestLocation
 import hansffu.ontime.service.requestLocationPermission
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.stop_list.*
 
 private val TAG = "NearybyFragment"
 
 class NearbyFragment : Fragment() {
+    private val stopService = StopService()
     private lateinit var stopAdapter: StopViewAdapter
     private lateinit var stopFetcher: Disposable
+    private lateinit var rxLocation: RxLocation
+    private lateinit var rxPermissions: RxPermissions
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.stop_list, container, false)
     }
 
-    fun getStopsForLocation(ctx: Context) = requestLocation(ctx).flatMapObservable { findStopsNear(ctx, it) }
+    private fun getStopsForLocation() = requestLocation(rxLocation).flatMapSingleElement { stopService.findStopsNear(it) }
 
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -35,9 +40,14 @@ class NearbyFragment : Fragment() {
         stopAdapter = StopViewAdapter(getString(R.string.nearby_header))
         stop_list.adapter = stopAdapter
 
+
         context?.let { ctx ->
-            stopFetcher = requestLocationPermission(ctx)
-                    .flatMapObservable { getStopsForLocation(ctx) }
+            rxLocation = RxLocation(ctx)
+            rxPermissions = RxPermissions(this)
+            stopFetcher = requestLocationPermission(rxPermissions)
+                    .filter { it }
+                    .flatMapMaybe { getStopsForLocation() }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { updateStops(it) }
         }
     }
@@ -47,14 +57,16 @@ class NearbyFragment : Fragment() {
         stopFetcher.dispose()
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        context?.let { ctx ->
-//            stopFetcher = getStopsForLocation(ctx) .subscribe { updateStops(it) }
-//        }
-//    }
+    override fun onResume() {
+        super.onResume()
+        if (stopFetcher.isDisposed) {
+            stopFetcher = getStopsForLocation()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { stops -> updateStops(stops) }
+        }
+    }
 
-    fun addListener(stops: List<Stop>){
+    private fun addListener(stops: List<Stop>) {
         stopAdapter.setListener(object : StopViewAdapter.ItemSelectedListener {
             override fun onItemSelected(position: Int) {
                 val startTimetableActivity = Intent(activity, TimetableActivity::class.java)

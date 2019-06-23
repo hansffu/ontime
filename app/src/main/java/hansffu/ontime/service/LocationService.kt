@@ -1,20 +1,24 @@
 package hansffu.ontime.service
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.content.Context
+import android.annotation.SuppressLint
 import android.location.Location
 import com.patloew.rxlocation.RxLocation
-import com.vanniktech.rxpermission.RealRxPermission
+import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Maybe
+import io.reactivex.Observable
 
-fun requestLocationPermission(context: Context) = RealRxPermission.getInstance(context).request(ACCESS_FINE_LOCATION)
+fun requestLocationPermission(rxPermissions: RxPermissions): Observable<Boolean> = rxPermissions.request(ACCESS_FINE_LOCATION)
 
-fun requestLocation(context: Context): Maybe<Location> = RxLocation(context)
-        .location()
-        .lastLocation()
+@SuppressLint("MissingPermission")
+fun requestLocation2(rxLocation: RxLocation): Maybe<Location> {
+    return rxLocation
+            .location()
+            .lastLocation()
+}
 
-//fun requestLocation(context: Context): Maybe<Location> = Maybe.just(
-//        Location("flp").apply {
-//            longitude = 10.796757
-//            latitude = 59.932715
-//        })
+fun requestLocation(rxLocation: RxLocation): Maybe<Location> = Maybe.just(
+        Location("flp").apply {
+            longitude = 10.796757
+            latitude = 59.932715
+        })

@@ -9,4 +9,4 @@ data class Departure(val lineRef: String, val direction: String, val lineNumber:
 
 data class LineDirectionRef internal constructor(val lineRef: String, val destinationRef: String)
 
-data class Stop(val name: String, val id: Long)
+data class Stop(val name: String, val id: String)

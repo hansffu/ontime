@@ -16,7 +16,7 @@ class FavoriteService(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
                 .use { cursor ->
                     for (i in 0 until cursor.count) {
                         cursor.moveToPosition(i)
-                        favorites.add(Stop(cursor.getString(1), cursor.getLong(0)))
+                        favorites.add(Stop(cursor.getString(1), cursor.getString(0)))
                     }
                 }
         return favorites
