@@ -10,24 +10,18 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.android.volley.DefaultRetryPolicy
-import com.android.volley.Response
-import com.android.volley.Response.Listener
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.Volley
 import hansffu.ontime.adapter.TimetableAdapter
-import hansffu.ontime.extensions.mapToList
-import hansffu.ontime.model.Departure
+import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.model.LineDirectionRef
 import hansffu.ontime.model.Stop
 import hansffu.ontime.service.FavoriteService
-import hansffu.ontime.service.mapJsonResponseToDeparture
+import hansffu.ontime.service.StopService
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_timetable.*
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap
-import java.util.*
+import io.reactivex.disposables.CompositeDisposable
+
 
 class TimetableActivity : Activity() {
 
@@ -35,6 +29,8 @@ class TimetableActivity : Activity() {
     private lateinit var stopId: String
     private lateinit var stopName: String
     private lateinit var favoriteService: FavoriteService
+    private val stopService = StopService()
+    private val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,44 +73,56 @@ class TimetableActivity : Activity() {
 
     private fun setListContent() {
 
-        timetableAdapter.departures = ArrayList()
         progress_bar.visibility = View.VISIBLE
         updateTimetibles(timetableAdapter)
         departure_list.requestFocus()
 
     }
 
-    private fun updateTimetibles(adapter: TimetableAdapter) {
-        val url = "https://reisapi.ruter.no/StopVisit/GetDepartures/" + stopId
+    fun groupLines(estimatedCall: StopPlaceQuery.EstimatedCall): LineDirectionRef? {
+        val publicCode = estimatedCall.serviceJourney?.line?.publicCode
+        val dest = estimatedCall.destinationDisplay()?.frontText()
+        return if (publicCode != null && dest != null) {
+            LineDirectionRef(publicCode, dest)
+        } else {
+            null
+        }
 
-        val requestQueue = Volley.newRequestQueue(this)
-        val request = JsonArrayRequest(url,
-                Listener { response ->
-                    val departures = ArrayListValuedHashMap<LineDirectionRef, Departure>()
-                    response.mapToList { mapJsonResponseToDeparture(TAG, it) }
-                            .forEach { departures.put(it.lineDirectionRef, it) }
-
-                    adapter.departures = multimapToLSortedListOfListsOfDepartures(departures)
-                    progress_bar.visibility = View.GONE
-                    departure_list.requestFocus()
-                },
-                Response.ErrorListener { error ->
-                    Log.e(TAG, "Error getting timetables", error)
-                    Toast.makeText(this@TimetableActivity, "Fant ikke holdeplass", Toast.LENGTH_LONG).show()
-                })
-
-        request.retryPolicy = DefaultRetryPolicy(20 * 1000, 0,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
-
-        requestQueue.add(request)
     }
 
+    private fun toLineDepartures(stopPlace: StopPlaceQuery.StopPlace): List<LineDeparture> {
+        val quays = stopPlace.quays ?: emptyList()
+        return quays.flatMap { it.estimatedCalls() }
+                .asSequence()
+                .filterNotNull()
+                .groupBy(::groupLines)
+                .map { (ref, departures) -> ref?.let { LineDeparture(it, departures) } }
+                .filterNotNull()
+                .sortedBy { lineDeparture ->
+                    lineDeparture.departures
+                            .mapNotNull { call -> call.expectedArrivalTime }
+                            .min()
+                }
+                .toList()
+    }
 
-    private fun multimapToLSortedListOfListsOfDepartures(multimap: ArrayListValuedHashMap<LineDirectionRef, Departure>) =
-            multimap.keySet()
-                    .map { multimap.get(it) }
-                    .sortedBy { it[0].time }
-
+    private fun updateTimetibles(adapter: TimetableAdapter) {
+        disposables.add(stopService.getDepartures(stopId)
+                .subscribeOn(Schedulers.io())
+                .map { it.stopPlace }
+                .map(::toLineDepartures)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { estimatedCalls ->
+                            adapter.estimatedCall = estimatedCalls
+                            progress_bar.visibility = View.GONE
+                            departure_list.requestFocus()
+                        },
+                        { error ->
+                            Log.e(TAG, "Error getting timetables", error)
+                            Toast.makeText(this@TimetableActivity, "Fant ikke holdeplass", Toast.LENGTH_LONG).show()
+                        }))
+    }
 
     private fun toggleFavorite(isFavorite: Boolean, menuItem: MenuItem) {
         menuItem.setIcon(if (isFavorite) R.drawable.ic_favorite_white_48dp else R.drawable.ic_favorite_border_white_48dp)
@@ -132,6 +140,11 @@ class TimetableActivity : Activity() {
             return true
         }
         return false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 
     companion object {

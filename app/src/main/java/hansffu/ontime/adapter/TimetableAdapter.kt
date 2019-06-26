@@ -1,27 +1,29 @@
 package hansffu.ontime.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearLayoutManager.HORIZONTAL
-import android.support.v7.widget.LinearLayoutManager.VERTICAL
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import hansffu.ontime.R
-import hansffu.ontime.model.Departure
+import hansffu.ontime.StopPlaceQuery
+import hansffu.ontime.model.LineDeparture
 import kotlinx.android.synthetic.main.timetable_list_header.view.*
 import kotlinx.android.synthetic.main.timetable_list_item.view.*
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TimetableAdapter(private val context: Context, private var stopName: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var departures: List<List<Departure>> = emptyList()
+class TimetableAdapter(private val context: Context, private val stopName: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    var estimatedCall: List<LineDeparture> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == TYPE_HEADER) {
@@ -39,22 +41,19 @@ class TimetableAdapter(private val context: Context, private var stopName: Strin
 
         val lookupStopListIndex = index - 1
         if (holder is TimeHolder) {
-            holder.update(departures[lookupStopListIndex])
+            holder.update(estimatedCall[lookupStopListIndex])
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-//        return TYPE_ITEM
         return if (position == 0) {
             TYPE_HEADER
         } else TYPE_ITEM
     }
 
     override fun getItemCount(): Int {
-        return departures.size + 1
+        return estimatedCall.size + 1
     }
-
-
 
 
     companion object {
@@ -75,20 +74,32 @@ private class StopNameHolder internal constructor(private val item: View) : Recy
 private class TimeHolder internal constructor(private val item: View) : RecyclerView.ViewHolder(item) {
 
 
-    private fun toTimeString(departure: Departure): String {
-        val timeMins = (departure.time.time - Date().time) / 60000
+    private fun toTimeString(timeString: String): String {
+        val time = timeString.toDate()
+        val timeMins = (time.time - Date().time) / 60000
         return when {
             timeMins <= 0 -> "Nå"
-            timeMins >= 20 -> SimpleDateFormat("HH:mm").format(departure.time)
+            timeMins >= 20 -> SimpleDateFormat("HH:mm").format(time)
             else -> "$timeMins\u00A0min"
         }
+
     }
 
-    internal fun update(lineDepartures: List<Departure>) {
-        item.line_number.text = lineDepartures[0].lineNumber
-        item.destination.text = lineDepartures[0].destination
-        val times = lineDepartures.map { toTimeString(it) }.joinToString(separator = "  ") { it }
+    internal fun update(lineDeparture: LineDeparture) {
+        item.line_number.text = lineDeparture.lineDirectionRef.lineRef
+        item.destination.text = lineDeparture.lineDirectionRef.destinationRef
+        val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime() }.map(::toTimeString).joinToString("  ")
+//        val times = estimatedCall.serviceJourney()?.estimatedCalls()?.mapNotNull { it.expectedArrivalTime() }?.map { toTimeString(it) }?.joinToString(separator = "  ") { it }
         item.departs_in_item.text = times
 
     }
+}
+
+@SuppressLint("SimpleDateFormat")
+fun String.toDate(): Date = try {
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    sdf.parse(this)
+} catch (e: ParseException) {
+    Log.e("String to time", "parse error: $this", e)
+    Date()
 }

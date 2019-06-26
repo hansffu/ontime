@@ -45,6 +45,12 @@ android {
     }
     productFlavors {
     }
+
+    apollo {
+        customTypeMapping = [
+                "DateTime" : "java.lang.String"
+        ]
+    }
 }
 
 dependencies {
@@ -69,6 +75,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation "com.apollographql.apollo:apollo-runtime:$apollo_version"
+    implementation "com.apollographql.apollo:apollo-rx2-support:$apollo_version"
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
     compileOnly 'org.jetbrains:annotations:13.0'
     testCompileOnly 'org.jetbrains:annotations:13.0'
 }
