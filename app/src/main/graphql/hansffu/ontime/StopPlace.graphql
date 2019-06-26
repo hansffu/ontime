@@ -2,6 +2,18 @@ query StopPlace($id: String!) {
     stopPlace(id: $id) {
         id
         name
-
+        quays{
+            estimatedCalls{
+                expectedArrivalTime
+                destinationDisplay{
+                    frontText
+                }
+                serviceJourney{
+                    line{
+                        publicCode
+                    }
+                }
+            }
+        }
     }
 }
