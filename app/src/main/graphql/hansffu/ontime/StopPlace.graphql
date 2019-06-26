@@ -3,7 +3,7 @@ query StopPlace($id: String!) {
         id
         name
         quays{
-            estimatedCalls{
+            estimatedCalls(numberOfDepartures: 500, numberOfDeparturesPerLineAndDestinationDisplay: 6, omitNonBoarding: true){
                 expectedArrivalTime
                 destinationDisplay{
                     frontText

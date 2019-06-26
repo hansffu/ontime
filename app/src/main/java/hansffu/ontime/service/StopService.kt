@@ -33,7 +33,7 @@ class StopService {
 
 
     fun findStopsNear(location: Location): Single<List<Stop>> = stopsApi
-            .getNearbyStops(location.latitude, location.longitude, 1, 10, "venue")
+            .getNearbyStops(location.latitude, location.longitude, 2, 20, "venue")
             .subscribeOn(Schedulers.io())
             .map { it.features.map(::toStop) }
 
