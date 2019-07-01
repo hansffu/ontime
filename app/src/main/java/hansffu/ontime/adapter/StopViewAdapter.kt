@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import hansffu.ontime.R
+import hansffu.ontime.api.Properties
 import hansffu.ontime.model.Stop
 import kotlinx.android.synthetic.main.stop_list_header.view.*
 import kotlinx.android.synthetic.main.stop_list_item.view.*
@@ -43,7 +44,7 @@ class StopViewAdapter(private var headerText: String) : RecyclerView.Adapter<Rec
         }
 
         val lookupStoplistIndex = position - 1
-        if (!stops.isEmpty() && holder is StopViewHolder) {
+        if (stops.isNotEmpty() && holder is StopViewHolder) {
             holder.stopName = stops[lookupStoplistIndex].name
             holder.bind(lookupStoplistIndex, itemSelectedListener)
         } else if (noStopsText != null && holder is StopViewHolder) {

@@ -5,8 +5,8 @@ import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.rx2.Rx2Apollo
 import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.api.Feature
+import hansffu.ontime.api.Properties
 import hansffu.ontime.api.StopsApi
-import hansffu.ontime.model.Stop
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -19,7 +19,12 @@ private val TAG = "StopService"
 
 
 class StopService {
+//    private val interceptor: HttpLoggingInterceptor = HttpLoggingInterceptor()
+//            .apply { level = HttpLoggingInterceptor.Level.BODY }
+//    private val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
+
     private val retrofit: Retrofit = Retrofit.Builder()
+//            .client(client)
             .baseUrl("https://api.entur.io")
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -32,12 +37,10 @@ class StopService {
             .build()
 
 
-    fun findStopsNear(location: Location): Single<List<Stop>> = stopsApi
+    fun findStopsNear(location: Location): Single<List<Properties>> = stopsApi
             .getNearbyStops(location.latitude, location.longitude, 2, 20, "venue")
             .subscribeOn(Schedulers.io())
-            .map { it.features.map(::toStop) }
-
-    private fun toStop(feature: Feature) = Stop(feature.properties.name, feature.properties.id)
+            .map { it.features.map(Feature::properties) }
 
     fun getDepartures(id: String): Observable<StopPlaceQuery.Data> {
         val watcher = apolloClient.query(

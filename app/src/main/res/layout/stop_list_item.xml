@@ -13,16 +13,16 @@
     <TextView
         android:id="@+id/short_stop_name"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="21dp"
         android:layout_gravity="center"
         android:layout_marginStart="15dp"
-        android:textColor="@color/white"
-        android:textStyle="normal"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/white"
         android:textSize="18sp"
-        tools:text="Løren"
-        app:layout_box="left|right"/>
+        android:textStyle="normal"
+        app:layout_box="left|right"
+        tools:text="Løren [T-bane]" />
 
 
 </android.support.wearable.view.BoxInsetLayout>
