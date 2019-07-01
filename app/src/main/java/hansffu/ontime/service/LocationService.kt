@@ -11,13 +11,13 @@ import io.reactivex.Observable
 fun requestLocationPermission(rxPermissions: RxPermissions): Observable<Boolean> = rxPermissions.request(ACCESS_FINE_LOCATION)
 
 @SuppressLint("MissingPermission")
-fun requestLocation(rxLocation: RxLocation): Maybe<Location> {
+fun requestLocation2(rxLocation: RxLocation): Maybe<Location> {
     return rxLocation
             .location()
             .lastLocation()
 }
 
-fun requestLocation2(rxLocation: RxLocation): Maybe<Location> = Maybe.just(
+fun requestLocation(rxLocation: RxLocation): Maybe<Location> = Maybe.just(
         Location("flp").apply {
             longitude = 10.796757
             latitude = 59.932715

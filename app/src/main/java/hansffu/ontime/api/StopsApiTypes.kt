@@ -4,7 +4,7 @@ import hansffu.ontime.model.Stop
 
 data class Geocoding(val features: List<Feature>)
 
-data class Feature(val properties: Stop)
+data class Feature(val properties: Properties)
 
 data class Properties(
         val id: String,

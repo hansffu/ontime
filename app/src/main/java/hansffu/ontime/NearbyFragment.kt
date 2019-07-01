@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import com.patloew.rxlocation.RxLocation
 import com.tbruyelle.rxpermissions2.RxPermissions
 import hansffu.ontime.adapter.StopViewAdapter
+import hansffu.ontime.api.Properties
 import hansffu.ontime.model.Stop
 import hansffu.ontime.service.StopService
 import hansffu.ontime.service.requestLocation
@@ -77,9 +78,23 @@ class NearbyFragment : Fragment() {
         })
     }
 
-    private fun updateStops(stops: List<Stop>) {
-        Log.d(TAG, "updateStops: $stops")
+    fun toCategoryText(stop: Properties): String {
+        val categories = stop.category.map {
+            when (it) {
+                "onstreetTram" -> "Trikk"
+                "onstreetBus" -> "Buss"
+                "metroStation" -> "T-bane"
+                else -> ""
+            }
+        }.joinToString (separator = ", ", prefix = " [", postfix = "]")
+        Log.d("categories", categories)
+        return categories
+    }
+
+    private fun updateStops(properties: List<Properties>) {
+        Log.d(TAG, "updateStops: $properties")
         stop_list_progress_bar.visibility = View.GONE
+        val stops = properties.map { Stop(it.name + toCategoryText(it), it.id) }
         addListener(stops)
         if (stops.isNotEmpty()) {
             stopAdapter.updateStops(stops)
