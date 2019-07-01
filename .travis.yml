@@ -12,3 +12,14 @@ script: "./gradlew assembleRelease"
 before_install:
 - openssl aes-256-cbc -K $encrypted_4ee3680b536c_key -iv $encrypted_4ee3680b536c_iv
   -in hansffu_upload_key.jks.enc -out hansffu_upload_key.jks -d
+deploy:
+  provider: releases
+  skip_cleanup: true
+  overwrite: true
+  api_key:
+    secure: Pm9zKVz2TnR5u19mBBa0nebbJqLSXr1HMVuw/Ro+rAYUqzAqDE8kn1ZuD6iXJMM90IbxjmO30nkWQglfLjL6P3rnFUhh+VZ0kv/NKEmWnUnOayq7Wah6m2W1D2xU2PL0yTogLrDdWfjObvJz0blns2WdG1c5lYBYHTHnjk8n62VML5oXi1v3bdGW1fb5mI1wSOL2ZSuXW43b2X2sWtT7vJMoMHoMr3kPcuNaTaNiozVe8eiO+7wqJF8wm5UhjA5PA7cVpowyGqKlJekIeJfQPxiNQ/NJoCe+xwIK76p1hgLAl0sFD9Bmg7itEwbcLWmkE38GQ6npyslr6pBL4BE4kSJiXoTmsHQrj+ojra/vYqX/ihRq1s5F9LpYHMXPcXGd5WltAdBfAjhCCw7FeGdetliYmLlPRVmhFCwRNxojvfLkitp7sr3eJ8/UMXjl+e7JRCLMZJ+AVWkclV1GhGHP8t/bgO5Lmar8YVudb4favZDvkWq3Jd2RIDWqShNMTLyF6HuL5JoRChRpUxcitL5Q1pgm9zYUiDS8XiRWehYVbFJ9WKGn7o/X/z7SdSW8onKt9pPDjwKDzdPdY4v/rhnw4Mw8E2W0XLxxK8yaRpZrKWInxombb8w1UJWWWlPe8QkIF1XYe5yRBWdjr9hViSPGkqHiduYsZWupgSbxm7UFGkU=
+  file_glob: true
+  file: "/home/travis/build/hansffu/ontime/app/build/outputs/apk/release/*"
+  on:
+    repo: hansffu/ontime
+    tags: true
