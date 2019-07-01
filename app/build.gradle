@@ -5,30 +5,6 @@ apply plugin: 'com.apollographql.android'
 
 android {
 
-    signingConfigs {
-        release {
-            def localProps = new Properties()
-            def isRunningOnTravis = System.getenv("CI") == "true"
-
-            if (isRunningOnTravis) {
-                storeFile = file("../hansffu.jks")
-                storePassword = System.getenv("keystore_password")
-                keyAlias = System.getenv("keystore_alias")
-                keyPassword = System.getenv("keystore_alias_password")
-
-            } else if (file('../local.properties').exists()) {
-                localProps.load(new FileInputStream(file('../local.properties')))
-                def keyProps = new Properties()
-                if (localProps['keystore.props.file'] != null) {
-                    keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
-                }
-                storeFile keyProps["store"] != null ? file(keyProps["store"]) : null
-                keyAlias keyProps["alias"]
-                storePassword keyProps["storePass"]
-                keyPassword keyProps["pass"]
-            }
-        }
-    }
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
@@ -37,27 +13,49 @@ android {
         targetSdkVersion 28
         versionCode 15
         versionName "2.0"
-        signingConfig signingConfigs.config
 
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-    productFlavors {
     }
 
     apollo {
         customTypeMapping = [
                 "DateTime" : "java.lang.String"
         ]
+    }
+
+    signingConfigs {
+        release  
+    }
+    
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    def localProps = new Properties()
+    def isRunningOnTravis = System.getenv("CI") == "true"
+
+    if (isRunningOnTravis) {
+        signingConfigs.release.storeFile = file("../hansffu.jks")
+        signingConfigs.release.storePassword = System.getenv("keystore_password")
+        signingConfigs.release.keyAlias = System.getenv("keystore_alias")
+        signingConfigs.release.keyPassword = System.getenv("keystore_alias_password")
+
+    } else if (file('../local.properties').exists()) {
+        localProps.load(new FileInputStream(file('../local.properties')))
+        def keyProps = new Properties()
+        if (localProps['keystore.props.file'] != null) {
+            keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
+        }
+        signingConfigs.release.storeFile = keyProps["store"] != null ? file(keyProps["store"]) : null
+        signingConfigs.release.keyAlias = keyProps["alias"]
+        signingConfigs.release.storePassword = keyProps["storePass"]
+        signingConfigs.release.keyPassword = keyProps["pass"]
     }
 }
 
