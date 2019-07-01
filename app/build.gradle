@@ -27,7 +27,7 @@ android {
         applicationId "hansffu.ontime"
         minSdkVersion 26
         targetSdkVersion 28
-        versionCode 14
+        versionCode 15
         versionName "2.0"
         signingConfig signingConfigs.config
 
