@@ -6,15 +6,15 @@ apply plugin: 'com.apollographql.android'
 android {
 
     signingConfigs {
-        config {
+        release {
             def localProps = new Properties()
             def isRunningOnTravis = System.getenv("CI") == "true"
 
             if (isRunningOnTravis) {
-                signingConfigs.release.storeFile = file("../hansffu.jks")
-                signingConfigs.release.storePassword = System.getenv("keystore_password")
-                signingConfigs.release.keyAlias = System.getenv("keystore_alias")
-                signingConfigs.release.keyPassword = System.getenv("keystore_alias_password")
+                storeFile = file("../hansffu.jks")
+                storePassword = System.getenv("keystore_password")
+                keyAlias = System.getenv("keystore_alias")
+                keyPassword = System.getenv("keystore_alias_password")
 
             } else if (file('../local.properties').exists()) {
                 localProps.load(new FileInputStream(file('../local.properties')))
