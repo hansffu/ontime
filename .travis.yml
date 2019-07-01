@@ -11,4 +11,4 @@ android:
 script: "./gradlew assembleRelease"
 before_install:
 - openssl aes-256-cbc -K $encrypted_4ee3680b536c_key -iv $encrypted_4ee3680b536c_iv
-  -in hansffu.jks.enc -out hansffu.jks -d
+  -in hansffu_upload_key.jks.enc -out hansffu_upload_key.jks -d

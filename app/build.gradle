@@ -41,7 +41,7 @@ android {
     def isRunningOnTravis = System.getenv("CI") == "true"
 
     if (isRunningOnTravis) {
-        signingConfigs.release.storeFile = file("../hansffu.jks")
+        signingConfigs.release.storeFile = file("../hansffu_upload_key.jks")
         signingConfigs.release.storePassword = System.getenv("keystore_password")
         signingConfigs.release.keyAlias = System.getenv("keystore_alias")
         signingConfigs.release.keyPassword = System.getenv("keystore_alias_password")
