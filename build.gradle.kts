@@ -2,7 +2,7 @@
 
 buildscript {
   val kotlin_version = "1.3.61"
-  val apollo_version = "1.2.2"
+  val apollo_version = "1.3.0"
 
   extra.apply {
     set("kotlin_version", "1.3.61")

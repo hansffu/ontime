@@ -3,13 +3,13 @@ package hansffu.ontime
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
-import android.support.wear.widget.CurvingLayoutCallback
-import android.support.wear.widget.WearableLinearLayoutManager
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
+import androidx.wear.widget.CurvingLayoutCallback
+import androidx.wear.widget.WearableLinearLayoutManager
 import hansffu.ontime.adapter.TimetableAdapter
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.model.LineDirectionRef

@@ -2,10 +2,11 @@ package hansffu.ontime
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import hansffu.ontime.TimetableActivity.Companion.STOP_ID
 import hansffu.ontime.TimetableActivity.Companion.STOP_NAME
 import hansffu.ontime.adapter.StopViewAdapter
@@ -44,6 +45,7 @@ class FavoritesFragment : Fragment() {
             adapter.setNoStopsText(context!!.getString(R.string.favorites_tips))
         }
         stop_list.adapter = adapter
+        stop_list.layoutManager = LinearLayoutManager(context)
         stop_list.requestFocus()
     }
 

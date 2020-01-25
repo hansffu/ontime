@@ -18,7 +18,7 @@ fun requestLocation(rxLocation: RxLocation): Maybe<Location> {
         .lastLocation()
 }
 
-//fun requestLocation(rxLocation: RxLocation): Maybe<Location> =
+// fun requestLocation(rxLocation: RxLocation): Maybe<Location> =
 //    Location("flp").apply {
 //        longitude = 10.796757
 //        latitude = 59.932715

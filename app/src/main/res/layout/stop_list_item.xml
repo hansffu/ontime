@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
@@ -21,8 +21,9 @@
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="normal"
+        android:textAlignment="center"
         app:layout_box="left|right"
         tools:text="Løren [T-bane]" />
 
 
-</android.support.wearable.view.BoxInsetLayout>
+</androidx.wear.widget.BoxInsetLayout>

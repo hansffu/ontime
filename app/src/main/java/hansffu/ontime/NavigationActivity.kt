@@ -1,7 +1,7 @@
 package hansffu.ontime
 
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.FragmentActivity
 import hansffu.ontime.adapter.MainNavigationAdapter
 import hansffu.ontime.adapter.MenuItem
 import hansffu.ontime.service.FavoriteService
