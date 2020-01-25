@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import java.io.FileInputStream
 import java.util.Properties
 
-val apollo_version = "1.2.2"
+val apollo_version = "1.3.0"
 plugins {
   id("com.android.application")
   id("com.apollographql.android")
@@ -12,12 +12,12 @@ plugins {
 
 android {
 
-  compileSdkVersion(28)
-  buildToolsVersion("28.0.3")
+  compileSdkVersion(29)
+  buildToolsVersion("29.0.2")
   defaultConfig {
     applicationId = "hansffu.ontime"
     minSdkVersion(26)
-    targetSdkVersion(28)
+    targetSdkVersion(29)
     versionCode = 15
     versionName = "2.0"
 
@@ -69,19 +69,18 @@ android {
 dependencies {
   implementation(fileTree("include" to "*.jar", "dir" to "libs"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${KotlinCompilerVersion.VERSION}")
-  implementation("com.google.android.support:wearable:2.4.0")
-  compileOnly("com.google.android.wearable:wearable:2.4.0")
-  implementation("com.google.android.gms:play-services-wearable:16.0.1")
-  implementation("com.google.android.gms:play-services-location:16.0.0")
+  implementation("com.google.android.support:wearable:2.5.0")
+  compileOnly("com.google.android.wearable:wearable:2.5.0")
+  implementation("com.google.android.gms:play-services-wearable:17.0.0")
+  implementation("com.google.android.gms:play-services-location:17.0.0")
   implementation("com.android.volley:volley:1.1.0")
   implementation("org.apache.commons:commons-collections4:4.1")
-  implementation("com.android.support:recyclerview-v7:28.0.0")
-  implementation("com.android.support:percent:28.0.0")
-  implementation("com.android.support:cardview-v7:28.0.0")
-  implementation("com.android.support:support-v4:28.0.0")
-  implementation("com.android.support:wear:28.0.0")
+  implementation("androidx.recyclerview:recyclerview:1.1.0")
+  implementation("androidx.percentlayout:percentlayout:1.0.0")
+  implementation("androidx.cardview:cardview:1.0.0")
+  // implementation("com.android.support:support-v4:28.0.0")
+  implementation("androidx.wear:wear:1.0.0")
   implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
-  implementation("io.reactivex.rxjava2:rxjava:2.2.9")
   implementation("com.patloew.rxlocation:rxlocation:1.0.5")
   implementation("com.github.tbruyelle:rxpermissions:0.10.2")
   implementation("com.squareup.retrofit2:retrofit:2.6.0")

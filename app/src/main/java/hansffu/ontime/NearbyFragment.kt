@@ -2,11 +2,13 @@ package hansffu.ontime
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.wear.widget.WearableLinearLayoutManager
 import com.patloew.rxlocation.RxLocation
 import com.tbruyelle.rxpermissions2.RxPermissions
 import hansffu.ontime.adapter.StopViewAdapter
@@ -40,7 +42,7 @@ class NearbyFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         stopAdapter = StopViewAdapter(getString(R.string.nearby_header))
         stop_list.adapter = stopAdapter
-
+        stop_list.layoutManager = LinearLayoutManager(context)
 
         context?.let { ctx ->
             rxLocation = RxLocation(ctx)

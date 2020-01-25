@@ -2,20 +2,18 @@ package hansffu.ontime.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
-import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.model.LineDeparture
 import kotlinx.android.synthetic.main.timetable_list_header.view.*
 import kotlinx.android.synthetic.main.timetable_list_item.view.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
-
+import java.util.Date
 
 class TimetableAdapter(private val context: Context, private val stopName: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var estimatedCall: List<LineDeparture> = emptyList()

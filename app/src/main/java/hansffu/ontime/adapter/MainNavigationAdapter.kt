@@ -1,10 +1,8 @@
 package hansffu.ontime.adapter
 
 import android.graphics.drawable.Drawable
-import android.support.v4.app.Fragment
-import android.support.wear.widget.drawer.WearableNavigationDrawerView
-import android.support.wearable.view.drawer.WearableNavigationDrawer
-import android.util.Log
+import androidx.fragment.app.Fragment
+import androidx.wear.widget.drawer.WearableNavigationDrawerView
 import hansffu.ontime.FavoritesFragment
 import hansffu.ontime.NavigationActivity
 import hansffu.ontime.NearbyFragment
