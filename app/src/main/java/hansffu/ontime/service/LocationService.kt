@@ -8,17 +8,18 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Maybe
 import io.reactivex.Observable
 
-fun requestLocationPermission(rxPermissions: RxPermissions): Observable<Boolean> = rxPermissions.request(ACCESS_FINE_LOCATION)
+fun requestLocationPermission(rxPermissions: RxPermissions): Observable<Boolean> =
+    rxPermissions.request(ACCESS_FINE_LOCATION)
 
 @SuppressLint("MissingPermission")
 fun requestLocation(rxLocation: RxLocation): Maybe<Location> {
     return rxLocation
-            .location()
-            .lastLocation()
+        .location()
+        .lastLocation()
 }
 
-//fun requestLocation(rxLocation: RxLocation): Maybe<Location> = Maybe.just(
-//        Location("flp").apply {
-//            longitude = 10.796757
-//            latitude = 59.932715
-//        })
+//fun requestLocation(rxLocation: RxLocation): Maybe<Location> =
+//    Location("flp").apply {
+//        longitude = 10.796757
+//        latitude = 59.932715
+//    }.let { Maybe.just(it) }
