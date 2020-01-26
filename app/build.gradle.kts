@@ -5,7 +5,7 @@ import java.util.Properties
 val apollo_version = "1.3.0"
 plugins {
   id("com.android.application")
-  id("com.apollographql.android")
+  id("com.apollographql.apollo")
   kotlin("android")
   kotlin("android.extensions")
 }
@@ -18,7 +18,7 @@ android {
     applicationId = "hansffu.ontime"
     minSdkVersion(26)
     targetSdkVersion(29)
-    versionCode = 15
+    versionCode = 16
     versionName = "2.0"
 
   }
