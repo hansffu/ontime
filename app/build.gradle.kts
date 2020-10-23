@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import java.io.FileInputStream
 import java.util.Properties
 
-val apollo_version = "1.3.0"
+val apolloVersion = "2.4.1"
 plugins {
   id("com.android.application")
   id("com.apollographql.apollo")
@@ -86,8 +86,8 @@ dependencies {
   implementation("com.squareup.retrofit2:retrofit:2.6.0")
   implementation("com.squareup.retrofit2:adapter-rxjava2:2.6.0")
   implementation("com.squareup.retrofit2:converter-gson:2.6.0")
-  implementation("com.apollographql.apollo:apollo-runtime:$apollo_version")
-  implementation("com.apollographql.apollo:apollo-rx2-support:$apollo_version")
+  implementation("com.apollographql.apollo:apollo-runtime:$apolloVersion")
+  implementation("com.apollographql.apollo:apollo-rx2-support:$apolloVersion")
   implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
   compileOnly("org.jetbrains:annotations:13.0")
   testCompileOnly("org.jetbrains:annotations:13.0")

@@ -1,22 +1,22 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  val kotlin_version = "1.3.61"
-  val apollo_version = "1.3.0"
+  val kotlinVersion = "1.4.10"
+  val apolloVersion = "2.4.1"
 
   extra.apply {
-    set("kotlin_version", "1.3.61")
-    set("apollo_version", "1.2.2")
+    set("kotlin_version", kotlinVersion)
+    set("apollo_version", apolloVersion)
   }
   repositories {
     jcenter()
     google()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:3.5.3")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-    classpath("com.apollographql.apollo:apollo-gradle-plugin:$apollo_version")
-    classpath(kotlin("gradle-plugin", version = kotlin_version))
+    classpath("com.android.tools.build:gradle:4.1.0")
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    classpath("com.apollographql.apollo:apollo-gradle-plugin:$apolloVersion")
+    classpath(kotlin("gradle-plugin", version = kotlinVersion))
 
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
