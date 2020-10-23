@@ -12,12 +12,12 @@ plugins {
 
 android {
 
-  compileSdkVersion(29)
+  compileSdkVersion(30)
   buildToolsVersion("29.0.2")
   defaultConfig {
     applicationId = "hansffu.ontime"
     minSdkVersion(26)
-    targetSdkVersion(29)
+    targetSdkVersion(30)
     versionCode = 16
     versionName = "2.0"
 
@@ -69,26 +69,26 @@ android {
 dependencies {
   implementation(fileTree("include" to "*.jar", "dir" to "libs"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${KotlinCompilerVersion.VERSION}")
-  implementation("com.google.android.support:wearable:2.5.0")
-  compileOnly("com.google.android.wearable:wearable:2.5.0")
+  implementation("com.google.android.support:wearable:2.8.1")
+  compileOnly("com.google.android.wearable:wearable:2.8.1")
   implementation("com.google.android.gms:play-services-wearable:17.0.0")
-  implementation("com.google.android.gms:play-services-location:17.0.0")
+  implementation("com.google.android.gms:play-services-location:17.1.0")
   implementation("com.android.volley:volley:1.1.0")
-  implementation("org.apache.commons:commons-collections4:4.1")
+  implementation("org.apache.commons:commons-collections4:4.2")
   implementation("androidx.recyclerview:recyclerview:1.1.0")
   implementation("androidx.percentlayout:percentlayout:1.0.0")
   implementation("androidx.cardview:cardview:1.0.0")
   // implementation("com.android.support:support-v4:28.0.0")
-  implementation("androidx.wear:wear:1.0.0")
+  implementation("androidx.wear:wear:1.1.0")
   implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
   implementation("com.patloew.rxlocation:rxlocation:1.0.5")
   implementation("com.github.tbruyelle:rxpermissions:0.10.2")
-  implementation("com.squareup.retrofit2:retrofit:2.6.0")
-  implementation("com.squareup.retrofit2:adapter-rxjava2:2.6.0")
-  implementation("com.squareup.retrofit2:converter-gson:2.6.0")
+  implementation("com.squareup.retrofit2:retrofit:2.9.0")
+  implementation("com.squareup.retrofit2:adapter-rxjava2:2.9.0")
+  implementation("com.squareup.retrofit2:converter-gson:2.9.0")
   implementation("com.apollographql.apollo:apollo-runtime:$apolloVersion")
   implementation("com.apollographql.apollo:apollo-rx2-support:$apolloVersion")
-  implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
+  implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
   compileOnly("org.jetbrains:annotations:13.0")
   testCompileOnly("org.jetbrains:annotations:13.0")
 }
