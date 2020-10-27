@@ -12,4 +12,6 @@
     <string name="nearby_header">I nærheten</string>
     <string name="favorites_tips">Finn nye favoritter i nærheten</string>
     <string name="no_stops_found">Fant ingen stopp i nærheten</string>
+    <string name="nearby_error">En feil har oppstått</string>
+    <string name="no_location_permission">Fungerer ikke uten posisjonstilgang</string>
 </resources>

@@ -1,6 +1,10 @@
 package hansffu.ontime.service
 
 import android.location.Location
+import arrow.fx.IO
+import arrow.fx.extensions.io.async.async
+import arrow.fx.fix
+import arrow.integrations.retrofit.adapter.runAsync
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.rx2.Rx2Apollo
 import hansffu.ontime.StopPlaceQuery
@@ -30,17 +34,17 @@ class StopService {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
-    private val stopsApi = retrofit.create(StopsApi::class.java)
+    private val stopsApi: StopsApi = retrofit.create(StopsApi::class.java)
 
     private val apolloClient = ApolloClient.builder()
             .serverUrl("https://api.entur.io/journey-planner/v2/graphql")
             .build()
 
 
-    fun findStopsNear(location: Location): Single<List<Properties>> = stopsApi
+    fun findStopsNear(location: Location): IO<List<Properties>> = stopsApi
             .getNearbyStops(location.latitude, location.longitude, 2, 20, "venue")
-            .subscribeOn(Schedulers.io())
-            .map { it.features.map(Feature::properties) }
+            .runAsync(IO.async()).fix()
+            .map { it.body()!!.features.map(Feature::properties) }
 
     fun getDepartures(id: String): Observable<StopPlaceQuery.Data> {
         val watcher = apolloClient.query(

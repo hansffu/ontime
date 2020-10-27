@@ -1,6 +1,7 @@
 package hansffu.ontime.api
 
 import io.reactivex.Single
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
@@ -14,6 +15,6 @@ interface StopsApi {
             @Query("boundary.circle.radius") radius: Int,
             @Query("size") size: Int,
             @Query("layers") layers: String
-    ): Single<Geocoding>
+    ): Call<Geocoding>
 }
 

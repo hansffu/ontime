@@ -6,19 +6,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.wear.widget.WearableLinearLayoutManager
-import com.patloew.rxlocation.RxLocation
-import com.tbruyelle.rxpermissions2.RxPermissions
+import arrow.core.Either
+import arrow.fx.IO
+import arrow.fx.typeclasses.Disposable
 import hansffu.ontime.adapter.StopViewAdapter
 import hansffu.ontime.api.Properties
 import hansffu.ontime.model.Stop
+import hansffu.ontime.service.LocationService
 import hansffu.ontime.service.StopService
-import hansffu.ontime.service.requestLocation
-import hansffu.ontime.service.requestLocationPermission
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.stop_list.*
 
 private val TAG = "NearybyFragment"
@@ -26,17 +24,18 @@ private val TAG = "NearybyFragment"
 class NearbyFragment : Fragment() {
     private val stopService = StopService()
     private lateinit var stopAdapter: StopViewAdapter
-    private lateinit var stopFetcher: Disposable
-    private lateinit var rxLocation: RxLocation
-    private lateinit var rxPermissions: RxPermissions
+    var disposable: Disposable? = null
+
+    private val updateStops: IO<Unit> by lazy {
+        LocationService(this).getLocation()
+                .flatMap { stopService.findStopsNear(it) }
+                .map { updateStops(it) }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.stop_list, container, false)
     }
-
-    private fun getStopsForLocation() = requestLocation(rxLocation).flatMapSingleElement { stopService.findStopsNear(it) }
-
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -44,28 +43,26 @@ class NearbyFragment : Fragment() {
         stop_list.adapter = stopAdapter
         stop_list.layoutManager = LinearLayoutManager(context)
 
-        context?.let { ctx ->
-            rxLocation = RxLocation(ctx)
-            rxPermissions = RxPermissions(this)
-            stopFetcher = requestLocationPermission(rxPermissions)
-                    .filter { it }
-                    .flatMapMaybe { getStopsForLocation() }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { updateStops(it) }
+        disposable = updateStops.unsafeRunAsyncCancellable {
+            if (it is Either.Left) {
+                Log.e(TAG, "Error when updating stops", it.a)
+                Toast.makeText(context, R.string.nearby_error, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        stopFetcher.dispose()
+        disposable?.invoke()
     }
 
     override fun onResume() {
         super.onResume()
-        if (stopFetcher.isDisposed) {
-            stopFetcher = getStopsForLocation()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { stops -> updateStops(stops) }
+        disposable = updateStops.unsafeRunAsyncCancellable {
+            if (it is Either.Left) {
+                Log.e(TAG, "Error when updating stops", it.a)
+                Toast.makeText(context, R.string.nearby_error, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -88,7 +85,7 @@ class NearbyFragment : Fragment() {
                 "metroStation" -> "T-bane"
                 else -> ""
             }
-        }.joinToString (separator = ", ", prefix = " [", postfix = "]")
+        }.joinToString(separator = ", ", prefix = " [", postfix = "]")
         Log.d("categories", categories)
         return categories
     }

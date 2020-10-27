@@ -3,11 +3,14 @@ import java.io.FileInputStream
 import java.util.Properties
 
 val apolloVersion = "2.4.1"
+val arrowVersion = "0.11.0"
+
 plugins {
-  id("com.android.application")
-  id("com.apollographql.apollo")
-  kotlin("android")
-  kotlin("android.extensions")
+    id("com.android.application")
+    id("com.apollographql.apollo")
+    kotlin("android")
+    kotlin("android.extensions")
+    kotlin("kapt")
 }
 
 android {
@@ -83,8 +86,6 @@ dependencies {
     // implementation("com.android.support:support-v4:28.0.0")
     implementation("androidx.wear:wear:1.1.0")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
-    implementation("com.patloew.rxlocation:rxlocation:1.0.5")
-    implementation("com.github.tbruyelle:rxpermissions:0.10.2")
     implementation("com.github.quickpermissions:quickpermissions-kotlin:0.4.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:adapter-rxjava2:2.9.0")
@@ -93,6 +94,10 @@ dependencies {
     implementation("com.apollographql.apollo:apollo-rx2-support:$apolloVersion")
     implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
 
+    implementation("io.arrow-kt:arrow-fx:$arrowVersion")
+    implementation("io.arrow-kt:arrow-syntax:$arrowVersion")
+    implementation("io.arrow-kt:arrow-integrations-retrofit-adapter:$arrowVersion")
+    kapt("io.arrow-kt:arrow-meta:$arrowVersion")
 
     compileOnly("org.jetbrains:annotations:13.0")
     testCompileOnly("org.jetbrains:annotations:13.0")
