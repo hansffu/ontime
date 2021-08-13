@@ -11,20 +11,19 @@ plugins {
 }
 
 android {
-
-  compileSdkVersion(29)
-  buildToolsVersion("29.0.2")
+  compileSdkVersion(30)
+  buildToolsVersion("30.0.2")
   defaultConfig {
     applicationId = "hansffu.ontime"
     minSdkVersion(26)
-    targetSdkVersion(29)
+    targetSdkVersion(30)
     versionCode = 16
     versionName = "2.0"
 
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
   }
 
 

@@ -36,8 +36,8 @@ class TimetableActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable)
 
-        stopId = intent.getStringExtra(STOP_ID)
-        stopName = intent.getStringExtra(STOP_NAME)
+        stopId = intent.getStringExtra(STOP_ID)!!
+        stopName = intent.getStringExtra(STOP_NAME)!!
         favoriteService = FavoriteService(this)
 
         timetableAdapter = TimetableAdapter(this, stopName)
