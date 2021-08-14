@@ -17,7 +17,7 @@ android {
     applicationId = "hansffu.ontime"
     minSdkVersion(26)
     targetSdkVersion(30)
-    versionCode = 16
+    versionCode = 17
     versionName = "2.0"
 
   }
@@ -26,43 +26,15 @@ android {
     targetCompatibility = JavaVersion.VERSION_11
   }
 
+  kotlinOptions {
+    jvmTarget = "11"
+  }
 
   apollo {
     customTypeMapping.set(mapOf("DateTime" to "java.lang.String"))
   }
 
-  signingConfigs {
-    register("release")
-  }
 
-  buildTypes {
-    getByName("release") {
-      isMinifyEnabled = false
-      proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs["release"]
-    }
-  }
-  val localProps = Properties()
-  val isRunningOnTravis = System.getenv("CI") == "true"
-
-  if (isRunningOnTravis) {
-    signingConfigs["release"].storeFile = file("../hansffu_upload_key.jks")
-    signingConfigs["release"].storePassword = System.getenv("keystore_password")
-    signingConfigs["release"].keyAlias = System.getenv("keystore_alias")
-    signingConfigs["release"].keyPassword = System.getenv("keystore_alias_password")
-
-  } else if (file("../local.properties").exists()) {
-    localProps.load(FileInputStream(file("../local.properties")))
-    val keyProps = Properties()
-    if (localProps["keystore.props.file"] != null) {
-      keyProps.load(FileInputStream(file(localProps.getProperty("keystore.props.file"))))
-//      keyProps.load(file(uri(localProps["keystore.props.file"])))
-    }
-    signingConfigs["release"].storeFile = if (keyProps.getProperty("store") != null) File(keyProps.getProperty("store")) else null
-    signingConfigs["release"].keyAlias = keyProps.getProperty("alias")
-    signingConfigs["release"].storePassword = keyProps.getProperty("storePass")
-    signingConfigs["release"].keyPassword = keyProps.getProperty("pass")
-  }
 }
 
 dependencies {
@@ -72,7 +44,7 @@ dependencies {
   compileOnly("com.google.android.wearable:wearable:2.5.0")
   implementation("com.google.android.gms:play-services-wearable:17.0.0")
   implementation("com.google.android.gms:play-services-location:17.0.0")
-  implementation("com.android.volley:volley:1.1.0")
+  implementation("com.android.volley:volley:1.2.0")
   implementation("org.apache.commons:commons-collections4:4.1")
   implementation("androidx.recyclerview:recyclerview:1.1.0")
   implementation("androidx.percentlayout:percentlayout:1.0.0")
@@ -90,7 +62,4 @@ dependencies {
   implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
   compileOnly("org.jetbrains:annotations:13.0")
   testCompileOnly("org.jetbrains:annotations:13.0")
-}
-repositories {
-  mavenCentral()
 }

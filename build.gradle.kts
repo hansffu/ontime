@@ -9,8 +9,8 @@ buildscript {
     set("apollo_version", "1.2.2")
   }
   repositories {
-    jcenter()
     google()
+    mavenCentral()
   }
   dependencies {
     classpath("com.android.tools.build:gradle:7.0.0")
@@ -25,12 +25,9 @@ buildscript {
 
 allprojects {
   repositories {
-    jcenter()
     google()
+    mavenCentral()
     maven { url = uri("https://jitpack.io") }
   }
 }
 
-tasks.register("clean",Delete::class) {
-  delete(rootProject.buildDir)
-}
