@@ -100,8 +100,8 @@ class TimetableActivity : Activity() {
                 .filterNotNull()
                 .sortedBy { lineDeparture ->
                     lineDeparture.departures
-                            .mapNotNull { call -> call.expectedArrivalTime }
-                            .min()
+                        .mapNotNull { call -> call.expectedArrivalTime }
+                        .minOrNull()
                 }
                 .toList()
     }

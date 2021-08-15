@@ -1,12 +1,12 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  val kotlin_version = "1.3.61"
-  val apollo_version = "1.3.0"
+  val kotlin_version = "1.5.21"
+  val apollo_version = "2.5.9"
 
   extra.apply {
-    set("kotlin_version", "1.3.61")
-    set("apollo_version", "1.2.2")
+    set("kotlin_version", "1.5.21")
+    set("apollo_version", "2.5.9")
   }
   repositories {
     google()
