@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.stop_list.*
 
 class FavoritesFragment : Fragment() {
 
-    private val favoriteService: FavoriteService by lazy { FavoriteService(this.context!!) }
+    private val favoriteService: FavoriteService by lazy { FavoriteService(this.requireContext()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -31,7 +31,7 @@ class FavoritesFragment : Fragment() {
     private fun setListContent() {
         val stops = favoriteService.getFavorites().toMutableList()
 
-        val adapter = StopViewAdapter(context!!.getString(R.string.favorites_header)).apply { updateStops(stops) }
+        val adapter = StopViewAdapter(requireContext().getString(R.string.favorites_header)).apply { updateStops(stops) }
         adapter.setListener(object : StopViewAdapter.ItemSelectedListener {
             override fun onItemSelected(position: Int) {
                 val startTimetableActivity = Intent(activity, TimetableActivity::class.java)
@@ -42,7 +42,7 @@ class FavoritesFragment : Fragment() {
         })
 
         if (stops.isEmpty()) {
-            adapter.setNoStopsText(context!!.getString(R.string.favorites_tips))
+            adapter.setNoStopsText(requireContext().getString(R.string.favorites_tips))
         }
         stop_list.adapter = adapter
         stop_list.layoutManager = LinearLayoutManager(context)
