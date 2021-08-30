@@ -3,28 +3,23 @@ package hansffu.ontime
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
-import androidx.wear.widget.CurvingLayoutCallback
 import androidx.wear.widget.WearableLinearLayoutManager
 import hansffu.ontime.adapter.TimetableAdapter
+import hansffu.ontime.databinding.ActivityTimetableBinding
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.model.LineDirectionRef
 import hansffu.ontime.model.Stop
 import hansffu.ontime.service.FavoriteService
 import hansffu.ontime.service.StopService
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_timetable.*
 import io.reactivex.disposables.CompositeDisposable
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TimetableActivity : Activity() {
 
+    private lateinit var binding: ActivityTimetableBinding
     private lateinit var timetableAdapter: TimetableAdapter
     private lateinit var stopId: String
     private lateinit var stopName: String
@@ -40,31 +35,21 @@ class TimetableActivity : Activity() {
         stopName = intent.getStringExtra(STOP_NAME)!!
         favoriteService = FavoriteService(this)
 
-        timetableAdapter = TimetableAdapter(this, stopName)
-        departure_list.adapter = timetableAdapter
-
-
-        val defaultLayoutCallback = CurvingLayoutCallback(this)
-        departure_list.apply {
-            adapter = timetableAdapter
-            layoutManager = WearableLinearLayoutManager(this@TimetableActivity, object : WearableLinearLayoutManager.LayoutCallback() {
-                override fun onLayoutFinished(child: View, parent: RecyclerView) {
-                    if (child.id != R.id.timetable_header) defaultLayoutCallback.onLayoutFinished(child, parent)
-                }
-            })
+        binding.departureList.apply {
+            adapter = TimetableAdapter(this@TimetableActivity, stopName)
+            isEdgeItemsCenteringEnabled = true
+            layoutManager = WearableLinearLayoutManager(this@TimetableActivity)
         }
 
-        bottom_action_drawer.setOnMenuItemClickListener { onMenuItemClick(it) }
+        binding.bottomActionDrawer.setOnMenuItemClickListener { onMenuItemClick(it) }
 
-        val toggleFavoriteMenuItem = bottom_action_drawer.menu.findItem(R.id.toggle_favorite)
+        val toggleFavoriteMenuItem = binding.bottomActionDrawer.menu.findItem(R.id.toggle_favorite)
         val favorite = favoriteService.isFavorite(Stop(stopName, stopId))
         toggleFavorite(favorite, toggleFavoriteMenuItem)
         if (!favorite) {
-            bottom_action_drawer.controller.peekDrawer()
+            binding.bottomActionDrawer.controller.peekDrawer()
         }
-
     }
-
 
     public override fun onResume() {
         super.onResume()
@@ -73,10 +58,9 @@ class TimetableActivity : Activity() {
 
     private fun setListContent() {
 
-        progress_bar.visibility = View.VISIBLE
-        updateTimetibles(timetableAdapter)
-        departure_list.requestFocus()
-
+        binding.progressBar.visibility = View.VISIBLE
+        // updateTimetibles(timetableAdapter)
+        binding.departureList.requestFocus()
     }
 
     fun groupLines(estimatedCall: StopPlaceQuery.EstimatedCall): LineDirectionRef? {
@@ -87,41 +71,35 @@ class TimetableActivity : Activity() {
         } else {
             null
         }
-
     }
 
     private fun toLineDepartures(stopPlace: StopPlaceQuery.StopPlace): List<LineDeparture> {
         val quays = stopPlace.quays ?: emptyList()
         return quays.flatMap { it.estimatedCalls() }
-                .asSequence()
-                .filterNotNull()
-                .groupBy(::groupLines)
-                .map { (ref, departures) -> ref?.let { LineDeparture(it, departures) } }
-                .filterNotNull()
-                .sortedBy { lineDeparture ->
-                    lineDeparture.departures
-                        .mapNotNull { call -> call.expectedArrivalTime }
-                        .minOrNull()
-                }
-                .toList()
+            .asSequence()
+            .filterNotNull()
+            .groupBy(::groupLines)
+            .map { (ref, departures) -> ref?.let { LineDeparture(it, departures) } }
+            .filterNotNull()
+            .sortedBy { lineDeparture ->
+                lineDeparture.departures
+                    .mapNotNull { call -> call.expectedArrivalTime }
+                    .minOrNull()
+            }
+            .toList()
     }
 
-    private fun updateTimetibles(adapter: TimetableAdapter) {
-        disposables.add(stopService.getDepartures(stopId)
-                .subscribeOn(Schedulers.io())
-                .map { it.stopPlace }
-                .map(::toLineDepartures)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { estimatedCalls ->
-                            adapter.estimatedCall = estimatedCalls
-                            progress_bar.visibility = View.GONE
-                            departure_list.requestFocus()
-                        },
-                        { error ->
-                            Log.e(TAG, "Error getting timetables", error)
-                            Toast.makeText(this@TimetableActivity, "Fant ikke holdeplass", Toast.LENGTH_LONG).show()
-                        }))
+    private suspend fun updateTimetibles(adapter: TimetableAdapter) {
+        val estimatedCalls = withContext(Dispatchers.IO) {
+            stopService.getDepartures(stopId).stopPlace?.let {
+                toLineDepartures(it)
+            } ?: emptyList()
+        }
+        withContext(Dispatchers.Main) {
+            adapter.estimatedCall = estimatedCalls
+            binding.progressBar.visibility = View.GONE
+            binding.departureList.requestFocus()
+        }
     }
 
     private fun toggleFavorite(isFavorite: Boolean, menuItem: MenuItem) {
@@ -132,11 +110,8 @@ class TimetableActivity : Activity() {
     @SuppressLint("CheckResult")
     private fun onMenuItemClick(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.toggle_favorite) {
-            Observable.just(Stop(stopName, stopId))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .map { stop -> favoriteService.toggleFavorite(stop) }
-                    .subscribe { toggleFavorite(it, menuItem) }
+            val stop = favoriteService.toggleFavorite(Stop(stopName, stopId))
+            toggleFavorite(stop, menuItem)
             return true
         }
         return false
@@ -153,5 +128,4 @@ class TimetableActivity : Activity() {
         const val STOP_ID = "stopId"
         const val STOP_NAME = "stopName"
     }
-
 }

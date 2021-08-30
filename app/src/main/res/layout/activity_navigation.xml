@@ -5,15 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_background"
     tools:deviceIds="wear">
-
-    <FrameLayout
-        android:id="@+id/content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </FrameLayout>
 
     <androidx.wear.widget.drawer.WearableNavigationDrawerView
         android:id="@+id/top_navigation_drawer"
@@ -21,6 +13,15 @@
         android:layout_height="match_parent"
         android:background="@color/light_ui_elem"
         app:navigationStyle="singlePage"/>
+
+    <androidx.wear.widget.WearableRecyclerView
+        android:id="@+id/stop_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:textAlignment="center"
+        tools:listitem="@layout/stop_list_item"
+        />
 
 
 </androidx.wear.widget.drawer.WearableDrawerLayout>

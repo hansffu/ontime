@@ -1,35 +1,61 @@
 package hansffu.ontime
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.wear.widget.WearableLinearLayoutManager
 import hansffu.ontime.adapter.MainNavigationAdapter
-import hansffu.ontime.adapter.MenuItem
+import hansffu.ontime.adapter.StopViewAdapter
+import hansffu.ontime.databinding.ActivityNavigationBinding
+import hansffu.ontime.model.StopListType
 import hansffu.ontime.service.FavoriteService
-import kotlinx.android.synthetic.main.activity_navigation.*
 
-class NavigationActivity : FragmentActivity() {
+class NavigationActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityNavigationBinding
+    private val favoriteService: FavoriteService by lazy { FavoriteService(applicationContext) }
+    private val favoriteModel: FavoriteViewModel by viewModels()
+    private var stopViewAdapter = StopViewAdapter()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_navigation)
+        binding = ActivityNavigationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.stopList.apply {
+            adapter = stopViewAdapter
+            isEdgeItemsCenteringEnabled = true
+            layoutManager = WearableLinearLayoutManager(
+                this@NavigationActivity,
+                CustomScrollingLayoutCallback()
+            )
+        }
+        binding.topNavigationDrawer.apply {
+            setAdapter(MainNavigationAdapter(this@NavigationActivity))
+        }
+    }
 
-        top_navigation_drawer.setAdapter(MainNavigationAdapter(this))
-        top_navigation_drawer.addOnItemSelectedListener { onItemSelected(it) }
-        top_navigation_drawer.controller.peekDrawer()
+    override fun onResume() {
+        super.onResume()
+        favoriteModel.getStops().observe(this) {
+            if (it != null) {
+                stopViewAdapter.updateStops(it)
+            }
+        }
 
-        if (FavoriteService(this).getFavorites().isEmpty()) {
+        binding.topNavigationDrawer.apply {
+            addOnItemSelectedListener { onItemSelected(it) }
+            controller.peekDrawer()
+        }
+
+        if (favoriteService.getFavorites().isEmpty()) {
             onItemSelected(1)
         } else {
             onItemSelected(0)
         }
-
     }
 
     private fun onItemSelected(i: Int) {
-        val transaction = supportFragmentManager.beginTransaction().apply {
-            replace(R.id.content, MenuItem.values()[i].contentFragment.newInstance())
-            addToBackStack(null)
-        }
-        transaction.commit()
+        favoriteModel.load(if (i == 0) StopListType.FAVORITES else StopListType.NEARBY)
     }
 }
+

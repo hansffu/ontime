@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
+
     android:orientation="vertical"
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
@@ -18,12 +19,12 @@
         android:layout_marginStart="15dp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="normal"
-        android:textAlignment="center"
         app:layout_box="left|right"
         tools:text="Løren [T-bane]" />
 
 
-</androidx.wear.widget.BoxInsetLayout>
+</LinearLayout>
