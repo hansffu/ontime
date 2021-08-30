@@ -7,34 +7,35 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
 import hansffu.ontime.api.Properties
+import hansffu.ontime.databinding.StopListHeaderBinding
+import hansffu.ontime.databinding.StopListItemBinding
 import hansffu.ontime.model.Stop
-import kotlinx.android.synthetic.main.stop_list_header.view.*
-import kotlinx.android.synthetic.main.stop_list_item.view.*
+import hansffu.ontime.model.StopListModel
 
-class StopViewAdapter(private var headerText: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class StopViewAdapter :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
     private var noStopsText: String? = null
     private var itemSelectedListener: ItemSelectedListener? = null
     private var stops: List<Stop> = emptyList()
+    private var headerText = ""
 
-    fun updateStops(stops: List<Stop>) {
-        stops.forEach{
-            Log.d("updateStops", it.toString())
-        }
-        this.stops = stops
-        notifyDataSetChanged()
-    }
-
-    fun setNoStopsText(noStopsText: String) {
-        this.noStopsText = noStopsText
+    fun updateStops(model: StopListModel) {
+        this.stops = model.stops
+        this.headerText = model.type.name
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == TYPE_HEADER) {
-            HeaderViewHolder(LayoutInflater.from(parent.context)
-                    .inflate(R.layout.stop_list_header, parent, false))
-        } else StopViewHolder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.stop_list_item, parent, false))
+            HeaderViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.stop_list_header, parent, false)
+            )
+        } else StopViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.stop_list_item, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -58,7 +59,6 @@ class StopViewAdapter(private var headerText: String) : RecyclerView.Adapter<Rec
         } else TYPE_ITEM
     }
 
-
     fun setListener(itemSelectedListener: ItemSelectedListener) {
         this.itemSelectedListener = itemSelectedListener
     }
@@ -74,34 +74,33 @@ class StopViewAdapter(private var headerText: String) : RecyclerView.Adapter<Rec
         fun onItemSelected(position: Int)
     }
 
-
     companion object {
         private const val TYPE_HEADER = 1
         private const val TYPE_ITEM = 2
     }
 }
 
-private class StopViewHolder internal constructor(item: View) : RecyclerView.ViewHolder(item) {
+private class StopViewHolder(item: View) : RecyclerView.ViewHolder(item) {
+    private val binding = StopListItemBinding.bind(item)
+    var stopName: String
+        set(value) {
+            binding.shortStopName.text = value
+        }
+        get() = binding.shortStopName.text.toString()
 
-    internal var stopName: String
-    set(value) {
-        itemView.short_stop_name.text = value
-    }
-    get() = itemView.short_stop_name.text.toString()
-
-    internal fun bind(position: Int, listener: StopViewAdapter.ItemSelectedListener?) {
+    fun bind(position: Int, listener: StopViewAdapter.ItemSelectedListener?) {
         itemView.setOnClickListener {
             listener?.onItemSelected(position)
         }
     }
-
 }
 
-private class HeaderViewHolder internal constructor(item: View) : RecyclerView.ViewHolder(item) {
+private class HeaderViewHolder(item: View) : RecyclerView.ViewHolder(item) {
+    private val binding: StopListHeaderBinding = StopListHeaderBinding.bind(item)
 
-    internal var headerText: String
+    var headerText: String
         set(value) {
-            itemView.stop_list_header.text = value
+            binding.stopListHeader.text = value
         }
-        get() = itemView.stop_list_header.text.toString()
+        get() = binding.stopListHeader.text.toString()
 }

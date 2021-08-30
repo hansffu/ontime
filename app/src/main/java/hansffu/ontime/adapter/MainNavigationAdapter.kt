@@ -3,9 +3,7 @@ package hansffu.ontime.adapter
 import android.graphics.drawable.Drawable
 import androidx.fragment.app.Fragment
 import androidx.wear.widget.drawer.WearableNavigationDrawerView
-import hansffu.ontime.FavoritesFragment
 import hansffu.ontime.NavigationActivity
-import hansffu.ontime.NearbyFragment
 import hansffu.ontime.R
 
 class MainNavigationAdapter(private val navigationActivity: NavigationActivity) : WearableNavigationDrawerView.WearableNavigationDrawerAdapter() {
@@ -25,9 +23,8 @@ class MainNavigationAdapter(private val navigationActivity: NavigationActivity) 
 
 internal enum class MenuItem(
         internal val textId: Int,
-        internal val iconId: Int,
-        internal val contentFragment: Class<out Fragment>) {
+        internal val iconId: Int) {
 
-    FAVORITES(R.string.drawer_favorites, R.drawable.ic_favorite_white_48dp, FavoritesFragment::class.java),
-    NEARBY(R.string.drawer_nearby, R.drawable.ic_near_me_white_48dp, NearbyFragment::class.java)
+    FAVORITES(R.string.drawer_favorites, R.drawable.ic_favorite_white_48dp),
+    NEARBY(R.string.drawer_nearby, R.drawable.ic_near_me_white_48dp)
 }

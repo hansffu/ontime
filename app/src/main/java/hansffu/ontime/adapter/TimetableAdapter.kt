@@ -8,28 +8,31 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
+import hansffu.ontime.databinding.TimetableListHeaderBinding
+import hansffu.ontime.databinding.TimetableListItemBinding
 import hansffu.ontime.model.LineDeparture
-import kotlinx.android.synthetic.main.timetable_list_header.view.*
-import kotlinx.android.synthetic.main.timetable_list_item.view.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class TimetableAdapter(private val context: Context, private val stopName: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TimetableAdapter(private val context: Context, private val stopName: String) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var estimatedCall: List<LineDeparture> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == TYPE_HEADER) {
-            StopNameHolder(LayoutInflater.from(parent.context)
-                    .inflate(R.layout.timetable_list_header, parent, false))
-        } else TimeHolder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.timetable_list_item, parent, false))
-
+            StopNameHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.timetable_list_header, parent, false)
+            )
+        } else TimeHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.timetable_list_item, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, index: Int) {
@@ -53,24 +56,23 @@ class TimetableAdapter(private val context: Context, private val stopName: Strin
         return estimatedCall.size + 1
     }
 
-
     companion object {
 
         private const val TYPE_HEADER = 1
         private const val TYPE_ITEM = 2
     }
-
 }
 
-private class StopNameHolder internal constructor(private val item: View) : RecyclerView.ViewHolder(item) {
+private class StopNameHolder(item: View) : RecyclerView.ViewHolder(item) {
+    private val binding = TimetableListHeaderBinding.bind(item)
 
-    internal fun update(stopName: String) {
-        item.short_stop_name.text = stopName
+    fun update(stopName: String) {
+        binding.shortStopName.text = stopName
     }
 }
 
-private class TimeHolder internal constructor(private val item: View) : RecyclerView.ViewHolder(item) {
-
+private class TimeHolder(item: View) : RecyclerView.ViewHolder(item) {
+    private val binding = TimetableListItemBinding.bind(item)
 
     private fun toTimeString(timeString: String): String {
         val time = timeString.toDate()
@@ -80,16 +82,15 @@ private class TimeHolder internal constructor(private val item: View) : Recycler
             timeMins >= 20 -> SimpleDateFormat("HH:mm").format(time)
             else -> "$timeMins\u00A0min"
         }
-
     }
 
-    internal fun update(lineDeparture: LineDeparture) {
-        item.line_number.text = lineDeparture.lineDirectionRef.lineRef
-        item.destination.text = lineDeparture.lineDirectionRef.destinationRef
-        val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime() }.map(::toTimeString).joinToString("  ")
-//        val times = estimatedCall.serviceJourney()?.estimatedCalls()?.mapNotNull { it.expectedArrivalTime() }?.map { toTimeString(it) }?.joinToString(separator = "  ") { it }
-        item.departs_in_item.text = times
-
+    fun update(lineDeparture: LineDeparture) {
+        binding.lineNumber.text = lineDeparture.lineDirectionRef.lineRef
+        binding.destination.text = lineDeparture.lineDirectionRef.destinationRef
+        val times =
+            lineDeparture.departures.mapNotNull { it.expectedArrivalTime() }.map(::toTimeString)
+                .joinToString("  ")
+        binding.departsInItem.text = times
     }
 }
 
