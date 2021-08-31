@@ -1,12 +1,10 @@
 package hansffu.ontime.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
-import hansffu.ontime.api.Properties
 import hansffu.ontime.databinding.StopListHeaderBinding
 import hansffu.ontime.databinding.StopListItemBinding
 import hansffu.ontime.model.Stop
