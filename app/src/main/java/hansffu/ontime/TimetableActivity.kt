@@ -5,6 +5,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.wear.widget.WearableLinearLayoutManager
 import hansffu.ontime.adapter.TimetableAdapter
 import hansffu.ontime.databinding.ActivityTimetableBinding
@@ -17,7 +18,7 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class TimetableActivity : Activity() {
+class TimetableActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTimetableBinding
     private lateinit var timetableAdapter: TimetableAdapter
@@ -29,7 +30,8 @@ class TimetableActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_timetable)
+        binding = ActivityTimetableBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         stopId = intent.getStringExtra(STOP_ID)!!
         stopName = intent.getStringExtra(STOP_NAME)!!

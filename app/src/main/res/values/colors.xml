@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="background" type="color">#000000</item>
+    <item name="surface" type="color">#212124</item>
+    <item name="on_surface" type="color">#ffffff</item>
+    <item name="on_background" type="color">#ffffff</item>
+    <item name="primary" type="color">#f44336</item>
+
     <!--Red-->
-<!--    <item name="app_color" type="color">#f44336</item>-->
-<!--    <item name="dark_background" type="color">#330D0B</item>-->
-<!--    <item name="light_background" type="color">#4D1410</item>-->
-<!--    <item name="dark_ui_elem" type="color">#661B15</item>-->
-<!--    <item name="light_ui_elem" type="color">#8C251D</item>-->
-<!--    <item name="active_ui_elem" type="color">#A62C23</item>-->
-<!--    <item name="colorAccent" type="color">#FF8880</item>-->
+    <item name="app_color" type="color">#f44336</item>
+    <item name="dark_background" type="color">#330D0B</item>
+    <item name="light_background" type="color">#4D1410</item>
+    <item name="dark_ui_elem" type="color">#661B15</item>
+    <item name="light_ui_elem" type="color">#8C251D</item>
+    <item name="active_ui_elem" type="color">#A62C23</item>
+    <item name="colorAccent" type="color">#FF8880</item>
 
     <!--Blue Gray-->
-    <item name="app_color" type="color">#607D8B</item>
-    <item name="dark_background" type="color">#232E33</item>
-    <item name="light_background" type="color">#35454D</item>
-    <item name="dark_ui_elem" type="color">#465B66</item>
-    <item name="light_ui_elem" type="color">#617E8C</item>
-    <item name="active_ui_elem" type="color">#7295A6</item>
-    <item name="colorAccent" type="color">#B3E5FF</item>
+<!--    <item name="app_color" type="color">#607D8B</item>-->
+<!--    <item name="dark_background" type="color">#232E33</item>-->
+<!--    <item name="light_background" type="color">#35454D</item>-->
+<!--    <item name="dark_ui_elem" type="color">#465B66</item>-->
+<!--    <item name="light_ui_elem" type="color">#617E8C</item>-->
+<!--    <item name="active_ui_elem" type="color">#7295A6</item>-->
+<!--    <item name="colorAccent" type="color">#B3E5FF</item>-->
 
 
 </resources>

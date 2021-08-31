@@ -5,11 +5,15 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
+    android:background="@drawable/rounded_rectangle"
 
+    android:backgroundTint="@color/surface"
+    android:clickable="true"
     android:orientation="vertical"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:padding="10dp"
+    android:layout_margin="8dp"
+    app:boxedEdges="all">
+
 
     <TextView
         android:id="@+id/short_stop_name"
@@ -20,7 +24,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAlignment="center"
-        android:textColor="@color/white"
+        android:textColor="@color/on_surface"
         android:textSize="18sp"
         android:textStyle="normal"
         app:layout_box="left|right"
