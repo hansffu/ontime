@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
+    android:layout_marginTop="20dp"
     android:orientation="horizontal">
 
     <TextView
@@ -15,7 +16,7 @@
         android:maxLines="1"
         android:paddingBottom="12dp"
         android:textAlignment="center"
-        android:textSize="22sp"
+        android:textSize="16sp"
         app:layout_box="top|left|right"
         tools:text="@string/favorites_header" />
 

@@ -1,11 +1,12 @@
 package hansffu.ontime.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
 import hansffu.ontime.databinding.TimetableListHeaderBinding
@@ -15,7 +16,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class TimetableAdapter(private val context: Context, private val stopName: String) :
+class TimetableAdapter(private val stopName: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var estimatedCall: List<LineDeparture> = emptyList()
         set(value) {
@@ -63,7 +64,7 @@ class TimetableAdapter(private val context: Context, private val stopName: Strin
     }
 }
 
-private class StopNameHolder(item: View) : RecyclerView.ViewHolder(item) {
+private class StopNameHolder(private val item: View) : RecyclerView.ViewHolder(item) {
     private val binding = TimetableListHeaderBinding.bind(item)
 
     fun update(stopName: String) {
