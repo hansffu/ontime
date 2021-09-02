@@ -16,8 +16,8 @@ android {
         applicationId = "hansffu.ontime"
         minSdk = 26
         targetSdk = 30
-        versionCode = 18
-        versionName = "2.0"
+        versionCode = 20
+        versionName = "3.0"
 
     }
     buildFeatures {
@@ -55,6 +55,7 @@ dependencies {
     implementation("androidx.wear:wear-input:1.1.0")
     implementation("androidx.activity:activity-ktx:1.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("com.squareup.retrofit2:retrofit:2.6.0")
     implementation("com.squareup.retrofit2:adapter-rxjava2:2.6.0")
     implementation("com.squareup.retrofit2:converter-gson:2.6.0")

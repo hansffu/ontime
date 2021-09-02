@@ -3,6 +3,7 @@
     <item name="background" type="color">#000000</item>
     <item name="surface" type="color">#212124</item>
     <item name="on_surface" type="color">#ffffff</item>
+    <item name="on_surface_variant" type="color">#dadce0</item>
     <item name="on_background" type="color">#ffffff</item>
     <item name="primary" type="color">#f44336</item>
 

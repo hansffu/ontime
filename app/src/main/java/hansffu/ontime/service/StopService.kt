@@ -12,6 +12,8 @@ import hansffu.ontime.model.Stop
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -51,11 +53,13 @@ class StopService {
         .map { Stop(it.name + toCategoryText(it), it.id) }
 
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {
-        val response = apolloClient.query(
-            StopPlaceQuery.builder()
-                .id(id)
-                .build()
-        ).await()
+        val response = withContext(Dispatchers.IO) {
+            apolloClient.query(
+                StopPlaceQuery.builder()
+                    .id(id)
+                    .build()
+            ).await()
+        }
         return response.data ?: throw IOException()
         // return Rx2Apollo.from(watcher)
         //         .subscribeOn(Schedulers.io())
