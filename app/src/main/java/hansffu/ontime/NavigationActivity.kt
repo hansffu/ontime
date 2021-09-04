@@ -11,15 +11,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import hansffu.ontime.adapter.MainNavigationAdapter
 import hansffu.ontime.adapter.StopViewAdapter
 import hansffu.ontime.databinding.ActivityNavigationBinding
+import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
 import hansffu.ontime.service.FavoriteService
 
 class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedListener {
 
     private lateinit var binding: ActivityNavigationBinding
-    private val favoriteService: FavoriteService by lazy { FavoriteService(applicationContext) }
     private val favoriteModel: FavoriteViewModel by viewModels()
-    private val timetableModel: TimetableViewModel by viewModels()
     private var stopViewAdapter = StopViewAdapter()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,22 +35,29 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
             setAdapter(MainNavigationAdapter(this@NavigationActivity))
         }
         favoriteModel.getLocationHolder().observe(this) {
-            when (it) {
-                is LocationHolder.NoPermission -> requestPermissions(
-                    arrayOf(
-                        ACCESS_FINE_LOCATION,
-                        ACCESS_COARSE_LOCATION
-                    ), 123
-                )
-                is LocationHolder.LocationFound -> favoriteModel.load()
-                else -> println(it)
-            }
+            if (it is LocationHolder.NoPermission) requestPermissions(
+                arrayOf(
+                    ACCESS_FINE_LOCATION,
+                    ACCESS_COARSE_LOCATION
+                ), 123
+            )
         }
+        onMenuItemSelected(0)
+        startObservers()
+    }
 
-        if (favoriteService.getFavorites().isEmpty()) {
-            onMenuItemSelected(1)
-        } else {
-            onMenuItemSelected(0)
+    private fun startObservers() {
+        favoriteModel.stops.observe(this) {
+            stopViewAdapter.stops = it
+        }
+        favoriteModel.currentList.observe(this) {
+            stopViewAdapter.headerText = resources.getString(
+                when (it) {
+                    StopListType.NEARBY -> R.string.nearby_header
+                    StopListType.FAVORITES -> R.string.favorites_header
+                    null -> R.string.empty_string
+                }
+            )
         }
     }
 
@@ -66,9 +72,6 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
 
     override fun onResume() {
         super.onResume()
-        favoriteModel.getStops().observe(this) {
-            stopViewAdapter.updateStops(it)
-        }
 
         binding.topNavigationDrawer.apply {
             addOnItemSelectedListener { onMenuItemSelected(it) }
@@ -77,7 +80,6 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
     }
 
     private fun onMenuItemSelected(i: Int) {
-        favoriteModel.load()
         favoriteModel.setCurrentList(
             when (i) {
                 1 -> StopListType.NEARBY
@@ -86,17 +88,10 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
         )
     }
 
-    override fun onItemSelected(position: Int) {
-        timetableModel.setCurrentStop(stopViewAdapter.stops[position])
+    override fun onItemSelected(stop: Stop) {
         val startTimetableActivity = Intent(this, TimetableActivity::class.java)
-        startTimetableActivity.putExtra(
-            TimetableActivity.STOP_ID,
-            stopViewAdapter.stops[position].id
-        )
-        startTimetableActivity.putExtra(
-            TimetableActivity.STOP_NAME,
-            stopViewAdapter.stops[position].name
-        )
+        startTimetableActivity.putExtra(TimetableActivity.STOP_ID, stop.id)
+        startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, stop.name)
         startActivity(startTimetableActivity)
     }
 }

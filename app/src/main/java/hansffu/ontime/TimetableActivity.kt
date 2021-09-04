@@ -22,7 +22,6 @@ class TimetableActivity : AppCompatActivity() {
     private lateinit var stopName: String
     private lateinit var favoriteService: FavoriteService
     private val timetableModel: TimetableViewModel by viewModels()
-    private val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,20 +39,24 @@ class TimetableActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@TimetableActivity)
         }
 
-        binding.bottomActionDrawer.setOnMenuItemClickListener { onMenuItemClick(it) }
-
-        setUpObservers()
-
-        val toggleFavoriteMenuItem = binding.bottomActionDrawer.menu.findItem(R.id.toggle_favorite)
-        val favorite = favoriteService.isFavorite(Stop(stopName, stopId))
-        toggleFavorite(favorite, toggleFavoriteMenuItem)
-        if (!favorite) {
-            binding.bottomActionDrawer.controller.peekDrawer()
+        binding.bottomActionDrawer.setOnMenuItemClickListener {
+            onMenuItemClick(it)
+            false
         }
 
+        timetableModel.setCurrentStop(Stop(stopName, stopId))
+
+        setUpObservers()
     }
 
     private fun setUpObservers() {
+        timetableModel.isFavorite.observe(this) {
+            toggleFavorite(it)
+            if (!it) {
+                binding.bottomActionDrawer.controller.peekDrawer()
+            }
+        }
+
         timetableModel.getLineDepartures().observe(this) {
             if (it != null) {
                 timetableAdapter.estimatedCall = it
@@ -70,24 +73,16 @@ class TimetableActivity : AppCompatActivity() {
     }
 
 
-    private fun toggleFavorite(isFavorite: Boolean, menuItem: MenuItem) {
+    private fun toggleFavorite(isFavorite: Boolean) {
+        val menuItem = binding.bottomActionDrawer.menu.findItem(R.id.toggle_favorite)
         menuItem.setIcon(if (isFavorite) R.drawable.ic_favorite_white_48dp else R.drawable.ic_favorite_border_white_48dp)
         menuItem.setTitle(if (isFavorite) R.string.add_favorite else R.string.remove_favorite)
     }
 
-    @SuppressLint("CheckResult")
-    private fun onMenuItemClick(menuItem: MenuItem): Boolean {
+    private fun onMenuItemClick(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.toggle_favorite) {
-            val stop = favoriteService.toggleFavorite(Stop(stopName, stopId))
-            toggleFavorite(stop, menuItem)
-            return true
+            timetableModel.toggleFavorite(Stop(stopName, stopId))
         }
-        return false
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposables.clear()
     }
 
     companion object {

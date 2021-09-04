@@ -4,6 +4,8 @@ import android.app.Application
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.*
+import hansffu.ontime.database.AppDatabase
+import hansffu.ontime.database.dao.FavoriteStop
 import hansffu.ontime.model.*
 import hansffu.ontime.model.StopListType.*
 import hansffu.ontime.service.FavoriteService
@@ -13,18 +15,33 @@ import kotlinx.coroutines.launch
 
 class TimetableViewModel(application: Application) : AndroidViewModel(application) {
     private val stopService = StopService()
+    private val db = AppDatabase.getDb(application)
     private val currentStop: MutableLiveData<Stop> by lazy { MutableLiveData(null) }
     private val departures: MutableLiveData<StopPlaceQuery.Data> by lazy { MutableLiveData(null) }
+    private val favoriteStops: LiveData<List<Stop>> =
+        db.favoritesDao().getAll().map { stops -> stops.map { Stop(it.name, it.id) } }
 
-    fun getCurrentStop(): LiveData<Stop> {
-        return currentStop
+
+    val isFavorite: LiveData<Boolean> = currentStop.switchMap { stop ->
+        favoriteStops.map { favoriteStops ->
+            favoriteStops.any { it.id == stop.id }
+        }
+    }
+
+    fun toggleFavorite(stop: Stop) = viewModelScope.launch(Dispatchers.IO) {
+        val existing = db.favoritesDao().getById(stop.id)
+        if (existing != null) {
+            db.favoritesDao().delete(existing)
+        } else {
+            db.favoritesDao().insertAll(FavoriteStop(stop.id, stop.name))
+        }
     }
 
     fun getLineDepartures(): LiveData<List<LineDeparture>> =
-        Transformations.map(departures) { data ->
-            data?.stopPlace?.let {
-                DepartureMappers.toLineDepartures(it)
-            }
+        departures.map { data ->
+            data?.stopPlace
+                ?.let { DepartureMappers.toLineDepartures(it) }
+                ?: emptyList()
         }
 
 
@@ -34,12 +51,9 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    val stopName: LiveData<String>
-        get() = Transformations.map(currentStop) { it.name }
-
     fun setCurrentStop(stop: Stop) {
         Log.e("hello", "new stop: ${stop.name} replaces ${currentStop.value?.name}")
-        currentStop.postValue(stop)
+        currentStop.value = stop
     }
 
 }

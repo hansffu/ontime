@@ -3,13 +3,11 @@ package hansffu.ontime.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewParent
 import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
 import hansffu.ontime.databinding.StopListHeaderBinding
 import hansffu.ontime.databinding.StopListItemBinding
 import hansffu.ontime.model.Stop
-import hansffu.ontime.model.StopListModel
 import hansffu.ontime.model.StopListType
 
 class StopViewAdapter :
@@ -18,14 +16,16 @@ class StopViewAdapter :
     private var noStopsText: String? = null
     private var itemSelectedListener: ItemSelectedListener? = null
     var stops: List<Stop> = emptyList()
-        private set
-    private var headerText: StopListType? = null
+        set(value){
+            field = value
+            notifyDataSetChanged()
+        }
+    var headerText: String = ""
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
-    fun updateStops(stops: List<Stop>) {
-        this.stops = stops
-        this.headerText = StopListType.FAVORITES
-        notifyDataSetChanged()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (ItemType.values()[viewType]) {
@@ -41,10 +41,9 @@ class StopViewAdapter :
 
         val lookupStoplistIndex = position - 1
         if (stops.isNotEmpty() && holder is StopViewHolder) {
-            holder.stopName = stops[lookupStoplistIndex].name
-            holder.bind(lookupStoplistIndex, itemSelectedListener)
+            holder.update(stops[lookupStoplistIndex], itemSelectedListener)
         } else if (noStopsText != null && holder is StopViewHolder) {
-            holder.stopName = noStopsText as String
+            holder.update(null, null)
         }
     }
 
@@ -66,7 +65,7 @@ class StopViewAdapter :
     }
 
     interface ItemSelectedListener {
-        fun onItemSelected(position: Int)
+        fun onItemSelected(stop: Stop)
     }
 
 }
@@ -85,15 +84,11 @@ private class StopViewHolder(item: View) : RecyclerView.ViewHolder(item) {
     }
 
     private val binding = StopListItemBinding.bind(item)
-    var stopName: String
-        set(value) {
-            binding.shortStopName.text = value
-        }
-        get() = binding.shortStopName.text.toString()
 
-    fun bind(position: Int, listener: StopViewAdapter.ItemSelectedListener?) {
+    fun update(stop: Stop?, listener: StopViewAdapter.ItemSelectedListener?) {
+        binding.shortStopName.text = stop?.name ?: "No stops"
         itemView.setOnClickListener {
-            listener?.onItemSelected(position)
+            if (listener != null && stop != null) listener.onItemSelected(stop)
         }
     }
 }
@@ -106,13 +101,7 @@ private class HeaderViewHolder(item: View) : RecyclerView.ViewHolder(item) {
 
     private val binding: StopListHeaderBinding = StopListHeaderBinding.bind(item)
 
-    fun setHeaderText(stopType: StopListType?) {
-        binding.stopListHeader.setText(
-            when (stopType) {
-                StopListType.NEARBY -> R.string.nearby_header
-                StopListType.FAVORITES -> R.string.favorites_header
-                null -> R.string.empty_string
-            }
-        )
+    fun setHeaderText(text: String) {
+        binding.stopListHeader.text = text
     }
 }

@@ -3,10 +3,13 @@ import java.io.FileInputStream
 import java.util.Properties
 
 val apollo_version = "2.5.9"
+val room_version = "2.3.0"
+
 plugins {
     id("com.android.application")
     id("com.apollographql.apollo")
     kotlin("android")
+    kotlin("kapt")
 }
 
 android {
@@ -16,7 +19,7 @@ android {
         applicationId = "hansffu.ontime"
         minSdk = 26
         targetSdk = 30
-        versionCode = 20
+        versionCode = 21
         versionName = "3.0"
 
     }
@@ -62,5 +65,10 @@ dependencies {
     implementation("com.apollographql.apollo:apollo-runtime:$apollo_version")
     implementation("com.apollographql.apollo:apollo-coroutines-support:$apollo_version")
     compileOnly("org.jetbrains:annotations:13.0")
+
+    implementation("androidx.room:room-runtime:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
     testCompileOnly("org.jetbrains:annotations:13.0")
 }
