@@ -10,9 +10,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.wear.widget.SwipeDismissFrameLayout
 import hansffu.ontime.adapter.*
 import hansffu.ontime.databinding.FragmentStopListBinding
 import hansffu.ontime.model.StopListType
@@ -58,18 +56,16 @@ class StopListFragment() : Fragment() {
         startObservers()
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.stopList.requestFocus()
+    }
+
     private fun startObservers() {
-        createListItems(StopListType.valueOf(arguments?.getString("TYPE")!!))
+        createListItems(StopListType.valueOf(arguments?.getString(Arguments.STOP_TYPE)!!))
             .observe(this.requireActivity()) { items ->
-                println(items.map { item ->
-                    when (item) {
-                        is StopItem -> item.stop.name
-                        is ButtonItem -> "button"
-                        is HeaderItem -> "header"
-                    }
-                }
-                )
                 stopViewAdapter.items = items
+                binding.stopList.requestFocus()
             }
 
     }
@@ -109,5 +105,9 @@ class StopListFragment() : Fragment() {
         startTimetableActivity.putExtra(TimetableActivity.STOP_ID, item.stop.id)
         startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, item.stop.name)
         startActivity(startTimetableActivity)
+    }
+
+     object Arguments {
+        const val STOP_TYPE = "STOP_TYPE"
     }
 }

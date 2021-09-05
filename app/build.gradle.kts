@@ -19,7 +19,7 @@ android {
         applicationId = "hansffu.ontime"
         minSdk = 26
         targetSdk = 30
-        versionCode = 22
+        versionCode = 24
         versionName = "3.0"
 
     }

@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.wear.widget.SwipeDismissFrameLayout
 import hansffu.ontime.databinding.ActivityNavigationBinding
 import hansffu.ontime.databinding.FragmentStopListNavigationBinding
 import hansffu.ontime.model.StopListType
@@ -65,10 +66,17 @@ class StopListNavigationFragment : Fragment() {
         navigationAdapter = StopListNavigationAdapter(this)
         binding.pager.adapter = navigationAdapter
         val model: FavoriteViewModel by requireActivity().viewModels()
-        model.currentList.observe(requireActivity()){
+        model.currentList.observe(requireActivity()) {
             binding.pager.setCurrentItem(it.ordinal, true)
         }
+        binding.root.addCallback(object : SwipeDismissFrameLayout.Callback() {
+            override fun onDismissed(layout: SwipeDismissFrameLayout?) {
+                layout?.visibility = View.GONE
+                requireActivity().finish()
+            }
+        })
     }
+
 }
 
 
@@ -80,7 +88,7 @@ class StopListNavigationAdapter(fragment: Fragment) : FragmentStateAdapter(fragm
         println("created fragment")
         val fragment = StopListFragment()
         fragment.arguments = Bundle().apply {
-            putString("TYPE", StopListType.values()[position].name)
+            putString(StopListFragment.Arguments.STOP_TYPE, StopListType.values()[position].name)
         }
         return fragment
     }
