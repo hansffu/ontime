@@ -1,21 +1,20 @@
 package hansffu.ontime
 
-import android.Manifest
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.recyclerview.widget.LinearLayoutManager
-import hansffu.ontime.adapter.MainNavigationAdapter
-import hansffu.ontime.adapter.StopViewAdapter
+import hansffu.ontime.adapter.*
 import hansffu.ontime.databinding.ActivityNavigationBinding
-import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
-import hansffu.ontime.service.FavoriteService
 
-class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedListener {
+class NavigationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNavigationBinding
     private val favoriteModel: FavoriteViewModel by viewModels()
@@ -25,7 +24,6 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
         super.onCreate(savedInstanceState)
         binding = ActivityNavigationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        stopViewAdapter.setListener(this)
         binding.stopList.apply {
             adapter = stopViewAdapter
             isEdgeItemsCenteringEnabled = false
@@ -47,19 +45,44 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
     }
 
     private fun startObservers() {
-        favoriteModel.stops.observe(this) {
-            stopViewAdapter.stops = it
-        }
-        favoriteModel.currentList.observe(this) {
-            stopViewAdapter.headerText = resources.getString(
-                when (it) {
-                    StopListType.NEARBY -> R.string.nearby_header
-                    StopListType.FAVORITES -> R.string.favorites_header
-                    null -> R.string.empty_string
+        favoriteModel.currentList
+            .switchMap(this::createListItems)
+            .observe(this) { items ->
+                println(items.map { item ->
+                    when (item) {
+                        is StopItem -> item.stop.name
+                        is ButtonItem -> "button"
+                        is HeaderItem -> "header"
+                    }
                 }
-            )
-        }
+                )
+                stopViewAdapter.items = items
+            }
+
     }
+
+    private fun createListItems(type: StopListType): LiveData<List<StopViewItem>> =
+        when (type) {
+            StopListType.FAVORITES -> createFavoriteItems()
+            StopListType.NEARBY -> createNearbyItems()
+        }
+
+    private fun createFavoriteItems(): LiveData<List<StopViewItem>> =
+        favoriteModel.favoriteStops.map { stops ->
+            listOf(
+                listOf(HeaderItem(resources.getString(R.string.favorites_header))),
+                stops.map { StopItem(it, ::onItemSelected) },
+                listOf(ButtonItem(resources.getString(R.string.find_more)) { favoriteModel.setCurrentList(StopListType.NEARBY) })
+            ).flatten()
+        }
+
+
+    private fun createNearbyItems(): LiveData<List<StopViewItem>> =
+        favoriteModel.nearbyStops.map { stops ->
+            listOf(HeaderItem(resources.getString(R.string.nearby_header))) + stops.map {
+                StopItem(it, ::onItemSelected)
+            }
+        }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -88,11 +111,13 @@ class NavigationActivity : AppCompatActivity(), StopViewAdapter.ItemSelectedList
         )
     }
 
-    override fun onItemSelected(stop: Stop) {
+    private fun onItemSelected(item: StopViewItem) {
+        if (item !is StopItem) return
         val startTimetableActivity = Intent(this, TimetableActivity::class.java)
-        startTimetableActivity.putExtra(TimetableActivity.STOP_ID, stop.id)
-        startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, stop.name)
+        startTimetableActivity.putExtra(TimetableActivity.STOP_ID, item.stop.id)
+        startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, item.stop.name)
         startActivity(startTimetableActivity)
     }
 }
+
 

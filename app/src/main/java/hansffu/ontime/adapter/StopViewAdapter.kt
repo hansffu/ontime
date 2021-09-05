@@ -5,103 +5,93 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import hansffu.ontime.R
+import hansffu.ontime.databinding.StopListButtonBinding
 import hansffu.ontime.databinding.StopListHeaderBinding
-import hansffu.ontime.databinding.StopListItemBinding
+import hansffu.ontime.databinding.StopListStopBinding
 import hansffu.ontime.model.Stop
-import hansffu.ontime.model.StopListType
 
-class StopViewAdapter :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private typealias Listener = (StopViewItem) -> Unit
 
-    private var noStopsText: String? = null
-    private var itemSelectedListener: ItemSelectedListener? = null
-    var stops: List<Stop> = emptyList()
-        set(value){
-            field = value
-            notifyDataSetChanged()
-        }
-    var headerText: String = ""
+class StopViewAdapter() : RecyclerView.Adapter<StopViewHolder>() {
+    var items: List<StopViewItem> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StopViewHolder =
+        ItemType.values()[viewType].create(parent)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        when (ItemType.values()[viewType]) {
-            ItemType.TYPE_HEADER -> HeaderViewHolder.create(parent)
-            ItemType.TYPE_ITEM -> StopViewHolder.create(parent)
-        }
+    override fun onBindViewHolder(holder: StopViewHolder, position: Int) =
+        holder.update(items[position])
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is HeaderViewHolder) {
-            holder.setHeaderText(headerText)
-            return
-        }
-
-        val lookupStoplistIndex = position - 1
-        if (stops.isNotEmpty() && holder is StopViewHolder) {
-            holder.update(stops[lookupStoplistIndex], itemSelectedListener)
-        } else if (noStopsText != null && holder is StopViewHolder) {
-            holder.update(null, null)
-        }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return (if (position == 0) {
-            ItemType.TYPE_HEADER
-        } else ItemType.TYPE_ITEM).ordinal
-    }
-
-    fun setListener(itemSelectedListener: ItemSelectedListener) {
-        this.itemSelectedListener = itemSelectedListener
-    }
-
-    override fun getItemCount(): Int {
-        return if (stops.isEmpty())
-            2
-        else
-            stops.size + 1
-    }
-
-    interface ItemSelectedListener {
-        fun onItemSelected(stop: Stop)
-    }
-
+    override fun getItemViewType(position: Int): Int = items[position].type.ordinal
+    override fun getItemCount(): Int = items.size
 }
 
-enum class ItemType {
-    TYPE_HEADER,
-    TYPE_ITEM
-}
 
 private fun inflate(parent: ViewGroup, layout: Int) =
     LayoutInflater.from(parent.context).inflate(layout, parent, false)
 
-private class StopViewHolder(item: View) : RecyclerView.ViewHolder(item) {
-    companion object {
-        fun create(parent: ViewGroup) = StopViewHolder(inflate(parent, R.layout.stop_list_item))
-    }
 
-    private val binding = StopListItemBinding.bind(item)
-
-    fun update(stop: Stop?, listener: StopViewAdapter.ItemSelectedListener?) {
-        binding.shortStopName.text = stop?.name ?: "No stops"
-        itemView.setOnClickListener {
-            if (listener != null && stop != null) listener.onItemSelected(stop)
-        }
-    }
+enum class ItemType(val create: (ViewGroup) -> StopViewHolder) {
+    HEADER(::createHeader),
+    STOP(::createStop),
+    BUTTON(::createButton)
 }
 
-private class HeaderViewHolder(item: View) : RecyclerView.ViewHolder(item) {
+sealed interface StopViewItem {
+    val type: ItemType
+}
 
-    companion object {
-        fun create(parent: ViewGroup) = HeaderViewHolder(inflate(parent, R.layout.stop_list_header))
+abstract class StopViewHolder(protected val view: View) : RecyclerView.ViewHolder(view) {
+    abstract fun update(item: StopViewItem)
+}
+
+
+data class HeaderItem(val headerText: String) : StopViewItem {
+    override val type: ItemType = ItemType.HEADER
+
+}
+
+private fun createHeader(parent: ViewGroup): StopViewHolder =
+    object : StopViewHolder(inflate(parent, R.layout.stop_list_header)) {
+        private val binding: StopListHeaderBinding = StopListHeaderBinding.bind(view)
+        override fun update(item: StopViewItem) {
+            if (item is HeaderItem) binding.stopListHeader.text = item.headerText
+        }
     }
 
-    private val binding: StopListHeaderBinding = StopListHeaderBinding.bind(item)
+data class StopItem(val stop: Stop, val listener: Listener) : StopViewItem {
+    override val type: ItemType = ItemType.STOP
+}
 
-    fun setHeaderText(text: String) {
-        binding.stopListHeader.text = text
+private fun createStop(parent: ViewGroup) =
+    object : StopViewHolder(inflate(parent, R.layout.stop_list_stop)) {
+        private val binding = StopListStopBinding.bind(view)
+        override fun update(item: StopViewItem) {
+            if (item is StopItem) {
+                binding.shortStopName.text = item.stop.name
+                itemView.setOnClickListener { item.listener(item) }
+            }
+        }
     }
+
+data class ButtonItem(val text: String, val action: () -> Unit) : StopViewItem {
+    override val type: ItemType = ItemType.BUTTON
+}
+
+fun createButton(parent: ViewGroup): StopViewHolder =
+    object : StopViewHolder(inflate(parent, R.layout.stop_list_button)) {
+        private val binding = StopListButtonBinding.bind(view)
+        override fun update(item: StopViewItem) {
+            if (item is ButtonItem) {
+                binding.stopListButtonText.text = item.text
+                itemView.setOnClickListener { item.action() }
+            }
+        }
+    }
+
+enum class ButtonAction {
+    NEARBY
 }

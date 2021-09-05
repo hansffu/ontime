@@ -38,6 +38,10 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
 
     private val _currentList: MutableLiveData<StopListType> = MutableLiveData(FAVORITES)
     val currentList: LiveData<StopListType> = _currentList
+    fun setCurrentList(type: StopListType) {
+        _currentList.value = type
+    }
+
 
     private val hasLocationPermission: MutableLiveData<Boolean> = MutableLiveData(
         hasLocationPermission()
@@ -52,7 +56,7 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    private val favoriteStops: LiveData<List<Stop>> = favoriteService.getFavorites()
+    val favoriteStops: LiveData<List<Stop>> = favoriteService.getFavorites()
 
     @SuppressLint("MissingPermission")
     val location: LiveData<LocationHolder> =
@@ -69,7 +73,7 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-    private val nearbyStops: LiveData<List<Stop>> = location.switchMap {
+    val nearbyStops: LiveData<List<Stop>> = location.switchMap {
         liveData {
             emit(
                 if (it is LocationHolder.LocationFound) stopService.findStopsNear(it.location)
@@ -78,10 +82,6 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-
-    fun setCurrentList(type: StopListType) {
-        _currentList.value = type
-    }
 
     val stops: LiveData<List<Stop>> =
         _currentList.switchMap { type: StopListType ->
