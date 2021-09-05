@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:textAlignment="center"
-        tools:listitem="@layout/stop_list_item" />
+        tools:listitem="@layout/stop_list_stop" />
 
 
 </androidx.wear.widget.drawer.WearableDrawerLayout>
