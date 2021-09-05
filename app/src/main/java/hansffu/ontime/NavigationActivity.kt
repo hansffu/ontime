@@ -2,36 +2,28 @@ package hansffu.ontime
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
-import androidx.recyclerview.widget.LinearLayoutManager
-import hansffu.ontime.adapter.*
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import hansffu.ontime.databinding.ActivityNavigationBinding
+import hansffu.ontime.databinding.FragmentStopListNavigationBinding
 import hansffu.ontime.model.StopListType
 
-class NavigationActivity : AppCompatActivity() {
+class NavigationActivity : FragmentActivity() {
 
     private lateinit var binding: ActivityNavigationBinding
     private val favoriteModel: FavoriteViewModel by viewModels()
-    private var stopViewAdapter = StopViewAdapter()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNavigationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.stopList.apply {
-            adapter = stopViewAdapter
-            isEdgeItemsCenteringEnabled = false
-            layoutManager = LinearLayoutManager(this@NavigationActivity)
-        }
-        binding.topNavigationDrawer.apply {
-            setAdapter(MainNavigationAdapter(this@NavigationActivity))
-        }
+
         favoriteModel.getLocationHolder().observe(this) {
             if (it is LocationHolder.NoPermission) requestPermissions(
                 arrayOf(
@@ -40,49 +32,7 @@ class NavigationActivity : AppCompatActivity() {
                 ), 123
             )
         }
-        onMenuItemSelected(0)
-        startObservers()
     }
-
-    private fun startObservers() {
-        favoriteModel.currentList
-            .switchMap(this::createListItems)
-            .observe(this) { items ->
-                println(items.map { item ->
-                    when (item) {
-                        is StopItem -> item.stop.name
-                        is ButtonItem -> "button"
-                        is HeaderItem -> "header"
-                    }
-                }
-                )
-                stopViewAdapter.items = items
-            }
-
-    }
-
-    private fun createListItems(type: StopListType): LiveData<List<StopViewItem>> =
-        when (type) {
-            StopListType.FAVORITES -> createFavoriteItems()
-            StopListType.NEARBY -> createNearbyItems()
-        }
-
-    private fun createFavoriteItems(): LiveData<List<StopViewItem>> =
-        favoriteModel.favoriteStops.map { stops ->
-            listOf(
-                listOf(HeaderItem(resources.getString(R.string.favorites_header))),
-                stops.map { StopItem(it, ::onItemSelected) },
-                listOf(ButtonItem(resources.getString(R.string.find_more)) { favoriteModel.setCurrentList(StopListType.NEARBY) })
-            ).flatten()
-        }
-
-
-    private fun createNearbyItems(): LiveData<List<StopViewItem>> =
-        favoriteModel.nearbyStops.map { stops ->
-            listOf(HeaderItem(resources.getString(R.string.nearby_header))) + stops.map {
-                StopItem(it, ::onItemSelected)
-            }
-        }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -92,32 +42,47 @@ class NavigationActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         favoriteModel.refreshPermissions()
     }
+}
 
-    override fun onResume() {
-        super.onResume()
+class StopListNavigationFragment : Fragment() {
 
-        binding.topNavigationDrawer.apply {
-            addOnItemSelectedListener { onMenuItemSelected(it) }
-            controller.peekDrawer()
+
+    private var _binding: FragmentStopListNavigationBinding? = null
+    private val binding: FragmentStopListNavigationBinding
+        get() = _binding!!
+    private lateinit var navigationAdapter: StopListNavigationAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentStopListNavigationBinding.inflate(layoutInflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        navigationAdapter = StopListNavigationAdapter(this)
+        binding.pager.adapter = navigationAdapter
+        val model: FavoriteViewModel by requireActivity().viewModels()
+        model.currentList.observe(requireActivity()){
+            binding.pager.setCurrentItem(it.ordinal, true)
         }
-    }
-
-    private fun onMenuItemSelected(i: Int) {
-        favoriteModel.setCurrentList(
-            when (i) {
-                1 -> StopListType.NEARBY
-                else -> StopListType.FAVORITES
-            }
-        )
-    }
-
-    private fun onItemSelected(item: StopViewItem) {
-        if (item !is StopItem) return
-        val startTimetableActivity = Intent(this, TimetableActivity::class.java)
-        startTimetableActivity.putExtra(TimetableActivity.STOP_ID, item.stop.id)
-        startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, item.stop.name)
-        startActivity(startTimetableActivity)
     }
 }
 
+
+class StopListNavigationAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+
+    override fun getItemCount(): Int = StopListType.values().size
+
+    override fun createFragment(position: Int): Fragment {
+        println("created fragment")
+        val fragment = StopListFragment()
+        fragment.arguments = Bundle().apply {
+            putString("TYPE", StopListType.values()[position].name)
+        }
+        return fragment
+    }
+}
 

@@ -1,28 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.drawer.WearableDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+
+<androidx.fragment.app.FragmentContainerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_container_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    tools:deviceIds="wear">
-
-
-
-    <androidx.wear.widget.drawer.WearableNavigationDrawerView
-        android:id="@+id/top_navigation_drawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:navigationStyle="singlePage" />
-
-    <androidx.wear.widget.WearableRecyclerView
-        android:id="@+id/stop_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:textAlignment="center"
-        tools:listitem="@layout/stop_list_stop" />
-
-
-</androidx.wear.widget.drawer.WearableDrawerLayout>
+    android:name="hansffu.ontime.StopListNavigationFragment" />
