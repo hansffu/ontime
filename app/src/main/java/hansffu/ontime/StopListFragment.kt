@@ -3,10 +3,11 @@ package hansffu.ontime
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.activity.viewModels
+import androidx.core.view.InputDeviceCompat
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.ViewConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import hansffu.ontime.adapter.*
 import hansffu.ontime.databinding.FragmentStopListBinding
 import hansffu.ontime.model.StopListType
+import kotlin.math.roundToInt
 
 class StopListFragment() : Fragment() {
 
@@ -44,6 +46,20 @@ class StopListFragment() : Fragment() {
             adapter = stopViewAdapter
             isEdgeItemsCenteringEnabled = false
             layoutManager = LinearLayoutManager(requireContext())
+            setOnGenericMotionListener { v, ev ->
+                if (ev.action == MotionEvent.ACTION_SCROLL &&
+                    ev.isFromSource(InputDeviceCompat.SOURCE_ROTARY_ENCODER)
+                ) {
+                    val delta = -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) *
+                            ViewConfigurationCompat.getScaledVerticalScrollFactor(
+                                ViewConfiguration.get(context), context
+                            )
+                    v.scrollBy(0, delta.roundToInt())
+                    true
+                } else {
+                    false
+                }
+            }
         }
         favoriteModel.getLocationHolder().observe(this.requireActivity()) {
             if (it is LocationHolder.NoPermission) requestPermissions(
