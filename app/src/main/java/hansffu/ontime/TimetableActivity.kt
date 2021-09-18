@@ -1,18 +1,18 @@
 package hansffu.ontime
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.wear.widget.WearableLinearLayoutManager
+import androidx.wear.widget.WearableRecyclerView
 import hansffu.ontime.adapter.TimetableAdapter
 import hansffu.ontime.databinding.ActivityTimetableBinding
 import hansffu.ontime.model.Stop
-import hansffu.ontime.service.FavoriteService
-import hansffu.ontime.service.StopService
-import io.reactivex.disposables.CompositeDisposable
+import hansffu.ontime.utils.ListLayout
+import hansffu.ontime.utils.RotatingInputListener
 
 class TimetableActivity : AppCompatActivity() {
 
@@ -20,8 +20,8 @@ class TimetableActivity : AppCompatActivity() {
     private lateinit var timetableAdapter: TimetableAdapter
     private lateinit var stopId: String
     private lateinit var stopName: String
-    private lateinit var favoriteService: FavoriteService
     private val timetableModel: TimetableViewModel by viewModels()
+    private val timeModel: TimeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,13 +30,17 @@ class TimetableActivity : AppCompatActivity() {
 
         stopId = intent.getStringExtra(STOP_ID)!!
         stopName = intent.getStringExtra(STOP_NAME)!!
-        favoriteService = FavoriteService(this)
         timetableAdapter = TimetableAdapter(stopName)
+
+        timeModel.shortTime.observe(this){
+            binding.clock.text = it ?: ""
+        }
 
         binding.departureList.apply {
             adapter = timetableAdapter
             isEdgeItemsCenteringEnabled = false
-            layoutManager = LinearLayoutManager(this@TimetableActivity)
+            layoutManager = WearableLinearLayoutManager(context, ListLayout())
+            setOnGenericMotionListener(RotatingInputListener(context))
         }
 
         binding.bottomActionDrawer.setOnMenuItemClickListener {
@@ -46,10 +50,16 @@ class TimetableActivity : AppCompatActivity() {
 
         timetableModel.setCurrentStop(Stop(stopName, stopId))
 
-        setUpObservers()
+        startBackgroundTasks()
     }
 
-    private fun setUpObservers() {
+    private fun startBackgroundTasks() {
+
+        binding.departureList.setOnScrollChangeListener { view, _, _, _, _ ->
+            if (view is WearableRecyclerView) {
+                binding.clock.y = -view.computeVerticalScrollOffset().toFloat()
+            }
+        }
         timetableModel.isFavorite.observe(this) {
             toggleFavorite(it)
             if (!it) {

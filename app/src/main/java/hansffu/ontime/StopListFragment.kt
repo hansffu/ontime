@@ -5,17 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.activity.viewModels
-import androidx.core.view.InputDeviceCompat
-import androidx.core.view.MotionEventCompat
-import androidx.core.view.ViewConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.wear.widget.WearableLinearLayoutManager
+import androidx.wear.widget.WearableRecyclerView
 import hansffu.ontime.adapter.*
 import hansffu.ontime.databinding.FragmentStopListBinding
 import hansffu.ontime.model.StopListType
-import kotlin.math.roundToInt
+import hansffu.ontime.utils.ListLayout
+import hansffu.ontime.utils.RotatingInputListener
 
 class StopListFragment() : Fragment() {
 
@@ -38,28 +38,18 @@ class StopListFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        println("onCreate")
 
         val model: FavoriteViewModel by requireActivity().viewModels()
         favoriteModel = model
+        val timeModel: TimeViewModel by requireActivity().viewModels()
+        timeModel.shortTime.observe(this.requireActivity()) {
+            binding.clock.text = it ?: ""
+        }
         binding.stopList.apply {
             adapter = stopViewAdapter
             isEdgeItemsCenteringEnabled = false
-            layoutManager = LinearLayoutManager(requireContext())
-            setOnGenericMotionListener { v, ev ->
-                if (ev.action == MotionEvent.ACTION_SCROLL &&
-                    ev.isFromSource(InputDeviceCompat.SOURCE_ROTARY_ENCODER)
-                ) {
-                    val delta = -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) *
-                            ViewConfigurationCompat.getScaledVerticalScrollFactor(
-                                ViewConfiguration.get(context), context
-                            )
-                    v.scrollBy(0, delta.roundToInt())
-                    true
-                } else {
-                    false
-                }
-            }
+            layoutManager = WearableLinearLayoutManager(requireContext(), ListLayout())
+            setOnGenericMotionListener(RotatingInputListener(context))
         }
         favoriteModel.getLocationHolder().observe(this.requireActivity()) {
             if (it is LocationHolder.NoPermission) requestPermissions(
@@ -69,7 +59,7 @@ class StopListFragment() : Fragment() {
                 ), 123
             )
         }
-        startObservers()
+        startBackgroundTasks()
     }
 
     override fun onResume() {
@@ -77,7 +67,12 @@ class StopListFragment() : Fragment() {
         binding.stopList.requestFocus()
     }
 
-    private fun startObservers() {
+    private fun startBackgroundTasks() {
+        binding.stopList.setOnScrollChangeListener { view, _, _, _, _ ->
+            if (view is WearableRecyclerView) {
+                binding.clock.y = -view.computeVerticalScrollOffset().toFloat()
+            }
+        }
         createListItems(StopListType.valueOf(arguments?.getString(Arguments.STOP_TYPE)!!))
             .observe(this.requireActivity()) { items ->
                 stopViewAdapter.items = items
@@ -123,7 +118,7 @@ class StopListFragment() : Fragment() {
         startActivity(startTimetableActivity)
     }
 
-     object Arguments {
+    object Arguments {
         const val STOP_TYPE = "STOP_TYPE"
     }
 }

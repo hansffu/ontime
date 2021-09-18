@@ -4,6 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.wear.widget.CurvedTextView
+        android:id="@+id/clock"
+        style="@android:style/TextAppearance.Small"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="2dp"
+        tools:text="12:00" />
+
     <androidx.wear.widget.WearableRecyclerView
         android:id="@+id/stop_list"
         android:layout_width="match_parent"

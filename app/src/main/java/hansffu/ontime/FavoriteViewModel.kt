@@ -4,9 +4,17 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.database.ContentObserver
 import android.location.Location
+import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
+import android.provider.Settings
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.lifecycle.*
@@ -25,6 +33,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.publish
 import kotlinx.coroutines.launch
+import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -54,6 +63,7 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
     fun refreshPermissions() {
         hasLocationPermission.value = hasLocationPermission()
     }
+
 
 
     val favoriteStops: LiveData<List<Stop>> = favoriteService.getFavorites()

@@ -13,13 +13,13 @@ plugins {
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
     buildToolsVersion = "30.0.3"
     defaultConfig {
         applicationId = "hansffu.ontime"
         minSdk = 26
         targetSdk = 30
-        versionCode = 27
+        versionCode = 28
         versionName = "3.0"
 
     }
@@ -54,7 +54,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:18.0.0")
     implementation("com.android.volley:volley:1.2.1")
     implementation("org.apache.commons:commons-collections4:4.1")
-    implementation("androidx.wear:wear:1.1.0")
+    implementation("androidx.wear:wear:1.2.0")
     implementation("androidx.wear:wear-input:1.1.0")
     implementation("androidx.activity:activity-ktx:1.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
