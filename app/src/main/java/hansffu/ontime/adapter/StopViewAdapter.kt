@@ -1,5 +1,6 @@
 package hansffu.ontime.adapter
 
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import hansffu.ontime.databinding.StopListButtonBinding
 import hansffu.ontime.databinding.StopListHeaderBinding
 import hansffu.ontime.databinding.StopListStopBinding
 import hansffu.ontime.model.Stop
+import java.util.*
 
 private typealias Listener = (StopViewItem) -> Unit
 
@@ -58,7 +60,9 @@ private fun createHeader(parent: ViewGroup): StopViewHolder =
     object : StopViewHolder(inflate(parent, R.layout.stop_list_header)) {
         private val binding: StopListHeaderBinding = StopListHeaderBinding.bind(view)
         override fun update(item: StopViewItem) {
-            if (item is HeaderItem) binding.stopListHeader.text = item.headerText
+            if (item is HeaderItem) {
+                binding.stopListHeader.text = item.headerText
+            }
         }
     }
 

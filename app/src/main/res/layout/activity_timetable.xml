@@ -9,6 +9,14 @@
     tools:context="hansffu.ontime.TimetableActivity"
     tools:deviceIds="wear">
 
+    <androidx.wear.widget.CurvedTextView
+        android:id="@+id/clock"
+        style="@android:style/TextAppearance.Small"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="2dp"
+        tools:text="12:00" />
+
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
