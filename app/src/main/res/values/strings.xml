@@ -14,4 +14,5 @@
     <string name="no_stops_found">Fant ingen stopp i nærheten</string>
     <string name="find_more">Finn flere stopp</string>
     <string name="empty_string" />
+    <string name="title_activity_search">SearchActivity</string>
 </resources>

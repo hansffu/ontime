@@ -1,6 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+  val compose_version by extra("1.1.0-beta01")
   val kotlin_version = "1.5.30"
   val apollo_version = "2.5.9"
 
@@ -13,8 +14,8 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:7.0.2")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+    classpath("com.android.tools.build:gradle:7.0.3")
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
     classpath("com.apollographql.apollo:apollo-gradle-plugin:$apollo_version")
     classpath(kotlin("gradle-plugin", version = kotlin_version))
 
