@@ -5,52 +5,66 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.wear.compose.material.*
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
 import hansffu.ontime.adapter.*
-import hansffu.ontime.databinding.FragmentStopListBinding
+import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
+import hansffu.ontime.model.TransportationType
+import hansffu.ontime.ui.stoplist.StopListUi
+import hansffu.ontime.ui.theme.OntimeTheme
+import hansffu.ontime.ui.timetable.Timetable
 import hansffu.ontime.utils.ListLayout
 import hansffu.ontime.utils.RotatingInputListener
+import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 class StopListFragment() : Fragment() {
 
-    private var _binding: FragmentStopListBinding? = null
-    private val binding: FragmentStopListBinding
-        get() = _binding!!
-    private var stopViewAdapter = StopViewAdapter()
+    private lateinit var favoriteModel: FavoriteViewModel
 
+    @OptIn(ExperimentalWearMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentStopListBinding.inflate(layoutInflater, container, false)
-        return binding.root
+        val model: FavoriteViewModel by requireActivity().viewModels()
+        favoriteModel = model
+        val stopListType = StopListType.valueOf(arguments?.getString(Arguments.STOP_TYPE)!!)
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val scalingLazyListState = rememberScrollingScalingLazyListState()
+                OntimeTheme {
+                    Scaffold(
+                        timeText = { TimeText() },
+                        modifier = Modifier.fillMaxSize() then Modifier.background(MaterialTheme.colors.background),
+                        positionIndicator = { PositionIndicator(scalingLazyListState) }
+                    ) {
+                        StopListUi(
+                            favoriteModel = favoriteModel,
+                            scalingLazyListState = scalingLazyListState,
+                            stopListType = stopListType,
+                            onStopSelected = ::onStopSelected
+                        )
+                    }
+                }
+            }
+        }
     }
-
-    private lateinit var favoriteModel: FavoriteViewModel
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val model: FavoriteViewModel by requireActivity().viewModels()
-        favoriteModel = model
-        val timeModel: TimeViewModel by requireActivity().viewModels()
-        timeModel.shortTime.observe(this.requireActivity()) {
-            binding.clock.text = it ?: ""
-        }
-        binding.stopList.apply {
-            adapter = stopViewAdapter
-            isEdgeItemsCenteringEnabled = false
-            layoutManager = WearableLinearLayoutManager(requireContext(), ListLayout())
-            setOnGenericMotionListener(RotatingInputListener(context))
-        }
         favoriteModel.getLocationHolder().observe(this.requireActivity()) {
             if (it is LocationHolder.NoPermission) requestPermissions(
                 arrayOf(
@@ -59,62 +73,45 @@ class StopListFragment() : Fragment() {
                 ), 123
             )
         }
-        startBackgroundTasks()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        binding.stopList.requestFocus()
-    }
-
-    private fun startBackgroundTasks() {
-        binding.stopList.setOnScrollChangeListener { view, _, _, _, _ ->
-            if (view is WearableRecyclerView) {
-                binding.clock.y = -view.computeVerticalScrollOffset().toFloat()
-            }
-        }
-        createListItems(StopListType.valueOf(arguments?.getString(Arguments.STOP_TYPE)!!))
-            .observe(this.requireActivity()) { items ->
-                stopViewAdapter.items = items
-                binding.stopList.requestFocus()
-            }
-
     }
 
 
-    private fun createListItems(type: StopListType): LiveData<List<StopViewItem>> =
-        when (type) {
-            StopListType.FAVORITES -> createFavoriteItems()
-            StopListType.NEARBY -> createNearbyItems()
-        }
+//    private fun createListItems(type: StopListType): LiveData<List<StopViewItem>> =
+//        when (type) {
+//            StopListType.FAVORITES -> createFavoriteItems()
+//            StopListType.NEARBY -> createNearbyItems()
+//        }
+//
+//    private fun createFavoriteItems(): LiveData<List<StopViewItem>> =
+//        favoriteModel.favoriteStops.map { stops ->
+//            listOf(
+//                listOf(HeaderItem(resources.getString(R.string.favorites_header))),
+//                stops.map { StopItem(it, ::onItemSelected) },
+//                listOf(ButtonItem(resources.getString(R.string.find_more)) {
+//                    favoriteModel.setCurrentList(
+//                        StopListType.NEARBY
+//                    )
+//                })
+//            ).flatten()
+//        }
+//
+//
+//    private fun createNearbyItems(): LiveData<List<StopViewItem>> =
+//        favoriteModel.nearbyStops.map { stops ->
+//            listOf(HeaderItem(resources.getString(R.string.nearby_header))) + stops.map {
+//                StopItem(it, ::onItemSelected)
+//            }
+//        }
 
-    private fun createFavoriteItems(): LiveData<List<StopViewItem>> =
-        favoriteModel.favoriteStops.map { stops ->
-            listOf(
-                listOf(HeaderItem(resources.getString(R.string.favorites_header))),
-                stops.map { StopItem(it, ::onItemSelected) },
-                listOf(ButtonItem(resources.getString(R.string.find_more)) {
-                    favoriteModel.setCurrentList(
-                        StopListType.NEARBY
-                    )
-                })
-            ).flatten()
-        }
 
-
-    private fun createNearbyItems(): LiveData<List<StopViewItem>> =
-        favoriteModel.nearbyStops.map { stops ->
-            listOf(HeaderItem(resources.getString(R.string.nearby_header))) + stops.map {
-                StopItem(it, ::onItemSelected)
-            }
-        }
-
-
-    private fun onItemSelected(item: StopViewItem) {
-        if (item !is StopItem) return
+    private fun onStopSelected(stop: Stop) {
         val startTimetableActivity = Intent(requireContext(), TimetableActivity::class.java)
-        startTimetableActivity.putExtra(TimetableActivity.STOP_ID, item.stop.id)
-        startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, item.stop.name)
+        startTimetableActivity.putExtra(TimetableActivity.STOP_ID, stop.id)
+        startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, stop.name)
+        startTimetableActivity.putStringArrayListExtra(
+            TimetableActivity.STOP_MODES,
+            ArrayList(stop.transportationTypes.map(TransportationType::name))
+        )
         startActivity(startTimetableActivity)
     }
 

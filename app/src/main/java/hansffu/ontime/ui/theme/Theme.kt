@@ -7,7 +7,7 @@ import androidx.wear.compose.material.MaterialTheme
 @Composable
 fun OntimeTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colors = wearColorPalette,
+        colors = onTimeColorPalette,
         typography = Typography,
         content = content
     )

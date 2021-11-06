@@ -1,13 +1,13 @@
 package hansffu.ontime.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 import hansffu.ontime.database.dao.FavoriteStop
+import hansffu.ontime.database.dao.FavoriteStopConverters
 import hansffu.ontime.database.dao.FavoritesDao
 
-@Database(entities = [FavoriteStop::class], version = 1)
+@Database(entities = [FavoriteStop::class], version = 2)
+@TypeConverters(FavoriteStopConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {
@@ -20,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val db = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java, "app_db"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = db
                 db
             }
