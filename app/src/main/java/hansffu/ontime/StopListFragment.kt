@@ -19,7 +19,7 @@ import hansffu.ontime.ui.stoplist.StopListUi
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
-class StopListFragment() : Fragment() {
+class StopListFragment : Fragment() {
 
     private lateinit var favoriteModel: FavoriteViewModel
 

@@ -1,7 +1,6 @@
 package hansffu.ontime.ui.timetable
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -16,17 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.TimetableViewModel
-import hansffu.ontime.graphql.DateTimeAdapter
 import hansffu.ontime.model.Stop
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.time.*
+import java.time.Duration
+import java.time.Instant
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.temporal.Temporal
-import java.util.*
 
 
 @OptIn(ExperimentalWearMaterialApi::class)
@@ -96,7 +92,7 @@ fun LineDepartureCard(lineNumber: String, stopName: String, departureTimes: List
     Card(
         onClick = {},
         content = {
-            Column() {
+            Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically

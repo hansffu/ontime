@@ -1,7 +1,7 @@
 package hansffu.ontime.ui.theme
 
-import androidx.wear.compose.material.Colors
 import androidx.compose.ui.graphics.Color
+import androidx.wear.compose.material.Colors
 
 internal val onTimeColorPalette: Colors = Colors(
     background = Color(0xFF000000),

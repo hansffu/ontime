@@ -1,14 +1,13 @@
 package hansffu.ontime
 
 import android.app.Application
-import android.location.Location
 import android.util.Log
 import androidx.lifecycle.*
 import hansffu.ontime.database.AppDatabase
 import hansffu.ontime.database.dao.FavoriteStop
-import hansffu.ontime.model.*
-import hansffu.ontime.model.StopListType.*
-import hansffu.ontime.service.FavoriteService
+import hansffu.ontime.model.LineDeparture
+import hansffu.ontime.model.LineDirectionRef
+import hansffu.ontime.model.Stop
 import hansffu.ontime.service.StopService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,12 +19,7 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
     private val departures: MutableLiveData<StopPlaceQuery.Data> by lazy { MutableLiveData(null) }
     private val favoriteStops: LiveData<List<Stop>> =
         db.favoritesDao().getAll().map { stops ->
-            stops.map {
-                Stop(
-                    it.name,
-                    it.id,
-                )
-            }
+            stops.map { Stop(it.name, it.id) }
         }
 
 

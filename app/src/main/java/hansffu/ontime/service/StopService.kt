@@ -8,20 +8,11 @@ import hansffu.ontime.graphql.enturApolloClient
 import hansffu.ontime.model.Stop
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
 private val TAG = "StopService"
 
 class StopService {
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.entur.io")
-        .addConverterFactory(GsonConverterFactory.create())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .build()
-
     suspend fun findStopsNear(location: Location): List<Stop> {
         val response = enturApolloClient.query(
             NearbyStopsQuery(

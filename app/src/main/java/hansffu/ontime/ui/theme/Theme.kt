@@ -1,6 +1,5 @@
 package hansffu.ontime.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme
 
