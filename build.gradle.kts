@@ -3,7 +3,7 @@
 buildscript {
   val compose_version by extra("1.1.0-beta01")
   val kotlin_version = "1.5.30"
-  val apollo_version = "2.5.9"
+  val apollo_version = "2.5.10"
 
   extra.apply {
     set("kotlin_version", "1.5.30")

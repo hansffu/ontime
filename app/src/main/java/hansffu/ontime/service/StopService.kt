@@ -7,6 +7,7 @@ import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.api.Feature
 import hansffu.ontime.api.Properties
 import hansffu.ontime.api.StopsApi
+import hansffu.ontime.graphql.enturApolloClient
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.TransportationType
 import io.reactivex.Observable
@@ -27,10 +28,6 @@ class StopService {
         .build()
 
     private val stopsApi = retrofit.create(StopsApi::class.java)
-
-    private val apolloClient = ApolloClient.builder()
-        .serverUrl("https://api.entur.io/journey-planner/v2/graphql")
-        .build()
 
     private fun toCategoryText(stop: Properties): List<TransportationType> =
         stop.category.mapNotNull {
@@ -58,10 +55,10 @@ class StopService {
 
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {
         val response = withContext(Dispatchers.IO) {
-            apolloClient.query(
-                StopPlaceQuery.builder()
-                    .id(id)
-                    .build()
+            enturApolloClient.query(
+                StopPlaceQuery(
+                    id = id
+                )
             ).await()
         }
         return response.data ?: throw IOException()

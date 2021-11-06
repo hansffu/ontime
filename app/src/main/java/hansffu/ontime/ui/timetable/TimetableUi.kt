@@ -16,13 +16,16 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.TimetableViewModel
+import hansffu.ontime.graphql.DateTimeAdapter
 import hansffu.ontime.model.Stop
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.Instant
+import java.time.*
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.time.temporal.Temporal
 import java.util.*
 
 
@@ -55,7 +58,6 @@ fun Timetable(
                 else -> items(lineDepartures.size) { index ->
                     val times = lineDepartures[index].departures
                         .mapNotNull(StopPlaceQuery.EstimatedCall::expectedArrivalTime)
-                        .map { it.toDate() }
                     with(lineDepartures[index]) {
                         LineDepartureCard(
                             lineDirectionRef.lineRef,
@@ -90,7 +92,7 @@ fun Timetable(
 }
 
 @Composable
-fun LineDepartureCard(lineNumber: String, stopName: String, departureTimes: List<Date>) {
+fun LineDepartureCard(lineNumber: String, stopName: String, departureTimes: List<OffsetDateTime>) {
     Card(
         onClick = {},
         content = {
@@ -145,31 +147,21 @@ fun DefaultPreview() {
             "23",
             "Lysaker and very long text",
             listOf(
-                Date(),
-                Date.from(Instant.now().plus(2, ChronoUnit.MINUTES)),
-                Date.from(Instant.now().plus(12, ChronoUnit.MINUTES)),
-                Date.from(Instant.now().plus(22, ChronoUnit.MINUTES)),
+                OffsetDateTime.now(),
+                OffsetDateTime.from(Instant.now().plus(2, ChronoUnit.MINUTES)),
+                OffsetDateTime.from(Instant.now().plus(12, ChronoUnit.MINUTES)),
+                OffsetDateTime.from(Instant.now().plus(22, ChronoUnit.MINUTES)),
             )
         )
     }
 }
 
 @SuppressLint("SimpleDateFormat")
-private fun Date.toTimeString(): String {
-    val timeMins = (time - Date().time) / 60000
+private fun OffsetDateTime.toTimeString(): String {
+    val timeMins = Duration.between(OffsetDateTime.now(), this).toMinutes()
     return when {
         timeMins <= 0 -> "Nå"
-        timeMins >= 20 -> SimpleDateFormat("HH:mm").format(this)
+        timeMins >= 20 -> format(DateTimeFormatter.ofPattern("HH:mm"))
         else -> "$timeMins\u00A0min"
     }
-}
-
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-@SuppressLint("SimpleDateFormat")
-fun String.toDate(): Date = try {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    sdf.parse(this)
-} catch (e: ParseException) {
-    Log.e("String to time", "parse error: $this", e)
-    Date()
 }
