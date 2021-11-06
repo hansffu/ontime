@@ -1,7 +1,6 @@
 package hansffu.ontime.service
 
 import android.location.Location
-import android.util.Log
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.coroutines.await
 import hansffu.ontime.StopPlaceQuery
@@ -9,9 +8,8 @@ import hansffu.ontime.api.Feature
 import hansffu.ontime.api.Properties
 import hansffu.ontime.api.StopsApi
 import hansffu.ontime.model.Stop
+import hansffu.ontime.model.TransportationType
 import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
@@ -34,23 +32,29 @@ class StopService {
         .serverUrl("https://api.entur.io/journey-planner/v2/graphql")
         .build()
 
-    private fun toCategoryText(stop: Properties): String {
-        val categories = stop.category.map {
+    private fun toCategoryText(stop: Properties): List<TransportationType> =
+        stop.category.mapNotNull {
             when (it) {
-                "onstreetTram" -> "Trikk"
-                "onstreetBus" -> "Buss"
-                "metroStation" -> "T-bane"
-                else -> ""
+                "onstreetTram" -> TransportationType.TRAM
+                "onstreetBus" -> TransportationType.BUS
+                "metroStation" -> TransportationType.METRO
+                else -> null
             }
-        }.joinToString(separator = ", ", prefix = " [", postfix = "]")
-        Log.d("categories", categories)
-        return categories
-    }
+        }
 
-    suspend fun findStopsNear(location: Location): List<Stop> = stopsApi
-        .getNearbyStops(location.latitude, location.longitude, 2, 20, "venue")
-        .features.map(Feature::properties)
-        .map { Stop(it.name + toCategoryText(it), it.id) }
+
+    suspend fun findStopsNear(location: Location): List<Stop> {
+        println(location.latitude)
+        println(location.longitude)
+        return stopsApi
+            .getNearbyStops(location.latitude, location.longitude, 2, 20, "venue", "parent")
+            .features.map(Feature::properties)
+            .map {
+                println(it)
+                it
+            }
+            .map { Stop(it.name, it.id, toCategoryText(it)) }
+    }
 
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {
         val response = withContext(Dispatchers.IO) {
@@ -61,12 +65,5 @@ class StopService {
             ).await()
         }
         return response.data ?: throw IOException()
-        // return Rx2Apollo.from(watcher)
-        //         .subscribeOn(Schedulers.io())
-        //         .map { it.data() }
-        //         .filterNotNull()
-        //         .filter(Objects::nonNull)
     }
 }
-
-fun <T> Observable<T?>.filterNotNull(): Observable<T> = filter { it != null }.map { it!! }

@@ -19,7 +19,15 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
     private val currentStop: MutableLiveData<Stop> by lazy { MutableLiveData(null) }
     private val departures: MutableLiveData<StopPlaceQuery.Data> by lazy { MutableLiveData(null) }
     private val favoriteStops: LiveData<List<Stop>> =
-        db.favoritesDao().getAll().map { stops -> stops.map { Stop(it.name, it.id) } }
+        db.favoritesDao().getAll().map { stops ->
+            stops.map {
+                Stop(
+                    it.name,
+                    it.id,
+                    it.transportationTypes
+                )
+            }
+        }
 
 
     val isFavorite: LiveData<Boolean> = currentStop.switchMap { stop ->
@@ -33,7 +41,13 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
         if (existing != null) {
             db.favoritesDao().delete(existing)
         } else {
-            db.favoritesDao().insertAll(FavoriteStop(stop.id, stop.name))
+            db.favoritesDao().insertAll(
+                FavoriteStop(
+                    stop.id,
+                    stop.name,
+                    stop.transportationTypes
+                )
+            )
         }
     }
 

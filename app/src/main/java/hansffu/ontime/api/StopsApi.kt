@@ -12,7 +12,8 @@ interface StopsApi {
             @Query("point.lon") longitude: Double,
             @Query("boundary.circle.radius") radius: Int,
             @Query("size") size: Int,
-            @Query("layers") layers: String
+            @Query("layers") layers: String,
+            @Query("multiModal") multiModal: String
     ): Geocoding
 }
 
