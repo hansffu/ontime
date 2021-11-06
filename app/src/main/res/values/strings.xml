@@ -2,9 +2,6 @@
     <string name="app_name">På tiden</string>
     <string name="title_activity_timetable">TimetableActivity</string>
     <string name="title_activity_navigation">NavigationActivity</string>
-    <string name="drawer_favorites">Favoritter</string>
-    <string name="drawer_nearby">I nærheten</string>
-    <string name="drawer_search">Søk</string>
     <string name="favorite">Favoritt</string>
     <string name="add_favorite">Legg til favoritt</string>
     <string name="remove_favorite">Fjern favoritt</string>
@@ -14,5 +11,4 @@
     <string name="no_stops_found">Fant ingen stopp i nærheten</string>
     <string name="find_more">Finn flere stopp</string>
     <string name="empty_string" />
-    <string name="title_activity_search">SearchActivity</string>
 </resources>

@@ -4,17 +4,9 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.database.ContentObserver
 import android.location.Location
-import android.os.Handler
 import android.os.Looper
-import android.provider.ContactsContract
-import android.provider.Settings
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.lifecycle.*
@@ -22,23 +14,18 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import hansffu.ontime.database.AppDatabase
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
 import hansffu.ontime.model.StopListType.FAVORITES
 import hansffu.ontime.model.StopListType.NEARBY
-import hansffu.ontime.service.FavoriteService
 import hansffu.ontime.service.StopService
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.publish
 import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class FavoriteViewModel(application: Application) : AndroidViewModel(application) {
-    private val favoriteService: FavoriteService = FavoriteService(application.applicationContext)
+    private val db = AppDatabase.getDb(application)
     private val stopService = StopService()
 
     @SuppressLint("MissingPermission")
@@ -64,9 +51,10 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
         hasLocationPermission.value = hasLocationPermission()
     }
 
-
-
-    val favoriteStops: LiveData<List<Stop>> = favoriteService.getFavorites()
+    val favoriteStops: LiveData<List<Stop>> =
+        db.favoritesDao().getAll().map { stops ->
+            stops.map { Stop(it.name, it.id) }
+        }
 
     @SuppressLint("MissingPermission")
     val location: LiveData<LocationHolder> =
