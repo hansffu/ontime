@@ -75,7 +75,7 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
 object DepartureMappers {
     fun toLineDepartures(stopPlace: StopPlaceQuery.StopPlace): List<LineDeparture> {
         val quays = stopPlace.quays ?: emptyList()
-        return quays.flatMap { it.estimatedCalls() }
+        return quays.flatMap { it?.estimatedCalls ?: emptyList() }
             .asSequence()
             .filterNotNull()
             .groupBy(::groupLines)
@@ -91,7 +91,7 @@ object DepartureMappers {
 
     private fun groupLines(estimatedCall: StopPlaceQuery.EstimatedCall): LineDirectionRef? {
         val publicCode = estimatedCall.serviceJourney?.line?.publicCode
-        val dest = estimatedCall.destinationDisplay()?.frontText()
+        val dest = estimatedCall.destinationDisplay?.frontText
         return if (publicCode != null && dest != null) {
             LineDirectionRef(publicCode, dest)
         } else {

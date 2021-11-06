@@ -1,4 +1,4 @@
-val apollo_version = "2.5.9"
+val apollo_version = "2.5.10"
 val room_version = "2.3.0"
 
 plugins {
@@ -49,7 +49,8 @@ android {
     }
 
     apollo {
-        customTypeMapping.set(mapOf("DateTime" to "java.lang.String"))
+        customTypeMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
+        generateKotlinModels.set(true)
     }
 
 }
