@@ -2,8 +2,6 @@ package hansffu.ontime.ui.stoplist
 
 import android.app.Application
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,7 +15,6 @@ import hansffu.ontime.FavoriteViewModel
 import hansffu.ontime.R
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
-import hansffu.ontime.model.TransportationType
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
@@ -51,24 +48,9 @@ fun StopListUi(
             val stop = stops[index]
             Chip(
                 label = { Text(text = stop.name, overflow = TextOverflow.Ellipsis, maxLines = 1) },
-                secondaryLabel = { StopChipSecondaryLabel(stop = stop) },
                 onClick = { onStopSelected(stop) },
                 colors = ChipDefaults.primaryChipColors(MaterialTheme.colors.surface),
             )
-        }
-    }
-}
-
-@Composable
-fun StopChipSecondaryLabel(stop: Stop) {
-    Row(Modifier.height(18.dp)) {
-        stop.transportationTypes.forEach { transportationType ->
-            when (transportationType) {
-                TransportationType.BUS -> Icon(Icons.Default.DirectionsBus, "Buss")
-                TransportationType.TRAIN -> Icon(Icons.Default.Train, "Tog")
-                TransportationType.TRAM -> Icon(Icons.Default.Tram, "Trikk")
-                TransportationType.METRO -> Icon(Icons.Default.Subway, "T-bane")
-            }
         }
     }
 }

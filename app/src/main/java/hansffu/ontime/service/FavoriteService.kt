@@ -19,7 +19,7 @@ class FavoriteService(context: Context) {
 
     fun getFavorites(): LiveData<List<Stop>> =
         Transformations.map(db.favoritesDao().getAll()) { stops ->
-            stops.map { Stop(it.name, it.id, it.transportationTypes) }
+            stops.map { Stop(it.name, it.id) }
         }
 
 
@@ -29,7 +29,7 @@ class FavoriteService(context: Context) {
             if (existing != null) {
                 db.favoritesDao().delete(existing)
             } else {
-                db.favoritesDao().insertAll(FavoriteStop(stop.id, stop.name, stop.transportationTypes))
+                db.favoritesDao().insertAll(FavoriteStop(stop.id, stop.name))
             }
         }
     }
