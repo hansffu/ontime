@@ -1,0 +1,19 @@
+query NearbyStops($latitude: Float!, $longitude: Float!, $cursor: String) {
+    nearest(
+        after: $cursor,
+        latitude: $latitude,
+        longitude: $longitude,
+        filterByPlaceTypes: [stopPlace]
+    ) {
+        edges {
+            node {
+                place {
+                    ... on StopPlace {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+}

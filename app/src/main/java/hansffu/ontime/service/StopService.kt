@@ -1,16 +1,11 @@
 package hansffu.ontime.service
 
 import android.location.Location
-import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.coroutines.await
+import hansffu.ontime.NearbyStopsQuery
 import hansffu.ontime.StopPlaceQuery
-import hansffu.ontime.api.Feature
-import hansffu.ontime.api.Properties
-import hansffu.ontime.api.StopsApi
 import hansffu.ontime.graphql.enturApolloClient
 import hansffu.ontime.model.Stop
-import hansffu.ontime.model.TransportationType
-import io.reactivex.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
@@ -27,30 +22,17 @@ class StopService {
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build()
 
-    private val stopsApi = retrofit.create(StopsApi::class.java)
-
-    private fun toCategoryText(stop: Properties): List<TransportationType> =
-        stop.category.mapNotNull {
-            when (it) {
-                "onstreetTram" -> TransportationType.TRAM
-                "onstreetBus" -> TransportationType.BUS
-                "metroStation" -> TransportationType.METRO
-                else -> null
-            }
-        }
-
-
     suspend fun findStopsNear(location: Location): List<Stop> {
-        println(location.latitude)
-        println(location.longitude)
-        return stopsApi
-            .getNearbyStops(location.latitude, location.longitude, 2, 20, "venue", "parent")
-            .features.map(Feature::properties)
-            .map {
-                println(it)
-                it
-            }
-            .map { Stop(it.name, it.id, toCategoryText(it)) }
+        val response = enturApolloClient.query(
+            NearbyStopsQuery(
+                latitude = location.latitude,
+                longitude = location.longitude
+            )
+        ).await()
+        return response.data
+            ?.nearest?.edges?.mapNotNull { it?.node?.place?.asStopPlace }
+            ?.map { Stop(it.name, it.id) }
+            ?: emptyList()
     }
 
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {

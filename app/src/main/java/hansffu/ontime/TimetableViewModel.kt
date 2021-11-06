@@ -24,7 +24,6 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
                 Stop(
                     it.name,
                     it.id,
-                    it.transportationTypes
                 )
             }
         }
@@ -45,7 +44,6 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
                 FavoriteStop(
                     stop.id,
                     stop.name,
-                    stop.transportationTypes
                 )
             )
         }

@@ -20,7 +20,4 @@ data class LineDeparture(
     val departures: List<StopPlaceQuery.EstimatedCall>
 )
 
-enum class TransportationType{
-    BUS, TRAIN, TRAM, METRO
-}
-data class Stop(val name: String, val id: String, val transportationTypes: List<TransportationType>)
+data class Stop(val name: String, val id: String)

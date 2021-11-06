@@ -3,28 +3,20 @@ package hansffu.ontime
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.wear.compose.material.*
-import androidx.wear.widget.WearableLinearLayoutManager
-import androidx.wear.widget.WearableRecyclerView
-import hansffu.ontime.adapter.*
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
-import hansffu.ontime.model.TransportationType
 import hansffu.ontime.ui.stoplist.StopListUi
 import hansffu.ontime.ui.theme.OntimeTheme
-import hansffu.ontime.ui.timetable.Timetable
-import hansffu.ontime.utils.ListLayout
-import hansffu.ontime.utils.RotatingInputListener
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 class StopListFragment() : Fragment() {
@@ -108,10 +100,6 @@ class StopListFragment() : Fragment() {
         val startTimetableActivity = Intent(requireContext(), TimetableActivity::class.java)
         startTimetableActivity.putExtra(TimetableActivity.STOP_ID, stop.id)
         startTimetableActivity.putExtra(TimetableActivity.STOP_NAME, stop.name)
-        startTimetableActivity.putStringArrayListExtra(
-            TimetableActivity.STOP_MODES,
-            ArrayList(stop.transportationTypes.map(TransportationType::name))
-        )
         startActivity(startTimetableActivity)
     }
 
