@@ -16,6 +16,7 @@ import androidx.wear.compose.material.*
 import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.model.Stop
+import hansffu.ontime.ui.components.OntimeScaffold
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 import java.time.Duration
@@ -28,63 +29,63 @@ import java.time.temporal.ChronoUnit
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun Timetable(
-    stop: Stop,
     timetableViewModel: TimetableViewModel,
-    scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState()
+    scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState(),
 ) {
     val lineDeparturesState by timetableViewModel.getLineDepartures().observeAsState()
     val isFavorite by timetableViewModel.isFavorite.observeAsState()
+    val stop by timetableViewModel.currentStop.observeAsState(Stop("Loading", ""))
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-        state = scalingLazyListState,
-        contentPadding = PaddingValues(
-            top = 28.dp,
-            start = 10.dp,
-            end = 10.dp,
-            bottom = 40.dp
-        ),
-    ) {
-        item { Spacer(modifier = Modifier.size(20.dp)) }
-        item { ListHeader { Text(stop.name) } }
-        lineDeparturesState.let { lineDepartures ->
-            when (lineDepartures) {
-                null -> item { Text("Laster...") }
-                else -> items(lineDepartures.size) { index ->
-                    val times = lineDepartures[index].departures
-                        .mapNotNull(StopPlaceQuery.EstimatedCall::expectedArrivalTime)
-                    with(lineDepartures[index]) {
-                        LineDepartureCard(
-                            lineDirectionRef.lineRef,
-                            lineDirectionRef.destinationRef,
-                            times
-                        )
+    OntimeScaffold(scalingLazyListState) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            state = scalingLazyListState,
+            contentPadding = PaddingValues(
+                top = 28.dp,
+                start = 10.dp,
+                end = 10.dp,
+                bottom = 40.dp
+            ),
+        ) {
+            item { Spacer(modifier = Modifier.size(20.dp)) }
+            item { ListHeader { Text(stop.name) } }
+            lineDeparturesState.let { lineDepartures ->
+                when (lineDepartures) {
+                    null -> item { Text("Laster...") }
+                    else -> items(lineDepartures.size) { index ->
+                        val times = lineDepartures[index].departures
+                            .mapNotNull(StopPlaceQuery.EstimatedCall::expectedArrivalTime)
+                        with(lineDepartures[index]) {
+                            LineDepartureCard(
+                                lineDirectionRef.lineRef,
+                                lineDirectionRef.destinationRef,
+                                times
+                            )
+                        }
                     }
                 }
             }
-        }
-        item { Spacer(modifier = Modifier.size(8.dp)) }
-        isFavorite?.let {
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    ToggleChip(
-                        modifier = Modifier.fillMaxWidth(0.85f),
-                        checked = it,
-                        onCheckedChange = { timetableViewModel.toggleFavorite(stop) },
-                        label = { Text("Favoritt") },
-                        appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
-                    )
-                }
+            item { Spacer(modifier = Modifier.size(8.dp)) }
+            isFavorite?.let {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        ToggleChip(
+                            modifier = Modifier.fillMaxWidth(0.85f),
+                            checked = it,
+                            onCheckedChange = { timetableViewModel.toggleFavorite(stop) },
+                            label = { Text("Favoritt") },
+                            appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
+                        )
+                    }
 
+                }
             }
         }
     }
-
-
 }
 
 @Composable

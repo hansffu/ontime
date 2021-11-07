@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class TimetableViewModel(application: Application) : AndroidViewModel(application) {
     private val stopService = StopService()
     private val db = AppDatabase.getDb(application)
-    private val currentStop: MutableLiveData<Stop> by lazy { MutableLiveData(null) }
+    val currentStop: MutableLiveData<Stop> by lazy { MutableLiveData(null) }
     private val departures: MutableLiveData<StopPlaceQuery.Data> by lazy { MutableLiveData(null) }
     private val favoriteStops: LiveData<List<Stop>> =
         db.favoritesDao().getAll().map { stops ->

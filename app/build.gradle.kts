@@ -88,9 +88,10 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
 
-    implementation("androidx.wear.compose:compose-material:1.0.0-alpha09")
-    implementation("androidx.wear.compose:compose-foundation:1.0.0-alpha09")
-    implementation("androidx.compose.material:material-icons-extended:1.0.4")
+    implementation("androidx.wear.compose:compose-material:1.0.0-alpha10")
+    implementation("androidx.wear.compose:compose-foundation:1.0.0-alpha10")
+    implementation("androidx.wear.compose:compose-navigation:1.0.0-alpha10")
+    implementation("androidx.compose.material:material-icons-extended:1.0.5")
     implementation("androidx.compose.runtime:runtime-livedata:1.0.4")
     debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
