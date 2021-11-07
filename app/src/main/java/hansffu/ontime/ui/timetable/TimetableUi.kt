@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import hansffu.ontime.StopPlaceQuery
 import hansffu.ontime.TimetableViewModel
-import hansffu.ontime.model.Stop
 import hansffu.ontime.ui.components.OntimeScaffold
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
@@ -30,12 +29,12 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun Timetable(
     timetableViewModel: TimetableViewModel,
-    scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState(),
 ) {
-    val lineDeparturesState by timetableViewModel.getLineDepartures().observeAsState()
+    val lineDeparturesState by timetableViewModel.departures.observeAsState()
     val isFavorite by timetableViewModel.isFavorite.observeAsState()
-    val stop by timetableViewModel.currentStop.observeAsState(Stop("Loading", ""))
+    val stop by timetableViewModel.currentStop.observeAsState()
 
+    val scalingLazyListState = rememberScrollingScalingLazyListState()
     OntimeScaffold(scalingLazyListState) {
         ScalingLazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -49,7 +48,7 @@ fun Timetable(
             ),
         ) {
             item { Spacer(modifier = Modifier.size(20.dp)) }
-            item { ListHeader { Text(stop.name) } }
+            stop?.let { item { ListHeader { Text(it.name) } } }
             lineDeparturesState.let { lineDepartures ->
                 when (lineDepartures) {
                     null -> item { Text("Laster...") }
@@ -67,7 +66,7 @@ fun Timetable(
                 }
             }
             item { Spacer(modifier = Modifier.size(8.dp)) }
-            isFavorite?.let {
+            isFavorite?.let { favorite ->
                 item {
                     Box(
                         modifier = Modifier.fillMaxWidth(),
@@ -75,8 +74,8 @@ fun Timetable(
                     ) {
                         ToggleChip(
                             modifier = Modifier.fillMaxWidth(0.85f),
-                            checked = it,
-                            onCheckedChange = { timetableViewModel.toggleFavorite(stop) },
+                            checked = favorite,
+                            onCheckedChange = { timetableViewModel.toggleFavorite(stop!!) },
                             label = { Text("Favoritt") },
                             appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
                         )

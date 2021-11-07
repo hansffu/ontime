@@ -12,20 +12,39 @@ import hansffu.ontime.service.StopService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+private const val TAG = "TimetableViewModel"
+
 class TimetableViewModel(application: Application) : AndroidViewModel(application) {
     private val stopService = StopService()
     private val db = AppDatabase.getDb(application)
-    val currentStop: MutableLiveData<Stop> by lazy { MutableLiveData(null) }
-    private val departures: MutableLiveData<StopPlaceQuery.Data> by lazy { MutableLiveData(null) }
+    val currentStop: MutableLiveData<Stop?> by lazy { MutableLiveData(null) }
+
+    fun setCurrentStop(stop: Stop) {
+        Log.d(TAG, "new stop: ${stop.name} replaces ${currentStop.value?.name}")
+        currentStop.value = stop
+    }
+
     private val favoriteStops: LiveData<List<Stop>> =
         db.favoritesDao().getAll().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
+    val departures: LiveData<List<LineDeparture>> =
+        currentStop.switchMap { stop ->
+            Log.d(TAG, "updating departures for $stop")
+            liveData {
+                emit(emptyList())
+                stop?.let { stopService.getDepartures(it.id).stopPlace }
+                    ?.let { DepartureMappers.toLineDepartures(it) }
+                    ?.let { emit(it) }
+            }
+        }
 
-
-    val isFavorite: LiveData<Boolean> = currentStop.switchMap { stop ->
-        favoriteStops.map { favoriteStops ->
-            favoriteStops.any { it.id == stop.id }
+    val isFavorite: LiveData<Boolean> = currentStop.switchMap<Stop?, Boolean> { stop ->
+        if (stop == null) liveData { emit(false) }
+        else {
+            favoriteStops.map { favoriteStops ->
+                favoriteStops.any { it.id == stop.id }
+            }
         }
     }
 
@@ -34,33 +53,10 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
         if (existing != null) {
             db.favoritesDao().delete(existing)
         } else {
-            db.favoritesDao().insertAll(
-                FavoriteStop(
-                    stop.id,
-                    stop.name,
-                )
-            )
+            db.favoritesDao().insertAll(FavoriteStop(stop.id, stop.name))
         }
     }
 
-    fun getLineDepartures(): LiveData<List<LineDeparture>> =
-        departures.map { data ->
-            data?.stopPlace
-                ?.let { DepartureMappers.toLineDepartures(it) }
-                ?: emptyList()
-        }
-
-
-    fun loadDepartures(stop: Stop) {
-        viewModelScope.launch {
-            departures.value = stopService.getDepartures(stop.id)
-        }
-    }
-
-    fun setCurrentStop(stop: Stop) {
-        Log.e("hello", "new stop: ${stop.name} replaces ${currentStop.value?.name}")
-        currentStop.value = stop
-    }
 
 }
 

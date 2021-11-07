@@ -60,7 +60,6 @@ fun OntimeApp(favoriteModel: FavoriteViewModel, timetableViewModel: TimetableVie
                     stopListType = StopListType.NEARBY,
                     onStopSelected = {
                         timetableViewModel.setCurrentStop(it)
-                        timetableViewModel.loadDepartures(it)
                         navController.navigate(Screen.Timetable.route)
                     }
                 )
