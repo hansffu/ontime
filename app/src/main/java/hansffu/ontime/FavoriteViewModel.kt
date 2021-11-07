@@ -8,6 +8,9 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Location
 import android.os.Looper
 import androidx.annotation.RequiresPermission
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.lifecycle.*
 import com.google.android.gms.location.LocationCallback
@@ -16,7 +19,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import hansffu.ontime.database.AppDatabase
 import hansffu.ontime.model.Stop
-import hansffu.ontime.model.StopListType
 import hansffu.ontime.model.StopListType.FAVORITES
 import hansffu.ontime.model.StopListType.NEARBY
 import hansffu.ontime.service.StopService
@@ -30,13 +32,6 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
 
     @SuppressLint("MissingPermission")
     private val fusedLocation = LocationServices.getFusedLocationProviderClient(application)
-
-
-    private val _currentList: MutableLiveData<StopListType> = MutableLiveData(FAVORITES)
-    val currentList: LiveData<StopListType> = _currentList
-    fun setCurrentList(type: StopListType) {
-        _currentList.value = type
-    }
 
 
     private val hasLocationPermission: MutableLiveData<Boolean> = MutableLiveData(
@@ -79,16 +74,6 @@ class FavoriteViewModel(application: Application) : AndroidViewModel(application
             )
         }
     }
-
-
-    val stops: LiveData<List<Stop>> =
-        _currentList.switchMap { type: StopListType ->
-            when (type) {
-                FAVORITES -> favoriteStops
-                NEARBY -> nearbyStops
-            }
-        }
-
 
     fun getLocationHolder(): LiveData<LocationHolder> = location
 

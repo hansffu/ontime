@@ -12,6 +12,7 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import hansffu.ontime.model.StopListType
+import hansffu.ontime.ui.navigation.Screen
 import hansffu.ontime.ui.stoplist.StopListUi
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.ui.timetable.Timetable
@@ -53,16 +54,24 @@ class NavigationActivity : ComponentActivity() {
 fun OntimeApp(favoriteModel: FavoriteViewModel, timetableViewModel: TimetableViewModel) {
     OntimeTheme {
         val navController = rememberSwipeDismissableNavController()
-        SwipeDismissableNavHost(navController = navController, Screen.StopList.route) {
-            composable(Screen.StopList.route) {
-                StopListUi(
-                    favoriteModel = favoriteModel,
-                    stopListType = StopListType.NEARBY,
-                    onStopSelected = {
-                        timetableViewModel.setCurrentStop(it)
-                        navController.navigate(Screen.Timetable.route)
-                    }
-                )
+        SwipeDismissableNavHost(navController = navController, Screen.FavoriteStops.route) {
+            StopListType.values().forEach { stopListType ->
+                composable(
+                    when (stopListType) {
+                        StopListType.FAVORITES -> Screen.FavoriteStops
+                        StopListType.NEARBY -> Screen.NearbyStops
+                    }.route
+                ) {
+                    StopListUi(
+                        favoriteModel = favoriteModel,
+                        stopListType = stopListType,
+                        navigateTo = { navController.navigate(it.route) },
+                        onStopSelected = {
+                            timetableViewModel.setCurrentStop(it)
+                            navController.navigate(Screen.Timetable.route)
+                        }
+                    )
+                }
             }
             composable(route = Screen.Timetable.route) {
                 Timetable(
@@ -74,9 +83,3 @@ fun OntimeApp(favoriteModel: FavoriteViewModel, timetableViewModel: TimetableVie
     }
 }
 
-sealed class Screen(
-    val route: String
-) {
-    object StopList : Screen("stoplist")
-    object Timetable : Screen("timetable")
-}

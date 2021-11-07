@@ -15,7 +15,9 @@ import hansffu.ontime.FavoriteViewModel
 import hansffu.ontime.R
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
+import hansffu.ontime.ui.components.ActionChip
 import hansffu.ontime.ui.components.OntimeScaffold
+import hansffu.ontime.ui.navigation.Screen
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
@@ -23,6 +25,7 @@ fun StopListUi(
     favoriteModel: FavoriteViewModel,
     stopListType: StopListType,
     onStopSelected: (Stop) -> Unit,
+    navigateTo: (Screen) -> Unit,
     scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState()
 ) {
     val stops by favoriteModel.run {
@@ -49,20 +52,34 @@ fun StopListUi(
             item { Header(stopListType) }
             items(stops.size) { index ->
                 val stop = stops[index]
-                Chip(
-                    label = {
-                        Text(
-                            text = stop.name,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                    },
-                    onClick = { onStopSelected(stop) },
-                    colors = ChipDefaults.primaryChipColors(MaterialTheme.colors.surface),
-                )
+                StopChip(stop = stop, onClick = { onStopSelected(stop) })
+            }
+            if (stopListType === StopListType.FAVORITES) {
+                item { Spacer(modifier = Modifier.size(8.dp)) }
+                item {
+                    ActionChip(
+                        label = stringResource(R.string.nearby_header),
+                        onClick = { navigateTo(Screen.NearbyStops) }
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun StopChip(stop: Stop, onClick: () -> Unit) {
+    Chip(
+        label = {
+            Text(
+                text = stop.name,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        },
+        onClick = onClick,
+        colors = ChipDefaults.primaryChipColors(MaterialTheme.colors.surface),
+    )
 }
 
 @Composable
@@ -81,6 +98,6 @@ private fun Header(stopListType: StopListType) {
 )
 @Composable
 fun DefaultPreview() {
-    StopListUi(FavoriteViewModel(Application()), StopListType.NEARBY, {})
+    StopListUi(FavoriteViewModel(Application()), StopListType.NEARBY, {}, {})
 }
 
