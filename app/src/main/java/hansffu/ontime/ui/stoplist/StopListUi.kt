@@ -15,6 +15,7 @@ import hansffu.ontime.FavoriteViewModel
 import hansffu.ontime.R
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
+import hansffu.ontime.ui.components.OntimeScaffold
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
@@ -31,26 +32,35 @@ fun StopListUi(
         }
     }.observeAsState(emptyList())
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-        state = scalingLazyListState,
-        contentPadding = PaddingValues(
-            top = 28.dp,
-            start = 10.dp,
-            end = 10.dp,
-            bottom = 40.dp
-        ),
-    ) {
-        item { Spacer(modifier = Modifier.size(20.dp)) }
-        item { Header(stopListType) }
-        items(stops.size) { index ->
-            val stop = stops[index]
-            Chip(
-                label = { Text(text = stop.name, overflow = TextOverflow.Ellipsis, maxLines = 1) },
-                onClick = { onStopSelected(stop) },
-                colors = ChipDefaults.primaryChipColors(MaterialTheme.colors.surface),
-            )
+    OntimeScaffold(scalingLazyListState = scalingLazyListState) {
+
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            state = scalingLazyListState,
+            contentPadding = PaddingValues(
+                top = 28.dp,
+                start = 10.dp,
+                end = 10.dp,
+                bottom = 40.dp
+            ),
+        ) {
+            item { Spacer(modifier = Modifier.size(20.dp)) }
+            item { Header(stopListType) }
+            items(stops.size) { index ->
+                val stop = stops[index]
+                Chip(
+                    label = {
+                        Text(
+                            text = stop.name,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                    },
+                    onClick = { onStopSelected(stop) },
+                    colors = ChipDefaults.primaryChipColors(MaterialTheme.colors.surface),
+                )
+            }
         }
     }
 }

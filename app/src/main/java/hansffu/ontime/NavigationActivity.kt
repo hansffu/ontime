@@ -3,27 +3,26 @@ package hansffu.ontime
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.wear.widget.SwipeDismissFrameLayout
-import hansffu.ontime.databinding.ActivityNavigationBinding
-import hansffu.ontime.databinding.FragmentStopListNavigationBinding
+import androidx.compose.runtime.Composable
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.navigation.SwipeDismissableNavHost
+import androidx.wear.compose.navigation.composable
+import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import hansffu.ontime.model.StopListType
+import hansffu.ontime.ui.stoplist.StopListUi
+import hansffu.ontime.ui.theme.OntimeTheme
+import hansffu.ontime.ui.timetable.Timetable
 
-class NavigationActivity : FragmentActivity() {
+class NavigationActivity : ComponentActivity() {
 
-    private lateinit var binding: ActivityNavigationBinding
     private val favoriteModel: FavoriteViewModel by viewModels()
+    private val timetableViewModel: TimetableViewModel by viewModels()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityNavigationBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         favoriteModel.getLocationHolder().observe(this) {
             if (it is LocationHolder.NoPermission) requestPermissions(
@@ -32,6 +31,10 @@ class NavigationActivity : FragmentActivity() {
                     ACCESS_COARSE_LOCATION
                 ), 123
             )
+        }
+
+        setContent {
+            OntimeApp(favoriteModel, timetableViewModel)
         }
     }
 
@@ -45,52 +48,36 @@ class NavigationActivity : FragmentActivity() {
     }
 }
 
-class StopListNavigationFragment : Fragment() {
-
-
-    private var _binding: FragmentStopListNavigationBinding? = null
-    private val binding: FragmentStopListNavigationBinding
-        get() = _binding!!
-    private lateinit var navigationAdapter: StopListNavigationAdapter
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentStopListNavigationBinding.inflate(layoutInflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navigationAdapter = StopListNavigationAdapter(this)
-        binding.pager.adapter = navigationAdapter
-        val model: FavoriteViewModel by requireActivity().viewModels()
-        model.currentList.observe(requireActivity()) {
-            binding.pager.setCurrentItem(it.ordinal, true)
-        }
-        binding.root.addCallback(object : SwipeDismissFrameLayout.Callback() {
-            override fun onDismissed(layout: SwipeDismissFrameLayout?) {
-                layout?.visibility = View.GONE
-                requireActivity().finish()
+@OptIn(ExperimentalWearMaterialApi::class)
+@Composable
+fun OntimeApp(favoriteModel: FavoriteViewModel, timetableViewModel: TimetableViewModel) {
+    OntimeTheme {
+        val navController = rememberSwipeDismissableNavController()
+        SwipeDismissableNavHost(navController = navController, Screen.StopList.route) {
+            composable(Screen.StopList.route) {
+                StopListUi(
+                    favoriteModel = favoriteModel,
+                    stopListType = StopListType.NEARBY,
+                    onStopSelected = {
+                        timetableViewModel.setCurrentStop(it)
+                        timetableViewModel.loadDepartures(it)
+                        navController.navigate(Screen.Timetable.route)
+                    }
+                )
             }
-        })
-    }
-
-}
-
-
-class StopListNavigationAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-
-    override fun getItemCount(): Int = StopListType.values().size
-
-    override fun createFragment(position: Int): Fragment {
-        println("created fragment")
-        val fragment = StopListFragment()
-        fragment.arguments = Bundle().apply {
-            putString(StopListFragment.Arguments.STOP_TYPE, StopListType.values()[position].name)
+            composable(route = Screen.Timetable.route) {
+                Timetable(
+                    timetableViewModel = timetableViewModel,
+                )
+            }
         }
-        return fragment
+
     }
 }
 
+sealed class Screen(
+    val route: String
+) {
+    object StopList : Screen("stoplist")
+    object Timetable : Screen("timetable")
+}
