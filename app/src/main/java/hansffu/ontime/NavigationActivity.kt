@@ -6,16 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.runtime.Composable
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.navigation.SwipeDismissableNavHost
-import androidx.wear.compose.navigation.composable
-import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import hansffu.ontime.model.StopListType
-import hansffu.ontime.ui.navigation.Screen
-import hansffu.ontime.ui.stoplist.StopListUi
-import hansffu.ontime.ui.theme.OntimeTheme
-import hansffu.ontime.ui.timetable.Timetable
+import hansffu.ontime.ui.navigation.MainNavigation
 
 class NavigationActivity : ComponentActivity() {
 
@@ -35,7 +26,7 @@ class NavigationActivity : ComponentActivity() {
         }
 
         setContent {
-            OntimeApp(favoriteModel, timetableViewModel)
+            MainNavigation(favoriteModel, timetableViewModel)
         }
     }
 
@@ -46,40 +37,6 @@ class NavigationActivity : ComponentActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         favoriteModel.refreshPermissions()
-    }
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun OntimeApp(favoriteModel: StopListViewModel, timetableViewModel: TimetableViewModel) {
-    OntimeTheme {
-        val navController = rememberSwipeDismissableNavController()
-        SwipeDismissableNavHost(navController = navController, Screen.FavoriteStops.route) {
-            StopListType.values().forEach { stopListType ->
-                composable(
-                    when (stopListType) {
-                        StopListType.FAVORITES -> Screen.FavoriteStops
-                        StopListType.NEARBY -> Screen.NearbyStops
-                    }.route
-                ) {
-                    StopListUi(
-                        favoriteModel = favoriteModel,
-                        stopListType = stopListType,
-                        navigateTo = { navController.navigate(it.route) },
-                        onStopSelected = {
-                            timetableViewModel.setCurrentStop(it)
-                            navController.navigate(Screen.Timetable.route)
-                        }
-                    )
-                }
-            }
-            composable(route = Screen.Timetable.route) {
-                Timetable(
-                    timetableViewModel = timetableViewModel,
-                )
-            }
-        }
-
     }
 }
 

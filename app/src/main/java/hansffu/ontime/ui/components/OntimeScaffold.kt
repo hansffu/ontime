@@ -11,7 +11,6 @@ fun OntimeScaffold(
 ) {
     Scaffold(
         content = content,
-        timeText = { TimeText() },
         positionIndicator = { scalingLazyListState?.let { PositionIndicator(it) } },
         vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) }
     )

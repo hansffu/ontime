@@ -15,20 +15,17 @@ import hansffu.ontime.R
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
-import hansffu.ontime.ui.components.ActionChip
 import hansffu.ontime.ui.components.OntimeScaffold
-import hansffu.ontime.ui.navigation.Screen
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
 fun StopListUi(
-    favoriteModel: StopListViewModel,
+    stopListViewModel: StopListViewModel,
     stopListType: StopListType,
     onStopSelected: (Stop) -> Unit,
-    navigateTo: (Screen) -> Unit,
-    scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState()
 ) {
-    val stops by favoriteModel.run {
+    val scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState()
+    val stops by stopListViewModel.run {
         when (stopListType) {
             StopListType.FAVORITES -> favoriteStops
             StopListType.NEARBY -> nearbyStops
@@ -53,15 +50,6 @@ fun StopListUi(
             items(stops.size) { index ->
                 val stop = stops[index]
                 StopChip(stop = stop, onClick = { onStopSelected(stop) })
-            }
-            if (stopListType === StopListType.FAVORITES) {
-                item { Spacer(modifier = Modifier.size(8.dp)) }
-                item {
-                    ActionChip(
-                        label = stringResource(R.string.nearby_header),
-                        onClick = { navigateTo(Screen.NearbyStops) }
-                    )
-                }
             }
         }
     }
@@ -98,6 +86,6 @@ private fun Header(stopListType: StopListType) {
 )
 @Composable
 fun DefaultPreview() {
-    StopListUi(StopListViewModel(Application()), StopListType.NEARBY, {}, {})
+    StopListUi(StopListViewModel(Application()), StopListType.NEARBY, {})
 }
 
