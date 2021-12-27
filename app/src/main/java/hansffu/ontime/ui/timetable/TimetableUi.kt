@@ -9,12 +9,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.graphql.StopPlaceQuery
+import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.ui.components.OntimeScaffold
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
@@ -29,10 +34,11 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun Timetable(
     timetableViewModel: TimetableViewModel,
+    stopId: String,
+    stopName: String
 ) {
-    val lineDeparturesState by timetableViewModel.departures.observeAsState()
-    val isFavorite by timetableViewModel.isFavorite.observeAsState()
-    val stop by timetableViewModel.currentStop.observeAsState()
+    val lineDeparturesState: List<LineDeparture>? by timetableViewModel.getDepartures(stopId).observeAsState()
+    val isFavorite by timetableViewModel.isFavorite(stopId).observeAsState()
 
     val scalingLazyListState = rememberScrollingScalingLazyListState()
     OntimeScaffold(scalingLazyListState) {
@@ -48,10 +54,10 @@ fun Timetable(
             ),
         ) {
             item { Spacer(modifier = Modifier.size(20.dp)) }
-            stop?.let { item { ListHeader { Text(it.name) } } }
+            item { ListHeader { Text(stopName) } }
             lineDeparturesState.let { lineDepartures ->
                 when (lineDepartures) {
-                    null -> item { Text("Laster...") }
+                    null -> items(3) { PlaceholderCard() }
                     else -> items(lineDepartures.size) { index ->
                         val times = lineDepartures[index].departures
                             .mapNotNull(StopPlaceQuery.EstimatedCall::expectedArrivalTime)
@@ -75,7 +81,9 @@ fun Timetable(
                         ToggleChip(
                             modifier = Modifier.fillMaxWidth(0.85f),
                             checked = favorite,
-                            onCheckedChange = { timetableViewModel.toggleFavorite(stop!!) },
+                            onCheckedChange = {
+                                timetableViewModel.toggleFavorite(id = stopId, name = stopName)
+                            },
                             label = { Text("Favoritt") },
                             appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
                         )
@@ -125,6 +133,69 @@ fun LineDepartureCard(lineNumber: String, stopName: String, departureTimes: List
                             color = MaterialTheme.colors.onSurfaceVariant2
                         )
                     }
+                }
+            }
+        }
+    )
+}
+
+@Preview(
+    showBackground = true,
+    device = "spec:shape=Square,width=300,height=300,unit=px,dpi=240",
+    backgroundColor = 0x000000
+)
+@Composable
+fun PlaceholderCard() {
+    Card(
+        onClick = {},
+        content = {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "          ",
+                            modifier = Modifier
+                                .fillMaxWidth(.9f)
+                                .placeholder(
+                                    visible = true,
+                                    highlight = PlaceholderHighlight.shimmer(),
+                                    color = Color.Gray
+                                )
+                        )
+                    }
+                    Box(contentAlignment = Alignment.TopEnd) {
+                        Text(
+                            text = "",
+                            color = MaterialTheme.colors.onSurface,
+                            modifier = Modifier
+                                .width(30.dp)
+                                .placeholder(
+                                    visible = true,
+                                    highlight = PlaceholderHighlight.shimmer(),
+                                    color = Color.Gray
+                                )
+                        )
+                    }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "",
+                        color = MaterialTheme.colors.onSurfaceVariant2,
+                        modifier = Modifier
+                            .fillMaxWidth(.8f)
+                            .padding(top = 5.dp)
+                            .placeholder(
+                                visible = true,
+                                highlight = PlaceholderHighlight.shimmer(),
+                                color = Color.Gray
+                            )
+                    )
+
                 }
             }
         }
