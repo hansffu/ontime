@@ -11,8 +11,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
-import hansffu.ontime.FavoriteViewModel
 import hansffu.ontime.R
+import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
 import hansffu.ontime.ui.components.ActionChip
@@ -22,7 +22,7 @@ import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
 fun StopListUi(
-    favoriteModel: FavoriteViewModel,
+    favoriteModel: StopListViewModel,
     stopListType: StopListType,
     onStopSelected: (Stop) -> Unit,
     navigateTo: (Screen) -> Unit,
@@ -98,6 +98,6 @@ private fun Header(stopListType: StopListType) {
 )
 @Composable
 fun DefaultPreview() {
-    StopListUi(FavoriteViewModel(Application()), StopListType.NEARBY, {}, {})
+    StopListUi(StopListViewModel(Application()), StopListType.NEARBY, {}, {})
 }
 

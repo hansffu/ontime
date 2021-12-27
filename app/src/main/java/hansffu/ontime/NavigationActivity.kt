@@ -19,7 +19,7 @@ import hansffu.ontime.ui.timetable.Timetable
 
 class NavigationActivity : ComponentActivity() {
 
-    private val favoriteModel: FavoriteViewModel by viewModels()
+    private val favoriteModel: StopListViewModel by viewModels()
     private val timetableViewModel: TimetableViewModel by viewModels()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +51,7 @@ class NavigationActivity : ComponentActivity() {
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun OntimeApp(favoriteModel: FavoriteViewModel, timetableViewModel: TimetableViewModel) {
+fun OntimeApp(favoriteModel: StopListViewModel, timetableViewModel: TimetableViewModel) {
     OntimeTheme {
         val navController = rememberSwipeDismissableNavController()
         SwipeDismissableNavHost(navController = navController, Screen.FavoriteStops.route) {

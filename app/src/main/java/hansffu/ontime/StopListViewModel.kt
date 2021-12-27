@@ -8,9 +8,6 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Location
 import android.os.Looper
 import androidx.annotation.RequiresPermission
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.lifecycle.*
 import com.google.android.gms.location.LocationCallback
@@ -19,14 +16,12 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import hansffu.ontime.database.AppDatabase
 import hansffu.ontime.model.Stop
-import hansffu.ontime.model.StopListType.FAVORITES
-import hansffu.ontime.model.StopListType.NEARBY
 import hansffu.ontime.service.StopService
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
-class FavoriteViewModel(application: Application) : AndroidViewModel(application) {
+class StopListViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDb(application)
     private val stopService = StopService()
 

@@ -1,6 +1,6 @@
 package hansffu.ontime.model
 
-import hansffu.ontime.StopPlaceQuery
+import hansffu.ontime.graphql.StopPlaceQuery
 
 data class LineDirectionRef internal constructor(val lineRef: String, val destinationRef: String)
 

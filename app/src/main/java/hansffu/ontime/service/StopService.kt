@@ -2,9 +2,8 @@ package hansffu.ontime.service
 
 import android.location.Location
 import android.util.Log
-import com.apollographql.apollo.coroutines.await
-import hansffu.ontime.NearbyStopsQuery
-import hansffu.ontime.StopPlaceQuery
+import hansffu.ontime.graphql.NearbyStopsQuery
+import hansffu.ontime.graphql.StopPlaceQuery
 import hansffu.ontime.graphql.enturApolloClient
 import hansffu.ontime.model.Stop
 import kotlinx.coroutines.Dispatchers
@@ -21,9 +20,9 @@ class StopService {
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-        ).await()
+        ).execute()
         return response.data
-            ?.nearest?.edges?.mapNotNull { it?.node?.place?.asStopPlace }
+            ?.nearest?.edges?.mapNotNull { it?.node?.place?.onStopPlace }
             ?.map { Stop(it.name, it.id) }
             ?: emptyList()
     }
@@ -35,7 +34,7 @@ class StopService {
                 StopPlaceQuery(
                     id = id
                 )
-            ).await()
+            ).execute()
         }
         return response.data ?: throw IOException()
     }
