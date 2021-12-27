@@ -18,47 +18,35 @@ private const val TAG = "TimetableViewModel"
 class TimetableViewModel(application: Application) : AndroidViewModel(application) {
     private val stopService = StopService()
     private val db = AppDatabase.getDb(application)
-    val currentStop: MutableLiveData<Stop?> by lazy { MutableLiveData(null) }
-
-    fun setCurrentStop(stop: Stop) {
-        Log.d(TAG, "new stop: ${stop.name} replaces ${currentStop.value?.name}")
-        currentStop.value = stop
-    }
 
     private val favoriteStops: LiveData<List<Stop>> =
         db.favoritesDao().getAll().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
-    val departures: LiveData<List<LineDeparture>> =
-        currentStop.switchMap { stop ->
-            Log.d(TAG, "updating departures for $stop")
-            liveData {
-                emit(emptyList())
-                stop?.let { stopService.getDepartures(it.id).stopPlace }
-                    ?.let { DepartureMappers.toLineDepartures(it) }
-                    ?.let { emit(it) }
-            }
-        }
 
-    val isFavorite: LiveData<Boolean> = currentStop.switchMap<Stop?, Boolean> { stop ->
-        if (stop == null) liveData { emit(false) }
-        else {
-            favoriteStops.map { favoriteStops ->
-                favoriteStops.any { it.id == stop.id }
-            }
+    fun getDepartures(stopId: String): LiveData<List<LineDeparture>> {
+        Log.d(TAG, "updating departures for $stopId")
+        return liveData {
+            stopService.getDepartures(stopId).stopPlace
+                ?.let { DepartureMappers.toLineDepartures(it) }
+                ?.let { emit(it) }
         }
     }
 
-    fun toggleFavorite(stop: Stop) = viewModelScope.launch(Dispatchers.IO) {
-        val existing = db.favoritesDao().getById(stop.id)
+    fun isFavorite(stopId: String): LiveData<Boolean> =
+        favoriteStops.map { favoriteStops ->
+            favoriteStops.any { it.id == stopId }
+        }
+
+
+    fun toggleFavorite(id: String, name: String) = viewModelScope.launch(Dispatchers.IO) {
+        val existing = db.favoritesDao().getById(id)
         if (existing != null) {
             db.favoritesDao().delete(existing)
         } else {
-            db.favoritesDao().insertAll(FavoriteStop(stop.id, stop.name))
+            db.favoritesDao().insertAll(FavoriteStop(id, name))
         }
     }
-
-
 }
 
 object DepartureMappers {

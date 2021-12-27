@@ -1,6 +1,8 @@
 package hansffu.ontime.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
@@ -20,14 +22,21 @@ fun MainNavigation(stopListViewModel: StopListViewModel, timetableViewModel: Tim
             composable(route = Screen.StopListPager.route) {
                 StopListPager(stopListViewModel = stopListViewModel,
                     onStopSelected = {
-                        timetableViewModel.setCurrentStop(it)
-                        navController.navigate(Screen.Timetable.route)
+                        navController.navigate(Screen.Timetable.link(it))
                     }
                 )
             }
-            composable(route = Screen.Timetable.route) {
+            composable(
+                route = Screen.Timetable.route + "/{stopId}?stopName={stopName}",
+                arguments = listOf(
+                    navArgument("stopId") { type = NavType.StringType },
+                    navArgument("stopName") { type = NavType.StringType })
+            ) {
+                println(it.arguments?.getString("stopId"))
                 Timetable(
                     timetableViewModel = timetableViewModel,
+                    stopId = it.arguments!!.getString("stopId")!!,
+                    stopName = it.arguments!!.getString("stopName")!!
                 )
             }
         }
