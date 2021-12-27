@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import hansffu.ontime.database.AppDatabase
 import hansffu.ontime.database.dao.FavoriteStop
+import hansffu.ontime.graphql.StopPlaceQuery
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.model.LineDirectionRef
 import hansffu.ontime.model.Stop

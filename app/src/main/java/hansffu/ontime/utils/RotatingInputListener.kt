@@ -3,6 +3,7 @@ package hansffu.ontime.utils
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,7 +28,7 @@ fun rememberScrollingScalingLazyListState(): ScalingLazyListState {
                 action == MotionEvent.ACTION_SCROLL && isFromSource(InputDeviceCompat.SOURCE_ROTARY_ENCODER)
             }
 
-            if (isScrollEvent) scope.launch { listState.scrollBy(event.getDelta(context)) }
+            if (isScrollEvent) scope.launch { listState.animateScrollBy(event.getDelta(context)) }
             isScrollEvent
         }
 

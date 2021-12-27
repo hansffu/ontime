@@ -14,7 +14,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:7.0.3")
+    classpath("com.android.tools.build:gradle:7.0.4")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
     classpath("com.apollographql.apollo:apollo-gradle-plugin:$apollo_version")
     classpath(kotlin("gradle-plugin", version = kotlin_version))
