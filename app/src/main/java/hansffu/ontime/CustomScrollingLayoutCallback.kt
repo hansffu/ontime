@@ -3,6 +3,8 @@ package hansffu.ontime
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
+import kotlin.math.abs
+import kotlin.math.min
 
 /** How much should we scale the icon at most.  */
 private const val MAX_ICON_PROGRESS = 0.65f
@@ -18,9 +20,9 @@ class CustomScrollingLayoutCallback : WearableLinearLayoutManager.LayoutCallback
             val yRelativeToCenterOffset = y / parent.height + centerOffset
 
             // Normalize for center
-            progressToCenter = Math.abs(0.5f - yRelativeToCenterOffset)
+            progressToCenter = abs(0.5f - yRelativeToCenterOffset)
             // Adjust to the maximum scale
-            progressToCenter = Math.min(progressToCenter, MAX_ICON_PROGRESS)
+            progressToCenter = min(progressToCenter, MAX_ICON_PROGRESS)
 
             scaleX = 1 - progressToCenter
             scaleY = 1 - progressToCenter

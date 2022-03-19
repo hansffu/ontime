@@ -1,10 +1,10 @@
-val apolloVersion = "3.0.0"
-val room_version = "2.3.0"
+val apolloVersion = "3.1.0"
+val room_version = "2.4.2"
 val accompanistVersion = "0.20.3"
 
 plugins {
     id("com.android.application")
-    id("com.apollographql.apollo3") version "3.0.0"
+    id("com.apollographql.apollo3") version "3.1.0"
     kotlin("android")
     kotlin("kapt")
 }
@@ -53,17 +53,17 @@ android {
 
 dependencies {
     implementation(fileTree("include" to "*.jar", "dir" to "libs"))
-    implementation("com.google.android.support:wearable:2.8.1")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
-    compileOnly("com.google.android.wearable:wearable:2.8.1")
+    implementation("com.google.android.support:wearable:2.9.0")
+    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
+    compileOnly("com.google.android.wearable:wearable:2.9.0")
     implementation("com.google.android.gms:play-services-wearable:17.1.0")
-    implementation("com.google.android.gms:play-services-location:19.0.0")
+    implementation("com.google.android.gms:play-services-location:19.0.1")
     implementation("androidx.wear:wear:1.2.0")
     implementation("androidx.wear:wear-input:1.1.0")
     implementation("androidx.activity:activity-ktx:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     implementation("com.apollographql.apollo3:apollo-runtime:$apolloVersion")
     compileOnly("org.jetbrains:annotations:17.0.0")
@@ -78,11 +78,11 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
 
-    implementation("androidx.wear.compose:compose-material:1.0.0-alpha13")
-    implementation("androidx.wear.compose:compose-foundation:1.0.0-alpha13")
-    implementation("androidx.wear.compose:compose-navigation:1.0.0-alpha13")
-    implementation("androidx.compose.material:material-icons-extended:1.0.5")
-    implementation("androidx.compose.runtime:runtime-livedata:1.0.5")
+    implementation("androidx.wear.compose:compose-material:1.0.0-alpha18")
+    implementation("androidx.wear.compose:compose-foundation:1.0.0-alpha18")
+    implementation("androidx.wear.compose:compose-navigation:1.0.0-alpha18")
+    implementation("androidx.compose.material:material-icons-extended:1.1.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 
     implementation("com.google.accompanist:accompanist-swiperefresh:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
