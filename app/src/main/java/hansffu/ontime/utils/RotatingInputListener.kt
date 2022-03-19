@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext

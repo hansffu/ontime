@@ -9,7 +9,6 @@ import hansffu.ontime.graphql.enturApolloClient
 import hansffu.ontime.model.Stop
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.IOException
 
 private const val TAG = "StopService"
 
@@ -31,11 +30,7 @@ class StopService {
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {
         Log.d(TAG, "requesting departures for $id")
         val response: ApolloResponse<StopPlaceQuery.Data> = withContext(Dispatchers.IO) {
-            enturApolloClient.query(
-                StopPlaceQuery(
-                    id = id
-                )
-            ).execute()
+            enturApolloClient.query(StopPlaceQuery(id = id)).execute()
         }
         return response.dataAssertNoErrors
     }

@@ -86,6 +86,6 @@ private fun Header(stopListType: StopListType) {
 )
 @Composable
 fun DefaultPreview() {
-    StopListUi(StopListViewModel(Application()), StopListType.NEARBY, {})
+    StopListUi(StopListViewModel(Application()), StopListType.NEARBY) {}
 }
 

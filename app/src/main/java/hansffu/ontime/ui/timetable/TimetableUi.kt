@@ -17,6 +17,8 @@ import androidx.wear.compose.material.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.graphql.StopPlaceQuery
 import hansffu.ontime.model.LineDeparture
@@ -30,65 +32,69 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun Timetable(
     timetableViewModel: TimetableViewModel,
     stopId: String,
     stopName: String
 ) {
-    val lineDeparturesState: List<LineDeparture>? by timetableViewModel.getDepartures(stopId).observeAsState()
+    val lineDeparturesState: List<LineDeparture>? by timetableViewModel.getDepartures(stopId)
+        .observeAsState()
     val isFavorite by timetableViewModel.isFavorite(stopId).observeAsState()
 
     val scalingLazyListState = rememberScrollingScalingLazyListState()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
     OntimeScaffold(scalingLazyListState) {
-        ScalingLazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            state = scalingLazyListState,
-            contentPadding = PaddingValues(
-                top = 28.dp,
-                start = 10.dp,
-                end = 10.dp,
-                bottom = 40.dp
-            ),
-        ) {
-            item { Spacer(modifier = Modifier.size(20.dp)) }
-            item { ListHeader { Text(stopName) } }
-            lineDeparturesState.let { lineDepartures ->
-                when (lineDepartures) {
-                    null -> items(3) { PlaceholderCard() }
-                    else -> items(lineDepartures.size) { index ->
-                        val times = lineDepartures[index].departures
-                            .mapNotNull(StopPlaceQuery.EstimatedCall::expectedArrivalTime)
-                        with(lineDepartures[index]) {
-                            LineDepartureCard(
-                                lineDirectionRef.lineRef,
-                                lineDirectionRef.destinationRef,
-                                times
-                            )
+        SwipeRefresh(state = swipeRefreshState, onRefresh = { /*TODO*/ }) {
+
+            ScalingLazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                state = scalingLazyListState,
+                contentPadding = PaddingValues(
+                    top = 28.dp,
+                    start = 10.dp,
+                    end = 10.dp,
+                    bottom = 40.dp
+                ),
+            ) {
+                item { Spacer(modifier = Modifier.size(20.dp)) }
+                item { ListHeader { Text(stopName) } }
+                lineDeparturesState.let { lineDepartures ->
+                    when (lineDepartures) {
+                        null -> items(3) { PlaceholderCard() }
+                        else -> items(lineDepartures.size) { index ->
+                            val times = lineDepartures[index].departures
+                                .mapNotNull(StopPlaceQuery.EstimatedCall::expectedArrivalTime)
+                            with(lineDepartures[index]) {
+                                LineDepartureCard(
+                                    lineDirectionRef.lineRef,
+                                    lineDirectionRef.destinationRef,
+                                    times
+                                )
+                            }
                         }
                     }
                 }
-            }
-            item { Spacer(modifier = Modifier.size(8.dp)) }
-            isFavorite?.let { favorite ->
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        ToggleChip(
-                            modifier = Modifier.fillMaxWidth(0.85f),
-                            checked = favorite,
-                            onCheckedChange = {
-                                timetableViewModel.toggleFavorite(id = stopId, name = stopName)
-                            },
-                            label = { Text("Favoritt") },
-                            appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
-                        )
-                    }
+                item { Spacer(modifier = Modifier.size(8.dp)) }
+                isFavorite?.let { favorite ->
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            ToggleChip(
+                                modifier = Modifier.fillMaxWidth(0.85f),
+                                checked = favorite,
+                                onCheckedChange = {
+                                    timetableViewModel.toggleFavorite(id = stopId, name = stopName)
+                                },
+                                label = { Text("Favoritt") },
+                                appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
+                            )
+                        }
 
+                    }
                 }
             }
         }
@@ -130,7 +136,7 @@ fun LineDepartureCard(lineNumber: String, stopName: String, departureTimes: List
                             overflow = TextOverflow.Ellipsis,
                             softWrap = false,
                             style = MaterialTheme.typography.body1,
-                            color = MaterialTheme.colors.onSurfaceVariant2
+                            color = MaterialTheme.colors.onSurfaceVariant
                         )
                     }
                 }
@@ -185,7 +191,7 @@ fun PlaceholderCard() {
                 ) {
                     Text(
                         text = "",
-                        color = MaterialTheme.colors.onSurfaceVariant2,
+                        color = MaterialTheme.colors.onSurfaceVariant,
                         modifier = Modifier
                             .fillMaxWidth(.8f)
                             .padding(top = 5.dp)

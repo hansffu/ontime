@@ -3,7 +3,6 @@ package hansffu.ontime.ui.components
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.*
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun OntimeScaffold(
     scalingLazyListState: ScalingLazyListState? = null,
