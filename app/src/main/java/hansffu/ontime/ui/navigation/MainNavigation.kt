@@ -11,7 +11,7 @@ import hansffu.ontime.StopListViewModel
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.ui.stoplist.StopListPager
 import hansffu.ontime.ui.theme.OntimeTheme
-import hansffu.ontime.ui.timetable.Timetable
+import hansffu.ontime.ui.timetable.TimetableUi
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
@@ -33,7 +33,7 @@ fun MainNavigation(stopListViewModel: StopListViewModel, timetableViewModel: Tim
                     navArgument("stopName") { type = NavType.StringType })
             ) {
                 println(it.arguments?.getString("stopId"))
-                Timetable(
+                TimetableUi(
                     timetableViewModel = timetableViewModel,
                     stopId = it.arguments!!.getString("stopId")!!,
                     stopName = it.arguments!!.getString("stopName")!!

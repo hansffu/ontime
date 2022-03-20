@@ -1,9 +1,7 @@
 package hansffu.ontime.ui.stoplist
 
 import androidx.compose.runtime.Composable
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.material.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -20,6 +18,7 @@ fun StopListPager(
     val pagerState = rememberPagerState()
     Scaffold(
         timeText = { TimeText() },
+        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) }
     ) {
         HorizontalPager(count = StopListType.values().size, state = pagerState) { page ->
             val stopListType = StopListType.values()[page]
