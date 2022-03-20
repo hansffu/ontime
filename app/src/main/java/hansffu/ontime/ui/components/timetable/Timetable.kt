@@ -9,13 +9,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.ui.components.LineDepartureCard
 import hansffu.ontime.ui.components.OntimeList
-import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
 fun Timetable(
@@ -23,7 +21,7 @@ fun Timetable(
     lineDepartures: List<LineDeparture>,
     isFavorite: Boolean,
     toggleFavorite: (Boolean) -> Unit,
-    scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState()
+    scalingLazyListState: ScalingLazyListState
 
 ) {
 

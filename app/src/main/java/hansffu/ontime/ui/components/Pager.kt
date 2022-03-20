@@ -1,6 +1,8 @@
 package hansffu.ontime.ui.components
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.wear.compose.material.HorizontalPageIndicator
 import androidx.wear.compose.material.PageIndicatorState
@@ -15,6 +17,7 @@ import com.google.accompanist.pager.rememberPagerState
 @Composable
 fun <P> Pager(
     pages: List<P>,
+    onFocusChange: ((P) -> Unit),
     renderPage: @Composable PagerScope.(P) -> Unit
 ) {
     val pagerState = rememberPagerState()
@@ -31,6 +34,9 @@ fun <P> Pager(
     Scaffold(
         positionIndicator = { HorizontalPageIndicator(pageIndicatorState) }
     ) {
+        LaunchedEffect(pagerState.currentPage) {
+            onFocusChange(pages[pagerState.currentPage])
+        }
         HorizontalPager(count = pages.size, state = pagerState) { page ->
             renderPage(pages[page])
         }

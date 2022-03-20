@@ -6,17 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyListState
-import androidx.wear.compose.material.items
+import androidx.wear.compose.material.*
 import hansffu.ontime.R
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
 import hansffu.ontime.ui.components.OntimeList
 import hansffu.ontime.ui.components.stoplist.StopChip
-import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
 fun StopListUi(
@@ -24,7 +20,7 @@ fun StopListUi(
     stopListType: StopListType,
     onStopSelected: (Stop) -> Unit,
 ) {
-    val scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState()
+    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
     val stops by stopListViewModel.run {
         when (stopListType) {
             StopListType.FAVORITES -> favoriteStops
