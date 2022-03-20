@@ -7,13 +7,14 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.google.accompanist.pager.ExperimentalPagerApi
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.ui.stoplist.StopListPager
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.ui.timetable.TimetableUi
 
-@OptIn(ExperimentalWearMaterialApi::class)
+@OptIn(ExperimentalWearMaterialApi::class, ExperimentalPagerApi::class)
 @Composable
 fun MainNavigation(stopListViewModel: StopListViewModel, timetableViewModel: TimetableViewModel) {
     OntimeTheme {
