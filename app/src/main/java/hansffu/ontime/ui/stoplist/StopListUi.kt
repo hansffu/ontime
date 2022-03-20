@@ -5,14 +5,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material.*
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.material.items
 import hansffu.ontime.R
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
 import hansffu.ontime.ui.components.OntimeList
+import hansffu.ontime.ui.components.stoplist.StopChip
 import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 @Composable
@@ -32,7 +35,7 @@ fun StopListUi(
     Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState) }) {
 
         OntimeList(
-            headerText = HeaderText(stopListType)
+            headerText = headerText(stopListType)
         ) {
             items(stops) {
                 StopChip(stop = it, onClick = { onStopSelected(it) })
@@ -41,23 +44,9 @@ fun StopListUi(
     }
 }
 
-@Composable
-fun StopChip(stop: Stop, onClick: () -> Unit) {
-    Chip(
-        label = {
-            Text(
-                text = stop.name,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
-        },
-        onClick = onClick,
-        colors = ChipDefaults.primaryChipColors(MaterialTheme.colors.surface),
-    )
-}
 
 @Composable
-fun HeaderText(stopListType: StopListType): String {
+fun headerText(stopListType: StopListType): String {
     val text = when (stopListType) {
         StopListType.FAVORITES -> R.string.favorites_header
         StopListType.NEARBY -> R.string.nearby_header
