@@ -7,20 +7,16 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.ui.components.OntimeList
 import hansffu.ontime.ui.components.timetable.Timetable
-import hansffu.ontime.utils.rememberScrollingScalingLazyListState
 
 
 @Composable
@@ -33,28 +29,27 @@ fun TimetableUi(
         .observeAsState()
     val isFavorite by timetableViewModel.isFavorite(stopId).observeAsState()
 
-    val scalingLazyListState = rememberScrollingScalingLazyListState()
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+    val scalingLazyListState = rememberScalingLazyListState()
+
     Scaffold(
         positionIndicator = { PositionIndicator(scalingLazyListState) },
         vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) }
     ) {
-        SwipeRefresh(state = swipeRefreshState, onRefresh = { /*TODO*/ }) {
-            WithLoadedState(
-                lineDepartures = lineDeparturesState,
-                favorite = isFavorite,
-                onLoading = {
-                    PlaceholderList(stopName, scalingLazyListState)
-                }) {
-                Timetable(
-                    stopName = stopName,
-                    lineDepartures = lineDepartures,
-                    isFavorite = favorite,
-                    toggleFavorite = { favorite ->
-                        timetableViewModel.toggleFavorite(id = stopId, name = stopName)
-                    }
-                )
-            }
+        WithLoadedState(
+            lineDepartures = lineDeparturesState,
+            favorite = isFavorite,
+            onLoading = {
+                PlaceholderList(stopName, scalingLazyListState)
+            }) {
+            Timetable(
+                stopName = stopName,
+                lineDepartures = lineDepartures,
+                isFavorite = favorite,
+                scalingLazyListState = scalingLazyListState,
+                toggleFavorite = { favorite ->
+                    timetableViewModel.toggleFavorite(id = stopId, name = stopName)
+                }
+            )
         }
     }
 }
@@ -79,7 +74,7 @@ fun WithLoadedState(
 @Composable
 fun PlaceholderList(
     stopName: String,
-    scalingLazyListState: ScalingLazyListState = rememberScrollingScalingLazyListState(),
+    scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState(),
 ) {
     OntimeList(stopName, scalingLazyListState) {
         items(3) {

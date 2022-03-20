@@ -16,7 +16,7 @@ android {
         applicationId = "hansffu.ontime"
         minSdk = 26
         targetSdk = 30
-        versionCode = 30
+        versionCode = 31
         versionName = "3.0"
         vectorDrawables {
             useSupportLibrary = true

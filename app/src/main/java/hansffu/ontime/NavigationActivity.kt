@@ -28,6 +28,7 @@ class NavigationActivity : ComponentActivity() {
         setContent {
             MainNavigation(favoriteModel, timetableViewModel)
         }
+
     }
 
     override fun onRequestPermissionsResult(
