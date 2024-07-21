@@ -56,7 +56,7 @@
             name = "ontime";
             android = {
               enable = true;
-              platforms.version = [ "31" "33" ];
+              platforms.version = [ "31" "33" "34" ];
               systemImageTypes = [ "google_apis_playstore" "android-wear" ];
               abis = [ "x86_64" ];
               buildTools.version = [ "34.0.0" ];

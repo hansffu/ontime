@@ -10,7 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.*
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleChip
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.ui.components.LineDepartureCard
 import hansffu.ontime.ui.components.OntimeList
@@ -43,7 +46,8 @@ fun Timetable(
                     checked = isFavorite,
                     onCheckedChange = toggleFavorite,
                     label = { Text("Favoritt") },
-                    appIcon = { Icon(Icons.Default.Favorite, "Favoritt") }
+                    appIcon = { Icon(Icons.Default.Favorite, "Favoritt") },
+                    toggleControl = { }
                 )
             }
 

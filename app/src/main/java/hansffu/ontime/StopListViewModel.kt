@@ -80,7 +80,7 @@ class StopListViewModel(application: Application) : AndroidViewModel(application
             LocationRequest.create(),
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
-                    viewModelScope.launch { locationResult.lastLocation.let { locations.send(it) } }
+                    viewModelScope.launch { locationResult.lastLocation?.let { locations.send(it) } }
                 }
             },
             Looper.getMainLooper()
