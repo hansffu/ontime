@@ -11,3 +11,5 @@
 /.idea
 *.apk
 /app/release/
+.devenv
+.direnv

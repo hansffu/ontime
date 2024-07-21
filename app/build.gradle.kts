@@ -7,6 +7,7 @@ plugins {
     id("com.apollographql.apollo3") version "3.1.0"
     kotlin("android")
     kotlin("kapt")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 }
 
 android {
@@ -15,7 +16,7 @@ android {
     defaultConfig {
         applicationId = "hansffu.ontime"
         minSdk = 26
-        targetSdk = 30
+        targetSdk = 33
         versionCode = 31
         versionName = "3.0"
         vectorDrawables {
@@ -28,17 +29,17 @@ android {
         compose = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
+    kotlin{
+        jvmToolchain(17)
+    }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
-    lint {
-        isCheckDependencies = true
-    }
     namespace = "hansffu.ontime"
     composeOptions {
         kotlinCompilerExtensionVersion = rootProject.extra["compose_version"] as String
@@ -48,7 +49,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
+   compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kapt {
+        javacOptions {
+            option("--target", 17)
+        }
+    }
 }
 
 dependencies {
