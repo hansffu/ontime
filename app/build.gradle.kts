@@ -4,10 +4,10 @@ val accompanistVersion = "0.20.3"
 
 plugins {
     id("com.android.application")
-    id("com.apollographql.apollo3") version "3.1.0"
     kotlin("android")
     kotlin("kapt")
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("com.apollographql.apollo3") version "3.8.5"
 }
 
 android {
@@ -74,7 +74,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
-    implementation("com.apollographql.apollo3:apollo-runtime:$apolloVersion")
+    implementation("com.apollographql.apollo3:apollo-runtime:3.8.5")
     compileOnly("org.jetbrains:annotations:17.0.0")
 
     implementation("androidx.room:room-runtime:$room_version")
@@ -107,7 +107,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     }
 }
 apollo {
-    packageName.set("hansffu.ontime.graphql")
-    customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
+    service("entur"){
+        packageName.set("hansffu.ontime.graphql")
+        customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
+    }
 }
 

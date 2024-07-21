@@ -6,7 +6,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material.*
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.ScalingLazyListState
+import androidx.wear.compose.material.items
+import androidx.wear.compose.material.rememberScalingLazyListState
 import hansffu.ontime.R
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
