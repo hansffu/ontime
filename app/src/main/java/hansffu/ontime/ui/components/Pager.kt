@@ -13,7 +13,6 @@ import com.google.accompanist.pager.PagerScope
 import com.google.accompanist.pager.rememberPagerState
 
 
-@ExperimentalPagerApi
 @Composable
 fun <P> Pager(
     pages: List<P>,

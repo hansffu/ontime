@@ -8,6 +8,8 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.android.horologist.compose.layout.AppScaffold
+import hansffu.ontime.LocationViewModel
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.ui.stoplist.StopListPager
@@ -16,32 +18,35 @@ import hansffu.ontime.ui.timetable.TimetableUi
 
 @OptIn(ExperimentalWearMaterialApi::class, ExperimentalPagerApi::class)
 @Composable
-fun MainNavigation(stopListViewModel: StopListViewModel, timetableViewModel: TimetableViewModel) {
+fun MainNavigation(stopListViewModel: StopListViewModel, timetableViewModel: TimetableViewModel, locationViewModel: LocationViewModel) {
     OntimeTheme {
-        val navController = rememberSwipeDismissableNavController()
-        SwipeDismissableNavHost(navController = navController, Screen.StopListPager.route) {
-            composable(route = Screen.StopListPager.route) {
-                StopListPager(stopListViewModel = stopListViewModel,
-                    onStopSelected = {
-                        navController.navigate(Screen.Timetable.link(it))
-                    }
-                )
-            }
-            composable(
-                route = Screen.Timetable.route + "/{stopId}?stopName={stopName}",
-                arguments = listOf(
-                    navArgument("stopId") { type = NavType.StringType },
-                    navArgument("stopName") { type = NavType.StringType })
-            ) {
-                println(it.arguments?.getString("stopId"))
-                TimetableUi(
-                    timetableViewModel = timetableViewModel,
-                    stopId = it.arguments!!.getString("stopId")!!,
-                    stopName = it.arguments!!.getString("stopName")!!
-                )
+        AppScaffold {
+
+            val navController = rememberSwipeDismissableNavController()
+            SwipeDismissableNavHost(navController = navController, Screen.StopListPager.route) {
+                composable(route = Screen.StopListPager.route) {
+                    StopListPager(stopListViewModel = stopListViewModel,
+                        locationViewModel = locationViewModel,
+                        onStopSelected = {
+                            navController.navigate(Screen.Timetable.link(it))
+                        }
+                    )
+                }
+                composable(
+                    route = Screen.Timetable.route + "/{stopId}?stopName={stopName}",
+                    arguments = listOf(
+                        navArgument("stopId") { type = NavType.StringType },
+                        navArgument("stopName") { type = NavType.StringType })
+                ) {
+                    println(it.arguments?.getString("stopId"))
+                    TimetableUi(
+                        timetableViewModel = timetableViewModel,
+                        stopId = it.arguments!!.getString("stopId")!!,
+                        stopName = it.arguments!!.getString("stopName")!!
+                    )
+                }
             }
         }
-
     }
-}
 
+}

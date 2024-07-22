@@ -1,6 +1,6 @@
 val apolloVersion = "3.1.0"
 val room_version = "2.6.1"
-val accompanistVersion = "0.20.3"
+val accompanistVersion = "0.35.1-alpha"
 
 plugins {
     id("com.android.application")
@@ -91,6 +91,9 @@ dependencies {
     implementation("com.google.accompanist:accompanist-swiperefresh:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-placeholder-material:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
+
+    implementation("com.google.android.horologist:horologist-compose-layout:0.6.16")
 
     debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")

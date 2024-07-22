@@ -12,32 +12,33 @@ class NavigationActivity : ComponentActivity() {
 
     private val favoriteModel: StopListViewModel by viewModels()
     private val timetableViewModel: TimetableViewModel by viewModels()
+    private val locationViewModel: LocationViewModel by viewModels()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        favoriteModel.getLocationHolder().observe(this) {
-            if (it is LocationHolder.NoPermission) requestPermissions(
-                arrayOf(
-                    ACCESS_FINE_LOCATION,
-                    ACCESS_COARSE_LOCATION
-                ), 123
-            )
-        }
+//        favoriteModel.getLocationHolder().observe(this) {
+//            if (it is LocationHolder.NoPermission) requestPermissions(
+//                arrayOf(
+//                    ACCESS_FINE_LOCATION,
+//                    ACCESS_COARSE_LOCATION
+//                ), 123
+//            )
+//        }
 
         setContent {
-            MainNavigation(favoriteModel, timetableViewModel)
+            MainNavigation(favoriteModel, timetableViewModel, locationViewModel)
         }
 
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        favoriteModel.refreshPermissions()
-    }
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        favoriteModel.refreshPermissions()
+//    }
 }
 

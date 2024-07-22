@@ -13,6 +13,7 @@ import androidx.wear.compose.material.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
+import hansffu.ontime.LocationViewModel
 import hansffu.ontime.TimetableViewModel
 import hansffu.ontime.model.LineDeparture
 import hansffu.ontime.ui.components.OntimeList
@@ -23,7 +24,7 @@ import hansffu.ontime.ui.components.timetable.Timetable
 fun TimetableUi(
     timetableViewModel: TimetableViewModel,
     stopId: String,
-    stopName: String
+    stopName: String,
 ) {
     val lineDeparturesState: List<LineDeparture>? by timetableViewModel.getDepartures(stopId)
         .observeAsState()

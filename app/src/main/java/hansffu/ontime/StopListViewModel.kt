@@ -7,6 +7,7 @@ import android.app.Application
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.lifecycle.*
@@ -54,7 +55,9 @@ class StopListViewModel(application: Application) : AndroidViewModel(application
                     emit(LocationHolder.NoPermission)
                 } else {
                     emit(LocationHolder.Loading(null))
+                    emit(LocationHolder.LocationFound(requestMockLocation()))
                     requestLocation().consumeEach {
+                        Log.i("Location", "Location found: $it")
                         emit(LocationHolder.LocationFound(it))
                     }
                 }

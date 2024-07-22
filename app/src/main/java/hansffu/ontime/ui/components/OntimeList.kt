@@ -20,15 +20,12 @@ import androidx.wear.compose.material.*
 import hansffu.ontime.ui.LocalRotatingInputConsumer
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OntimeList(
     headerText: String,
     scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState(),
     content: ScalingLazyListScope.() -> Unit
 ) {
-    val externalFocusRequester = LocalRotatingInputConsumer.current
-    val focusRequester = externalFocusRequester ?: remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
     ScalingLazyColumn(
         modifier = Modifier
@@ -37,7 +34,6 @@ fun OntimeList(
                 coroutineScope.launch { scalingLazyListState.scrollBy(it.verticalScrollPixels) }
                 true
             }
-            .focusRequester(focusRequester)
             .focusable(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = scalingLazyListState,
@@ -50,10 +46,5 @@ fun OntimeList(
     ) {
         item { ListHeader { Text(headerText, textAlign = TextAlign.Center) } }
         content()
-    }
-    LaunchedEffect(Unit) {
-        if (externalFocusRequester == null) {
-            focusRequester.requestFocus()
-        }
     }
 }
