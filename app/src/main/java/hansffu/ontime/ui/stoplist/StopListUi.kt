@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -33,12 +36,14 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
+import com.google.android.horologist.compose.material.Chip
 import hansffu.ontime.LocationState
 import hansffu.ontime.LocationViewModel
 import hansffu.ontime.R
 import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
+import hansffu.ontime.service.StopService
 import hansffu.ontime.ui.components.OntimeList
 import hansffu.ontime.ui.components.stoplist.StopChip
 
@@ -71,7 +76,10 @@ fun StopListUi(
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalHorologistApi::class)
 @Composable
-fun NearbyStops(locationViewModel: LocationViewModel) {
+fun NearbyStops(
+    locationViewModel: LocationViewModel,
+    onStopSelected: (Stop) -> Unit,
+) {
     val columnState = rememberResponsiveColumnState()
     val locationStateHolder by locationViewModel.locationState
     val locationPermissions = rememberMultiplePermissionsState(
@@ -102,10 +110,22 @@ fun NearbyStops(locationViewModel: LocationViewModel) {
             }
 
             is LocationState.LocationFound -> {
-
+                var stops by remember { mutableStateOf<List<Stop>>(emptyList()) }
+                val stopService by remember {
+                    mutableStateOf(StopService())
+                }
+                LaunchedEffect(locationState.location) {
+                    stops = stopService.findStopsNear(locationState.location)
+                }
                 ScalingLazyColumn(columnState = columnState) {
                     item { Text("Nærliggende holdeplasser") }
-                    item { Text("location: ${locationState.location}") }
+                    items(stops.size) {
+                        val stop = stops[it]
+                        Chip(
+                            label = stop.name,
+                            onClick = { onStopSelected(stop) }
+                        )
+                    }
                 }
             }
 

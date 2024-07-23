@@ -94,6 +94,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
 
     implementation("com.google.android.horologist:horologist-compose-layout:0.6.16")
+    implementation("com.google.android.horologist:horologist-compose-material:0.6.16")
 
     debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")

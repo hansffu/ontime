@@ -6,7 +6,7 @@
       url = "file+file:///dev/null";
       flake = false;
     };
-    nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     devenv.url = "github:cachix/devenv";
   };
 
@@ -56,8 +56,15 @@
             name = "ontime";
             android = {
               enable = true;
-              platforms.version = [ "31" "33" "34" ];
-              systemImageTypes = [ "google_apis_playstore" "android-wear" ];
+              platforms.version = [
+                "31"
+                "33"
+                "34"
+              ];
+              systemImageTypes = [
+                "google_apis_playstore"
+                "android-wear"
+              ];
               abis = [ "x86_64" ];
               buildTools.version = [ "34.0.0" ];
               tools.version = "26.1.1";
@@ -67,6 +74,15 @@
                 version = "34.1.9";
               };
               systemImages.enable = true;
+              extraLicenses = [
+                "android-sdk-preview-license"
+                "android-googletv-license"
+                "android-sdk-arm-dbt-license"
+                "google-gdk-license"
+                "intel-android-extra-license"
+                "intel-android-sysimage-license"
+                "mips-android-sysimage-license"
+              ];
               android-studio = {
                 enable = true;
               };
