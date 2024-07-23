@@ -1,6 +1,7 @@
 package hansffu.ontime.ui.stoplist
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,6 @@ import hansffu.ontime.service.StopService
 import hansffu.ontime.ui.components.OntimeList
 import hansffu.ontime.ui.components.stoplist.StopChip
 
-@OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun StopListUi(
     stopListViewModel: StopListViewModel,
@@ -74,7 +74,7 @@ fun StopListUi(
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalHorologistApi::class)
+@OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun NearbyStops(
     locationViewModel: LocationViewModel,
@@ -82,32 +82,14 @@ fun NearbyStops(
 ) {
     val columnState = rememberResponsiveColumnState()
     val locationStateHolder by locationViewModel.locationState
-    val locationPermissions = rememberMultiplePermissionsState(
-        listOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
 
     ScreenScaffold(scrollState = columnState) {
         when (val locationState = locationStateHolder) {
             is LocationState.Uninitialized -> {
-                if (!locationPermissions.allPermissionsGranted) {
-                    PermissionRequester {
-                        locationPermissions.launchMultiplePermissionRequest()
-                    }
-                } else {
-                    LaunchedEffect(locationStateHolder) {
-                        locationViewModel.refreshLocation()
-                    }
-                }
+                LocationPermissionChecker(locationViewModel)
             }
 
-            is LocationState.Loading -> {
-                Box(modifier = Modifier.fillMaxRectangle()) {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                }
-            }
+            is LocationState.Loading -> LoadingState()
 
             is LocationState.LocationFound -> {
                 var stops by remember { mutableStateOf<List<Stop>>(emptyList()) }
@@ -118,7 +100,7 @@ fun NearbyStops(
                     stops = stopService.findStopsNear(locationState.location)
                 }
                 ScalingLazyColumn(columnState = columnState) {
-                    item { Text("Nærliggende holdeplasser") }
+                    item { Text(stringResource(R.string.nearby_header)) }
                     items(stops.size) {
                         val stop = stops[it]
                         Chip(
@@ -131,6 +113,34 @@ fun NearbyStops(
 
         }
 
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
+    val locationPermissions = rememberMultiplePermissionsState(
+        listOf(
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    )
+    if (!locationPermissions.allPermissionsGranted) {
+        PermissionRequester {
+            locationPermissions.launchMultiplePermissionRequest()
+        }
+    } else {
+        LaunchedEffect(locationPermissions.allPermissionsGranted) {
+            Log.i("PermissionChecker", "Getting location")
+            locationViewModel.refreshLocation()
+        }
+    }
+}
+
+@Composable
+private fun LoadingState() {
+    Box(modifier = Modifier.fillMaxRectangle()) {
+        CircularProgressIndicator(Modifier.align(Alignment.Center))
     }
 }
 

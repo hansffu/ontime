@@ -13,3 +13,4 @@
 /app/release/
 .devenv
 .direnv
+/.android/

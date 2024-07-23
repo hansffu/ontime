@@ -16,7 +16,7 @@ import hansffu.ontime.ui.stoplist.StopListPager
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.ui.timetable.TimetableUi
 
-@OptIn(ExperimentalWearMaterialApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun MainNavigation(stopListViewModel: StopListViewModel, timetableViewModel: TimetableViewModel, locationViewModel: LocationViewModel) {
     OntimeTheme {
