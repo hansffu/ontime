@@ -8,7 +8,7 @@ import hansffu.ontime.ui.navigation.MainNavigation
 
 class NavigationActivity : ComponentActivity() {
 
-    private val favoriteModel: StopListViewModel by viewModels()
+    private val favoriteModel: FavoritesViewModel by viewModels()
     private val timetableViewModel: TimetableViewModel by viewModels()
     private val locationViewModel: LocationViewModel by viewModels()
 

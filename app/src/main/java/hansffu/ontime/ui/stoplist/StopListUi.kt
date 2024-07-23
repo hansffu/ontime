@@ -1,6 +1,5 @@
 package hansffu.ontime.ui.stoplist
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,13 +22,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CircularProgressIndicator
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberScalingLazyListState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
@@ -38,37 +34,24 @@ import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import com.google.android.horologist.compose.material.Chip
+import hansffu.ontime.FavoritesViewModel
 import hansffu.ontime.LocationState
 import hansffu.ontime.LocationViewModel
 import hansffu.ontime.R
-import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
 import hansffu.ontime.model.StopListType
 import hansffu.ontime.service.StopService
-import hansffu.ontime.ui.components.OntimeList
-import hansffu.ontime.ui.components.stoplist.StopChip
 
+@OptIn(ExperimentalHorologistApi::class)
 @Composable
-fun StopListUi(
-    stopListViewModel: StopListViewModel,
-    stopListType: StopListType,
-    onStopSelected: (Stop) -> Unit,
-) {
-    val scalingLazyListState: ScalingLazyListState = rememberScalingLazyListState()
-    val stops by stopListViewModel.run {
-        when (stopListType) {
-            StopListType.FAVORITES -> favoriteStops
-            StopListType.NEARBY -> nearbyStops
-        }
-    }.observeAsState(emptyList())
-
-    Scaffold(positionIndicator = { PositionIndicator(scalingLazyListState) }) {
-
-        OntimeList(
-            headerText = headerText(stopListType)
-        ) {
-            items(stops.size) {
-                StopChip(stop = stops[it], onClick = { onStopSelected(stops[it]) })
+fun FavoriteStops(favoritesViewModel: FavoritesViewModel, onStopSelected: (Stop) -> Unit) {
+    val columnState = rememberResponsiveColumnState()
+    val favorites by favoritesViewModel.favoriteStops.observeAsState(emptyList())
+    ScreenScaffold(scrollState = columnState) {
+        ScalingLazyColumn(columnState = columnState) {
+            item { Text(stringResource(R.string.favorites_header)) }
+            items(favorites) { stop ->
+                Chip(label = stop.name, onClick = { onStopSelected(stop) })
             }
         }
     }
@@ -101,8 +84,7 @@ fun NearbyStops(
                 }
                 ScalingLazyColumn(columnState = columnState) {
                     item { Text(stringResource(R.string.nearby_header)) }
-                    items(stops.size) {
-                        val stop = stops[it]
+                    items(stops) { stop ->
                         Chip(
                             label = stop.name,
                             onClick = { onStopSelected(stop) }
@@ -184,14 +166,4 @@ fun headerText(stopListType: StopListType): String {
         StopListType.NEARBY -> R.string.nearby_header
     }
     return stringResource(text)
-}
-
-@Preview(
-    showBackground = true,
-    device = "spec:shape=Square,width=300,height=300,unit=px,dpi=240",
-    backgroundColor = 0x000000
-)
-@Composable
-fun DefaultPreview() {
-    StopListUi(StopListViewModel(Application()), StopListType.NEARBY) {}
 }

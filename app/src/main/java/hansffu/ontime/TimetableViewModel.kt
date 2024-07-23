@@ -2,7 +2,11 @@ package hansffu.ontime
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import hansffu.ontime.database.AppDatabase
 import hansffu.ontime.database.dao.FavoriteStop
 import hansffu.ontime.graphql.StopPlaceQuery

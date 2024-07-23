@@ -5,15 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.pager.PagerScreen
+import hansffu.ontime.FavoritesViewModel
 import hansffu.ontime.LocationViewModel
-import hansffu.ontime.StopListViewModel
 import hansffu.ontime.model.Stop
-import hansffu.ontime.model.StopListType
 
 @ExperimentalWearMaterialApi
 @Composable
 fun StopListPager(
-    stopListViewModel: StopListViewModel,
+    favoritesViewModel: FavoritesViewModel,
     onStopSelected: (Stop) -> Unit,
     locationViewModel: LocationViewModel,
 ) {
@@ -26,9 +25,8 @@ fun StopListPager(
                     onStopSelected = onStopSelected,
                 )
 
-                1 -> StopListUi(
-                    stopListViewModel = stopListViewModel,
-                    stopListType = StopListType.FAVORITES,
+                1 -> FavoriteStops(
+                    favoritesViewModel = favoritesViewModel,
                     onStopSelected = onStopSelected,
                 )
             }
