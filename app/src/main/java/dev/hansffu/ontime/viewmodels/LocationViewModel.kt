@@ -1,4 +1,4 @@
-package dev.hansffu.ontime
+package dev.hansffu.ontime.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application

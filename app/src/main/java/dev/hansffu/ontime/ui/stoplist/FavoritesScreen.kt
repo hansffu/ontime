@@ -23,8 +23,8 @@ import com.google.android.horologist.compose.layout.rememberResponsiveColumnStat
 import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
-import dev.hansffu.ontime.FavoritesViewModel
-import dev.hansffu.ontime.LocationViewModel
+import dev.hansffu.ontime.viewmodels.FavoritesViewModel
+import dev.hansffu.ontime.viewmodels.LocationViewModel
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
 

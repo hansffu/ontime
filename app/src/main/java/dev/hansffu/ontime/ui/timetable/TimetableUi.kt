@@ -27,7 +27,7 @@ import androidx.wear.compose.material.rememberScalingLazyListState
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
-import dev.hansffu.ontime.TimetableViewModel
+import dev.hansffu.ontime.viewmodels.TimetableViewModel
 import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.ui.components.OntimeList
 import dev.hansffu.ontime.ui.components.timetable.Timetable

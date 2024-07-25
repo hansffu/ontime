@@ -13,15 +13,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.items
@@ -30,74 +26,12 @@ import androidx.wear.compose.material.Text
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.layout.ScalingLazyColumn
-import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.fillMaxRectangle
-import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import com.google.android.horologist.compose.material.Chip
-import dev.hansffu.ontime.FavoritesViewModel
-import dev.hansffu.ontime.LocationState
-import dev.hansffu.ontime.LocationViewModel
-import dev.hansffu.ontime.R
+import dev.hansffu.ontime.viewmodels.LocationState
+import dev.hansffu.ontime.viewmodels.LocationViewModel
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.model.StopListType
 import dev.hansffu.ontime.service.StopService
-
-@OptIn(ExperimentalHorologistApi::class)
-@Composable
-fun FavoriteStops(favoritesViewModel: FavoritesViewModel, onStopSelected: (Stop) -> Unit) {
-    val columnState = rememberResponsiveColumnState()
-    val favorites by favoritesViewModel.favoriteStops.observeAsState(emptyList())
-    ScreenScaffold(scrollState = columnState) {
-        ScalingLazyColumn(columnState = columnState) {
-            item { Text(stringResource(R.string.favorites_header)) }
-            items(favorites) { stop ->
-                Chip(label = stop.name, onClick = { onStopSelected(stop) })
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalHorologistApi::class)
-@Composable
-fun NearbyStops(
-    locationViewModel: LocationViewModel,
-    onStopSelected: (Stop) -> Unit,
-) {
-    val columnState = rememberResponsiveColumnState()
-    val locationStateHolder by locationViewModel.locationState
-
-    ScreenScaffold(scrollState = columnState) {
-        when (val locationState = locationStateHolder) {
-            is LocationState.Uninitialized -> {
-                LocationPermissionChecker(locationViewModel)
-            }
-
-            is LocationState.Loading -> LoadingState()
-
-            is LocationState.LocationFound -> {
-                var stops by remember { mutableStateOf<List<Stop>>(emptyList()) }
-                val stopService by remember {
-                    mutableStateOf(StopService())
-                }
-                LaunchedEffect(locationState.location) {
-                    stops = stopService.findStopsNear(locationState.location)
-                }
-                ScalingLazyColumn(columnState = columnState) {
-                    item { Text(stringResource(R.string.nearby_header)) }
-                    items(stops) { stop ->
-                        Chip(
-                            label = stop.name,
-                            onClick = { onStopSelected(stop) }
-                        )
-                    }
-                }
-            }
-
-        }
-
-    }
-}
 
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState
@@ -108,7 +42,7 @@ sealed interface NearbyStopState {
 @Composable
 fun rememberNearbyStopsState(locationViewModel: LocationViewModel): State<NearbyStopState> {
     val locationStateHolder by locationViewModel.locationState
-    var nearbyStopState: MutableState<NearbyStopState> =
+    val nearbyStopState: MutableState<NearbyStopState> =
         remember { mutableStateOf(NearbyStopState.Uninitialized) }
 
     when (val locationState = locationStateHolder) {
@@ -173,14 +107,14 @@ private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
 }
 
 @Composable
-fun LoadingState() {
+private fun LoadingState() {
     Row {
         Text(text = "Henter stopp...")
     }
 }
 
 @Composable
-fun PermissionRequester(launchRequest: () -> Unit) {
+private fun PermissionRequester(launchRequest: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxRectangle()
@@ -200,23 +134,4 @@ fun PermissionRequester(launchRequest: () -> Unit) {
             }
         }
     }
-}
-
-@Preview(
-    showBackground = true,
-    device = "spec:shape=Round,width=300,height=300,unit=px,dpi=240",
-    backgroundColor = 0x000000
-)
-@Composable
-fun PermissionPreview() {
-    PermissionRequester {}
-}
-
-@Composable
-fun headerText(stopListType: StopListType): String {
-    val text = when (stopListType) {
-        StopListType.FAVORITES -> R.string.favorites_header
-        StopListType.NEARBY -> R.string.nearby_header
-    }
-    return stringResource(text)
 }

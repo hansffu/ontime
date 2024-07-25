@@ -45,40 +45,28 @@ android {
 
 dependencies {
     implementation(fileTree("include" to "*.jar", "dir" to "libs"))
-    implementation(libs.support.wearable)
     implementation(libs.material)
-    implementation(libs.lifecycle.runtime.ktx)
     compileOnly(libs.wearable)
-    implementation(libs.play.services.wearable)
     implementation(libs.play.services.location)
     implementation(libs.androidx.wear)
-    implementation(libs.wear.input)
-    implementation(libs.activity.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.viewpager2)
     implementation(libs.apollo.runtime)
-    compileOnly(libs.jetbrains.annotations)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    implementation(libs.jetbrains.annotations)
 
     //compose
-    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ui.tooling.preview)
 
     implementation(libs.androidx.wear.compose.material)
     implementation(libs.androidx.wear.compose.foundation)
-    implementation(libs.androidx.wear.compose.navigation)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
 
-    implementation(libs.accompanist.swiperefresh)
-    implementation(libs.accompanist.pager)
     implementation(libs.accompanist.placeholder.material)
     implementation(libs.accompanist.permissions)
 

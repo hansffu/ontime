@@ -6,11 +6,3 @@ plugins {
     alias(libs.plugins.apollo) apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url = uri("https://jitpack.io") }
-    }
-}
-

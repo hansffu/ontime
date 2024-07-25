@@ -1,4 +1,4 @@
-package dev.hansffu.ontime
+package dev.hansffu.ontime.viewmodels
 
 import android.app.Application
 import android.util.Log
@@ -59,7 +59,7 @@ object DepartureMappers {
         return quays.flatMap { it?.estimatedCalls ?: emptyList() }
             .asSequence()
             .filterNotNull()
-            .groupBy(::groupLines)
+            .groupBy(DepartureMappers::groupLines)
             .map { (ref, departures) -> ref?.let { LineDeparture(it, departures) } }
             .filterNotNull()
             .sortedBy { lineDeparture ->
