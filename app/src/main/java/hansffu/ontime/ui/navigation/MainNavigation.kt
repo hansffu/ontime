@@ -11,6 +11,7 @@ import com.google.android.horologist.compose.layout.AppScaffold
 import hansffu.ontime.FavoritesViewModel
 import hansffu.ontime.LocationViewModel
 import hansffu.ontime.TimetableViewModel
+import hansffu.ontime.ui.stoplist.FavoritesScreen
 import hansffu.ontime.ui.stoplist.StopListPager
 import hansffu.ontime.ui.theme.OntimeTheme
 import hansffu.ontime.ui.timetable.TimetableUi
@@ -26,9 +27,18 @@ fun MainNavigation(
         AppScaffold {
 
             val navController = rememberSwipeDismissableNavController()
-            SwipeDismissableNavHost(navController = navController, Screen.StopListPager.route) {
+            SwipeDismissableNavHost(navController = navController, Screen.Favorites.route) {
                 composable(route = Screen.StopListPager.route) {
                     StopListPager(favoritesViewModel = favoritesViewModel,
+                        locationViewModel = locationViewModel,
+                        onStopSelected = {
+                            navController.navigate(Screen.Timetable.link(it))
+                        }
+                    )
+                }
+                composable(route = Screen.Favorites.route) {
+                    FavoritesScreen(
+                        favoritesViewModel = favoritesViewModel,
                         locationViewModel = locationViewModel,
                         onStopSelected = {
                             navController.navigate(Screen.Timetable.link(it))

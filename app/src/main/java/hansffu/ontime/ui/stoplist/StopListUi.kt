@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CircularProgressIndicator
@@ -98,9 +101,67 @@ fun NearbyStops(
     }
 }
 
+sealed interface NearbyStopState {
+    data object Uninitialized : NearbyStopState
+    data object Loading : NearbyStopState
+    data class StopsFound(val stops: List<Stop>) : NearbyStopState
+}
+
+@Composable
+fun rememberNearbyStopsState(locationViewModel: LocationViewModel): State<NearbyStopState> {
+    val locationStateHolder by locationViewModel.locationState
+    var nearbyStopState: MutableState<NearbyStopState> = remember { mutableStateOf(NearbyStopState.Uninitialized) }
+
+    when (val locationState = locationStateHolder) {
+        is LocationState.Uninitialized -> {
+            nearbyStopState.value = NearbyStopState.Uninitialized
+        }
+
+        is LocationState.Loading -> {
+            nearbyStopState.value = NearbyStopState.Loading
+        }
+
+        is LocationState.LocationFound -> {
+            val stopService by remember {
+                mutableStateOf(StopService())
+            }
+            LaunchedEffect(locationState.location) {
+                val stops = stopService.findStopsNear(locationState.location)
+                nearbyStopState.value = NearbyStopState.StopsFound(stops)
+            }
+        }
+
+    }
+    return nearbyStopState
+}
+
+@OptIn(ExperimentalHorologistApi::class)
+fun ScalingLazyListScope.nearbyStopsList(
+    locationViewModel: LocationViewModel,
+    nearbyStopState: NearbyStopState,
+    onStopSelected: (Stop) -> Unit,
+) {
+    when (nearbyStopState) {
+        is NearbyStopState.Uninitialized -> item {
+            LocationPermissionChecker(locationViewModel)
+        }
+
+        is NearbyStopState.Loading -> item {
+            LoadingState()
+        }
+
+
+        is NearbyStopState.StopsFound -> {
+            items(nearbyStopState.stops) { stop ->
+                Chip(label = stop.name, onClick = { onStopSelected(stop) })
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
+fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
     val locationPermissions = rememberMultiplePermissionsState(
         listOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -120,7 +181,7 @@ private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
 }
 
 @Composable
-private fun LoadingState() {
+fun LoadingState() {
     Box(modifier = Modifier.fillMaxRectangle()) {
         CircularProgressIndicator(Modifier.align(Alignment.Center))
     }
