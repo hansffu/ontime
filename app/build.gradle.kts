@@ -9,7 +9,7 @@ plugins {
 android {
     compileSdk = 34
     defaultConfig {
-        applicationId = "hansffu.ontime"
+        applicationId = "dev.hansffu.ontime"
         minSdk = 26
         targetSdk = 33
         versionCode = 31
@@ -23,19 +23,12 @@ android {
         viewBinding = true
         compose = true
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 
     kotlin {
         jvmToolchain(17)
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
-    namespace = "hansffu.ontime"
+    namespace = "dev.hansffu.ontime"
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.get()
     }
@@ -99,7 +92,7 @@ dependencies {
 
 apollo {
     service("entur") {
-        packageName.set("hansffu.ontime.graphql")
+        packageName.set("dev.hansffu.ontime.graphql")
         customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
     }
 }
