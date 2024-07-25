@@ -2,7 +2,6 @@ package hansffu.ontime.ui.stoplist
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -104,13 +103,14 @@ fun NearbyStops(
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState
     data object Loading : NearbyStopState
-    data class StopsFound(val stops: List<Stop>) : NearbyStopState
+    data class StopsFound(val stops: List<Stop>, val refresh: () -> Unit) : NearbyStopState
 }
 
 @Composable
 fun rememberNearbyStopsState(locationViewModel: LocationViewModel): State<NearbyStopState> {
     val locationStateHolder by locationViewModel.locationState
-    var nearbyStopState: MutableState<NearbyStopState> = remember { mutableStateOf(NearbyStopState.Uninitialized) }
+    var nearbyStopState: MutableState<NearbyStopState> =
+        remember { mutableStateOf(NearbyStopState.Uninitialized) }
 
     when (val locationState = locationStateHolder) {
         is LocationState.Uninitialized -> {
@@ -127,7 +127,8 @@ fun rememberNearbyStopsState(locationViewModel: LocationViewModel): State<Nearby
             }
             LaunchedEffect(locationState.location) {
                 val stops = stopService.findStopsNear(locationState.location)
-                nearbyStopState.value = NearbyStopState.StopsFound(stops)
+                nearbyStopState.value =
+                    NearbyStopState.StopsFound(stops) { locationViewModel.refreshLocation() }
             }
         }
 
@@ -142,26 +143,18 @@ fun ScalingLazyListScope.nearbyStopsList(
     onStopSelected: (Stop) -> Unit,
 ) {
     when (nearbyStopState) {
-        is NearbyStopState.Uninitialized -> item {
-            LocationPermissionChecker(locationViewModel)
+        is NearbyStopState.Uninitialized -> item { LocationPermissionChecker(locationViewModel) }
+        is NearbyStopState.Loading -> item { LoadingState() }
+        is NearbyStopState.StopsFound -> items(nearbyStopState.stops) {
+            Chip(label = it.name, onClick = { onStopSelected(it) })
         }
 
-        is NearbyStopState.Loading -> item {
-            LoadingState()
-        }
-
-
-        is NearbyStopState.StopsFound -> {
-            items(nearbyStopState.stops) { stop ->
-                Chip(label = stop.name, onClick = { onStopSelected(stop) })
-            }
-        }
     }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
+private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
     val locationPermissions = rememberMultiplePermissionsState(
         listOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -182,8 +175,8 @@ fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
 
 @Composable
 fun LoadingState() {
-    Box(modifier = Modifier.fillMaxRectangle()) {
-        CircularProgressIndicator(Modifier.align(Alignment.Center))
+    Row {
+        Text(text = "Henter stopp...")
     }
 }
 

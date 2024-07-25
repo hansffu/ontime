@@ -59,15 +59,15 @@ dependencies {
     implementation(fileTree("include" to "*.jar", "dir" to "libs"))
     implementation("com.google.android.support:wearable:2.9.0")
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     compileOnly("com.google.android.wearable:wearable:2.9.0")
     implementation("com.google.android.gms:play-services-wearable:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("androidx.wear:wear:1.3.0")
     implementation("androidx.wear:wear-input:1.1.0")
-    implementation("androidx.activity:activity-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
+    implementation("androidx.activity:activity-ktx:1.9.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("com.apollographql.apollo3:apollo-runtime:3.8.5")
     compileOnly("org.jetbrains:annotations:23.0.0")
@@ -79,12 +79,13 @@ dependencies {
     implementation("org.jetbrains:annotations:23.0.0")
 
     //compose
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.activity:activity-compose:1.9.1")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
 
     implementation("androidx.wear.compose:compose-material:1.3.1")
     implementation("androidx.wear.compose:compose-foundation:1.3.1")
     implementation("androidx.wear.compose:compose-navigation:1.3.1")
+    implementation("androidx.compose.material:material:1.6.8")
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
 
@@ -100,11 +101,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
 }
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
+
 apollo {
     service("entur"){
         packageName.set("hansffu.ontime.graphql")
