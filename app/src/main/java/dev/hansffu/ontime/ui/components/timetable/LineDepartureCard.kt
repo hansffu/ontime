@@ -1,4 +1,4 @@
-package dev.hansffu.ontime.ui.components
+package dev.hansffu.ontime.ui.components.timetable
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,6 @@ import androidx.wear.compose.material.Text
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.ui.theme.OntimeTheme
 import java.time.Duration
-import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -97,9 +96,9 @@ fun DefaultPreview() {
             ),
             listOf(
                 OffsetDateTime.now(),
-                OffsetDateTime.from(Instant.now().plus(2, ChronoUnit.MINUTES)),
-                OffsetDateTime.from(Instant.now().plus(12, ChronoUnit.MINUTES)),
-                OffsetDateTime.from(Instant.now().plus(22, ChronoUnit.MINUTES)),
+                OffsetDateTime.now().plus(2, ChronoUnit.MINUTES),
+                OffsetDateTime.now().plus(12, ChronoUnit.MINUTES),
+                OffsetDateTime.now().plus(22, ChronoUnit.MINUTES),
             )
         )
     }
