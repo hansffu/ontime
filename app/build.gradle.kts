@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.apollo.runtime)
+    implementation(libs.apollo.adapters)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
@@ -81,7 +82,12 @@ dependencies {
 apollo {
     service("entur") {
         packageName.set("dev.hansffu.ontime.graphql")
-        customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
+        mapScalar(
+            "DateTime",
+            "java.time.OffsetDateTime",
+            "com.apollographql.apollo3.adapter.JavaOffsetDateTimeAdapter"
+        )
+//        customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
     }
 }
 
