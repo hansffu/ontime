@@ -30,7 +30,7 @@ fun Timetable(
     isFavorite: Boolean,
     toggleFavorite: () -> Unit,
     scalingLazyColumnState: ScalingLazyColumnState,
-    ) {
+) {
 
     ScalingLazyColumn(scalingLazyColumnState) {
         item {

@@ -1,4 +1,4 @@
-package dev.hansffu.ontime.ui.stoplist
+package dev.hansffu.ontime.ui.stoplist.nearby
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -10,11 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -29,9 +24,6 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.material.Chip
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.service.StopService
-import dev.hansffu.ontime.viewmodels.LocationState
-import dev.hansffu.ontime.viewmodels.LocationViewModel
 
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState
@@ -40,52 +32,16 @@ sealed interface NearbyStopState {
     data class StopsFound(val stops: List<Stop>, val refresh: () -> Unit) : NearbyStopState
 }
 
-@Composable
-fun rememberNearbyStopsState(locationViewModel: LocationViewModel): State<NearbyStopState> {
-    val locationStateHolder by locationViewModel.locationState
-    val nearbyStopState: MutableState<NearbyStopState> =
-        remember { mutableStateOf(NearbyStopState.Uninitialized) }
-
-    when (val locationState = locationStateHolder) {
-        is LocationState.Uninitialized -> {
-            nearbyStopState.value = NearbyStopState.Uninitialized
-        }
-
-        is LocationState.NoPermission -> {
-            nearbyStopState.value = NearbyStopState.NoPermission
-        }
-
-        is LocationState.Loading -> {
-            nearbyStopState.value = NearbyStopState.Loading
-        }
-
-        is LocationState.LocationFound -> {
-            val stopService by remember {
-                mutableStateOf(StopService())
-            }
-            LaunchedEffect(locationState.location) {
-                val stops = stopService.findStopsNear(locationState.location)
-                nearbyStopState.value =
-                    NearbyStopState.StopsFound(stops) { locationViewModel.refreshLocation() }
-            }
-        }
-
-    }
-    return nearbyStopState
-}
-
 @OptIn(ExperimentalHorologistApi::class)
 fun ScalingLazyListScope.nearbyStopsList(
-    locationViewModel: LocationViewModel,
+    nearbyViewModel: NearbyViewModel,
     nearbyStopState: NearbyStopState,
     onStopSelected: (Stop) -> Unit,
 ) {
     when (nearbyStopState) {
-        is NearbyStopState.Uninitialized, NearbyStopState.NoPermission -> item {
-            LocationPermissionChecker(
-                locationViewModel
-            )
-        }
+        is NearbyStopState.Uninitialized,
+        NearbyStopState.NoPermission,
+        -> item { LocationPermissionChecker(nearbyViewModel) }
 
         is NearbyStopState.Loading -> item { LoadingState() }
         is NearbyStopState.StopsFound -> items(nearbyStopState.stops) {
@@ -97,9 +53,8 @@ fun ScalingLazyListScope.nearbyStopsList(
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
-    val locationPermissions =
-        rememberMultiplePermissionsState(locationViewModel.locationPermissions)
+private fun LocationPermissionChecker(nearbyViewModel: NearbyViewModel) {
+    val locationPermissions = rememberMultiplePermissionsState(nearbyViewModel.locationPermissions)
     if (!locationPermissions.allPermissionsGranted) {
         PermissionRequester {
             locationPermissions.launchMultiplePermissionRequest()
@@ -107,7 +62,7 @@ private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
     } else {
         LaunchedEffect(locationPermissions.allPermissionsGranted) {
             Log.i("PermissionChecker", "Getting location")
-            locationViewModel.refreshLocation()
+            nearbyViewModel.refresh()
         }
     }
 }
@@ -122,8 +77,7 @@ private fun LoadingState() {
 @Composable
 private fun PermissionRequester(launchRequest: () -> Unit) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxRectangle()
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxRectangle()
     ) {
         Text(
             text = "For å kunne vise nærliggende holdeplasser trenger vi tilgang til posisjonen din.",

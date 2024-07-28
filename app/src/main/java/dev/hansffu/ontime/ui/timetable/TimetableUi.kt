@@ -3,6 +3,7 @@ package dev.hansffu.ontime.ui.timetable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
@@ -14,7 +15,7 @@ import dev.hansffu.ontime.viewmodels.TimetableViewModel
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun TimetableUi(
-    timetableViewModel: TimetableViewModel,
+    timetableViewModel: TimetableViewModel = hiltViewModel(),
     stopId: String,
     stopName: String,
 ) {

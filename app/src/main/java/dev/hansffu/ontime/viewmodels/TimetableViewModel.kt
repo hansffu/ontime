@@ -1,14 +1,14 @@
 package dev.hansffu.ontime.viewmodels
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import dev.hansffu.ontime.database.AppDatabase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.hansffu.ontime.database.dao.FavoriteStop
+import dev.hansffu.ontime.database.dao.FavoritesDao
 import dev.hansffu.ontime.graphql.StopPlaceQuery
 import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.model.LineDirectionRef
@@ -16,15 +16,18 @@ import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.service.StopService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private const val TAG = "TimetableViewModel"
 
-class TimetableViewModel(application: Application) : AndroidViewModel(application) {
-    private val stopService = StopService()
-    private val db = AppDatabase.getDb(application)
+@HiltViewModel
+class TimetableViewModel @Inject constructor(
+    private val stopService: StopService,
+    private val favoritesDao: FavoritesDao,
+) : ViewModel() {
 
     private val favoriteStops: LiveData<List<Stop>> =
-        db.favoritesDao().getAll().map { stops ->
+        favoritesDao.getAll().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
 
@@ -44,11 +47,11 @@ class TimetableViewModel(application: Application) : AndroidViewModel(applicatio
 
 
     fun toggleFavorite(id: String, name: String) = viewModelScope.launch(Dispatchers.IO) {
-        val existing = db.favoritesDao().getById(id)
+        val existing = favoritesDao.getById(id)
         if (existing != null) {
-            db.favoritesDao().delete(existing)
+            favoritesDao.delete(existing)
         } else {
-            db.favoritesDao().insertAll(FavoriteStop(id, name))
+            favoritesDao.insertAll(FavoriteStop(id, name))
         }
     }
 }
@@ -71,7 +74,7 @@ object DepartureMappers {
     }
 
     private fun groupLines(estimatedCall: StopPlaceQuery.EstimatedCall): LineDirectionRef? {
-        val publicCode = estimatedCall.serviceJourney?.line?.publicCode
+        val publicCode = estimatedCall.serviceJourney.line?.publicCode
         val dest = estimatedCall.destinationDisplay?.frontText
         return if (publicCode != null && dest != null) {
             LineDirectionRef(publicCode, dest)

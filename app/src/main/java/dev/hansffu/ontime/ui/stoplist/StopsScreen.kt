@@ -6,6 +6,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -26,19 +27,21 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopState
+import dev.hansffu.ontime.ui.stoplist.nearby.NearbyViewModel
+import dev.hansffu.ontime.ui.stoplist.nearby.nearbyStopsList
 import dev.hansffu.ontime.viewmodels.FavoritesViewModel
-import dev.hansffu.ontime.viewmodels.LocationViewModel
 
 @OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun StopsScreen(
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
-    locationViewModel: LocationViewModel,
+    nearbyViewModel: NearbyViewModel = hiltViewModel(),
     onStopSelected: (Stop) -> Unit,
 ) {
     val columnState = rememberResponsiveColumnState()
     val favorites by favoritesViewModel.favoriteStops.observeAsState(emptyList())
-    val nearbyStopState by rememberNearbyStopsState(locationViewModel = locationViewModel)
+    val nearbyStopState by nearbyViewModel.nearbyStopState.collectAsState()
     var refreshing by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullRefreshState(
         refreshing = refreshing,
@@ -69,7 +72,7 @@ fun StopsScreen(
             nearbyStopsList(
                 nearbyStopState = nearbyStopState,
                 onStopSelected = onStopSelected,
-                locationViewModel = locationViewModel
+                nearbyViewModel = nearbyViewModel
             )
         }
         PullRefreshIndicator(
