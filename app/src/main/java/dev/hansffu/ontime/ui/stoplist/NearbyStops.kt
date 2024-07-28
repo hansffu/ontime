@@ -35,6 +35,7 @@ import dev.hansffu.ontime.viewmodels.LocationViewModel
 
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState
+    data object NoPermission : NearbyStopState
     data object Loading : NearbyStopState
     data class StopsFound(val stops: List<Stop>, val refresh: () -> Unit) : NearbyStopState
 }
@@ -48,6 +49,10 @@ fun rememberNearbyStopsState(locationViewModel: LocationViewModel): State<Nearby
     when (val locationState = locationStateHolder) {
         is LocationState.Uninitialized -> {
             nearbyStopState.value = NearbyStopState.Uninitialized
+        }
+
+        is LocationState.NoPermission -> {
+            nearbyStopState.value = NearbyStopState.NoPermission
         }
 
         is LocationState.Loading -> {
@@ -76,7 +81,12 @@ fun ScalingLazyListScope.nearbyStopsList(
     onStopSelected: (Stop) -> Unit,
 ) {
     when (nearbyStopState) {
-        is NearbyStopState.Uninitialized -> item { LocationPermissionChecker(locationViewModel) }
+        is NearbyStopState.Uninitialized, NearbyStopState.NoPermission -> item {
+            LocationPermissionChecker(
+                locationViewModel
+            )
+        }
+
         is NearbyStopState.Loading -> item { LoadingState() }
         is NearbyStopState.StopsFound -> items(nearbyStopState.stops) {
             Chip(label = it.name, onClick = { onStopSelected(it) })
@@ -88,12 +98,8 @@ fun ScalingLazyListScope.nearbyStopsList(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun LocationPermissionChecker(locationViewModel: LocationViewModel) {
-    val locationPermissions = rememberMultiplePermissionsState(
-        listOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
+    val locationPermissions =
+        rememberMultiplePermissionsState(locationViewModel.locationPermissions)
     if (!locationPermissions.allPermissionsGranted) {
         PermissionRequester {
             locationPermissions.launchMultiplePermissionRequest()

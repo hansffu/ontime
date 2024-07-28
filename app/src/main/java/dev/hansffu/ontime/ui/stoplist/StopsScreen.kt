@@ -67,9 +67,9 @@ fun StopsScreen(
             }
             item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
             nearbyStopsList(
-                locationViewModel = locationViewModel,
                 nearbyStopState = nearbyStopState,
-                onStopSelected = onStopSelected
+                onStopSelected = onStopSelected,
+                locationViewModel = locationViewModel
             )
         }
         PullRefreshIndicator(

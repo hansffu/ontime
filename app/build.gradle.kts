@@ -73,6 +73,10 @@ dependencies {
     implementation(libs.accompanist.placeholder.material)
     implementation(libs.accompanist.permissions)
 
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.play.services)
+
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
