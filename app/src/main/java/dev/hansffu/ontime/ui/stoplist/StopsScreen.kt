@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Text
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
@@ -31,7 +32,7 @@ import dev.hansffu.ontime.viewmodels.LocationViewModel
 @OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun StopsScreen(
-    favoritesViewModel: FavoritesViewModel,
+    favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     locationViewModel: LocationViewModel,
     onStopSelected: (Stop) -> Unit,
 ) {

@@ -7,16 +7,14 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.compose.layout.AppScaffold
-import dev.hansffu.ontime.viewmodels.FavoritesViewModel
-import dev.hansffu.ontime.viewmodels.LocationViewModel
-import dev.hansffu.ontime.viewmodels.TimetableViewModel
 import dev.hansffu.ontime.ui.stoplist.StopsScreen
 import dev.hansffu.ontime.ui.theme.OntimeTheme
 import dev.hansffu.ontime.ui.timetable.TimetableUi
+import dev.hansffu.ontime.viewmodels.LocationViewModel
+import dev.hansffu.ontime.viewmodels.TimetableViewModel
 
 @Composable
 fun MainNavigation(
-    favoritesViewModel: FavoritesViewModel,
     timetableViewModel: TimetableViewModel,
     locationViewModel: LocationViewModel,
 ) {
@@ -26,7 +24,6 @@ fun MainNavigation(
             SwipeDismissableNavHost(navController = navController, Screen.Favorites.route) {
                 composable(route = Screen.Favorites.route) {
                     StopsScreen(
-                        favoritesViewModel = favoritesViewModel,
                         locationViewModel = locationViewModel,
                         onStopSelected = {
                             navController.navigate(Screen.Timetable.link(it))

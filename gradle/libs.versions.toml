@@ -3,6 +3,8 @@ accompanist = "0.35.1-alpha"
 apollo = "3.8.5"
 buildToolsGradle = "8.5.1"
 compose = "1.6.8"
+hilt = "2.51.1"
+hiltNavigationCompose = "1.2.0"
 horologist = "0.6.16"
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.23"
@@ -34,6 +36,9 @@ androidx-wear-compose-foundation = { module = "androidx.wear.compose:compose-fou
 androidx-wear-compose-material = { module = "androidx.wear.compose:compose-material", version.ref = "wearComposeMaterial" }
 apollo-runtime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollo" }
 apollo-adapters = {module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 horologist-compose-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist" }
 horologist-compose-material = { module = "com.google.android.horologist:horologist-compose-material", version.ref = "horologist" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
@@ -43,6 +48,7 @@ wearable = { module = "com.google.android.wearable:wearable", version.ref = "wea
 [plugins]
 android-application = { id = "com.android.application", version.ref = "buildToolsGradle" }
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

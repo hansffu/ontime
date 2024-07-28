@@ -28,10 +28,10 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.material.Chip
-import dev.hansffu.ontime.viewmodels.LocationState
-import dev.hansffu.ontime.viewmodels.LocationViewModel
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.service.StopService
+import dev.hansffu.ontime.viewmodels.LocationState
+import dev.hansffu.ontime.viewmodels.LocationViewModel
 
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState

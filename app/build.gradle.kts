@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.apollo)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -17,7 +18,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["dagger.hilt.disableModulesHaveInstallInCheck"] = "true"
+            }
+        }
     }
     buildFeatures {
         viewBinding = true
@@ -29,9 +34,6 @@ android {
     }
 
     namespace = "dev.hansffu.ontime"
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.get()
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -70,6 +72,10 @@ dependencies {
 
     implementation(libs.accompanist.placeholder.material)
     implementation(libs.accompanist.permissions)
+
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.horologist.compose.layout)
     implementation(libs.horologist.compose.material)

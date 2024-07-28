@@ -1,20 +1,20 @@
 package dev.hansffu.ontime.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
-import dev.hansffu.ontime.database.AppDatabase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.hansffu.ontime.database.dao.FavoritesDao
 import dev.hansffu.ontime.model.Stop
+import javax.inject.Inject
 
-class FavoritesViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = AppDatabase.getDb(application)
+@HiltViewModel
+class FavoritesViewModel @Inject constructor(favoritesDao: FavoritesDao) : ViewModel() {
 
     val favoriteStops: LiveData<List<Stop>> =
-        db.favoritesDao().getAll().map { stops ->
+        favoritesDao.getAll().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
 
 
 }
-
