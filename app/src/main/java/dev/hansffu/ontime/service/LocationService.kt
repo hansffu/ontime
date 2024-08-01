@@ -6,12 +6,14 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
 class LocationService @Inject constructor(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
@@ -26,10 +28,18 @@ class LocationService @Inject constructor(
     suspend fun getLatestLocation(): LocationResult = when {
         !checkLocationPermission() -> LocationResult.NoPermission
         isEmulator -> LocationResult.Success(getMockLocation())
-        else -> LocationResult.Success(fusedLocationProviderClient.lastLocation.await())
+        else -> {
+            val location =
+                fusedLocationProviderClient.getCurrentLocation(
+                    CurrentLocationRequest.Builder()
+                        .setMaxUpdateAgeMillis(30.seconds.inWholeMilliseconds)
+                        .build(), null
+                ).await()
+            LocationResult.Success(location)
+        }
     }
 
-    fun checkLocationPermission(): Boolean = locationPermissions.any {
+    private fun checkLocationPermission(): Boolean = locationPermissions.any {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
 }

@@ -56,33 +56,13 @@
             name = "ontime";
             android = {
               enable = true;
-              platforms.version = [
-                "31"
-                "33"
-                "34"
-              ];
+              sources.enable = true;
               systemImageTypes = [
                 "google_apis_playstore"
                 "android-wear"
               ];
               abis = [ "x86_64" ];
-              buildTools.version = [ "34.0.0" ];
-              tools.version = "26.1.1";
-              platformTools.version = "34.0.5";
-              emulator = {
-                enable = true;
-                version = "34.1.9";
-              };
               systemImages.enable = true;
-              extraLicenses = [
-                "android-sdk-preview-license"
-                "android-googletv-license"
-                "android-sdk-arm-dbt-license"
-                "google-gdk-license"
-                "intel-android-extra-license"
-                "intel-android-sysimage-license"
-                "mips-android-sysimage-license"
-              ];
               android-studio = {
                 enable = true;
               };
