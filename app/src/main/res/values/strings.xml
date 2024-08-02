@@ -10,5 +10,7 @@
     <string name="favorites_tips">Finn nye favoritter i nærheten</string>
     <string name="no_stops_found">Fant ingen stopp i nærheten</string>
     <string name="find_more">Finn flere stopp</string>
+    <string name="search_button">Søk</string>
+    <string name="nearby_button">Finn i nærheten</string>
     <string name="empty_string" />
 </resources>
