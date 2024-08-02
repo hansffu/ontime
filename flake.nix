@@ -57,6 +57,10 @@
             android = {
               enable = true;
               sources.enable = true;
+              platforms.version = [
+                "33"
+                "34"
+              ];
               systemImageTypes = [
                 "google_apis_playstore"
                 "android-wear"
