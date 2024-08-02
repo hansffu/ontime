@@ -1,12 +1,13 @@
 package dev.hansffu.ontime.ui.navigation
 
-import dev.hansffu.ontime.model.Stop
+import kotlinx.serialization.Serializable
 
-sealed class Screen(val route: String) {
-    data object Favorites : Screen("favorites")
-    data object Nearby: Screen("nearby")
-    data object Timetable : Screen("timetable") {
-        fun link(stop: Stop): String = route + "/${stop.id}?stopName=${stop.name}"
-    }
+sealed interface Screen {
+    @Serializable
+    data object Favorites : Screen
+    @Serializable
+    data object Nearby : Screen
+    @Serializable
+    data class Timetable(val stopName: String, val stopId: String) : Screen
 }
 

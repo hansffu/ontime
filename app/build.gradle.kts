@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.apollo)
     alias(libs.plugins.hilt)
 }
@@ -77,6 +78,8 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.play.services)
+
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)

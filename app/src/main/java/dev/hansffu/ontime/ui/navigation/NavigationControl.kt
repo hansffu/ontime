@@ -10,8 +10,10 @@ interface NavigationControl {
 }
 
 class NavigationControlImpl(private val navController: NavController) : NavigationControl {
-    override fun toStops(stop: Stop): Unit = navController.navigate(Screen.Timetable.link(stop))
-    override fun toNearby() = navController.navigate(Screen.Nearby.route)
+    override fun toStops(stop: Stop): Unit =
+        navController.navigate(Screen.Timetable(stopId = stop.id, stopName = stop.name))
+
+    override fun toNearby() = navController.navigate(Screen.Nearby)
 }
 
 object NavigationControlMock : NavigationControl {

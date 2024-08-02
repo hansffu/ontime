@@ -8,6 +8,7 @@ hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 horologist = "0.6.16"
 kotlin = "2.0.0"
+kotlinxSerializationJson = "1.7.1"
 ksp = "2.0.0-1.0.23"
 lifecycle = "2.8.4"
 material = "1.12.0"
@@ -47,6 +48,7 @@ hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", ve
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 horologist-compose-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist" }
 horologist-compose-material = { module = "com.google.android.horologist:horologist-compose-material", version.ref = "horologist" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 wearable = { module = "com.google.android.wearable:wearable", version.ref = "wearableVersion" }
@@ -57,4 +59,5 @@ apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
