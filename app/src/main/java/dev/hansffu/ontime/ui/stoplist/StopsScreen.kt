@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalHorologistApi::class)
+@file:OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
 
 package dev.hansffu.ontime.ui.stoplist
 
@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -23,16 +24,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Text
-import androidx.wear.tooling.preview.devices.WearDevice
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
+import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import com.google.android.horologist.compose.material.Button
@@ -42,19 +42,18 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.ui.navigation.Screen
+import dev.hansffu.ontime.ui.navigation.NavigationControl
+import dev.hansffu.ontime.ui.navigation.NavigationControlMock
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopState
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyViewModel
-import dev.hansffu.ontime.ui.stoplist.nearby.nearbyStopsList
 import dev.hansffu.ontime.ui.theme.OntimeTheme
 import dev.hansffu.ontime.viewmodels.FavoritesViewModel
 
-@OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun StopsScreen(
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
-    onStopSelected: (Stop) -> Unit,
+    navigate: NavigationControl
 ) {
     val columnState = rememberResponsiveColumnState()
     val favorites by favoritesViewModel.favoriteStops.observeAsState(emptyList())
@@ -73,27 +72,48 @@ fun StopsScreen(
         }
     }
 
+    StopScreenUi(
+        columnState = columnState,
+        pullRefreshState = pullRefreshState,
+        nearbyStopState = nearbyStopState,
+        favorites = favorites,
+        navigate = navigate,
+        refreshing = refreshing,
+    )
+
+}
+
+@Composable
+private fun StopScreenUi(
+    columnState: ScalingLazyColumnState,
+    pullRefreshState: PullRefreshState,
+    nearbyStopState: NearbyStopState,
+    navigate: NavigationControl,
+    favorites: List<Stop>,
+    refreshing: Boolean
+) {
     ScreenScaffold(scrollState = columnState) {
         ScalingLazyColumn(
             columnState = columnState,
             modifier = Modifier.pullRefresh(pullRefreshState)
         ) {
-            item { SearchButtons() }
+            item { SearchButtons(navigate) }
             item {
                 ResponsiveListHeader(contentPadding = firstItemPadding()) {
                     Text(stringResource(R.string.favorites_header))
                 }
             }
             items(favorites) { stop ->
-                Chip(label = stop.name, onClick = { onStopSelected(stop) })
+                Chip(label = stop.name, onClick = { navigate.toStops(stop) })
             }
-            item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
-            nearbyStopsList(
-                nearbyStopState = nearbyStopState,
-                onStopSelected = onStopSelected,
-                nearbyViewModel = nearbyViewModel
-            )
+            (nearbyStopState as? NearbyStopState.StopsFound)?.let { nearbyStops ->
+                item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
+                items(nearbyStops.stops.take(3)) { stop ->
+                    Chip(label = stop.name, onClick = { navigate.toStops(stop) })
+                }
+            }
         }
+
         PullRefreshIndicator(
             refreshing = refreshing,
             state = pullRefreshState,
@@ -103,7 +123,7 @@ fun StopsScreen(
 }
 
 @Composable
-fun SearchButtons() {
+fun SearchButtons(navigate: NavigationControl) {
     Row(
         modifier = Modifier.fillMaxWidth(0.8f),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -124,7 +144,7 @@ fun SearchButtons() {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            onClick = {},
+            onClick = navigate::toNearby,
             contentDescription = stringResource(id = R.string.nearby_button)
         )
     }
@@ -137,7 +157,7 @@ fun SearchButtonsPreview() {
     OntimeTheme {
         ScreenScaffold {
             ScalingLazyColumn(columnState = rememberResponsiveColumnState()) {
-                item { SearchButtons() }
+                item { SearchButtons(NavigationControlMock) }
             }
         }
     }
