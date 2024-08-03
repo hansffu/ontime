@@ -27,6 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Text
 import androidx.wear.tooling.preview.devices.WearDevices
@@ -42,8 +44,7 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.ui.navigation.NavigationControl
-import dev.hansffu.ontime.ui.navigation.NavigationControlMock
+import dev.hansffu.ontime.ui.navigation.Screen
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopState
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyViewModel
 import dev.hansffu.ontime.ui.theme.OntimeTheme
@@ -53,7 +54,7 @@ import dev.hansffu.ontime.viewmodels.FavoritesViewModel
 fun StopsScreen(
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
-    navigate: NavigationControl
+    navController: NavController,
 ) {
     val columnState = rememberResponsiveColumnState()
     val favorites by favoritesViewModel.favoriteStops.observeAsState(emptyList())
@@ -77,7 +78,7 @@ fun StopsScreen(
         pullRefreshState = pullRefreshState,
         nearbyStopState = nearbyStopState,
         favorites = favorites,
-        navigate = navigate,
+        navController = navController,
         refreshing = refreshing,
     )
 
@@ -88,7 +89,7 @@ private fun StopScreenUi(
     columnState: ScalingLazyColumnState,
     pullRefreshState: PullRefreshState,
     nearbyStopState: NearbyStopState,
-    navigate: NavigationControl,
+    navController: NavController,
     favorites: List<Stop>,
     refreshing: Boolean
 ) {
@@ -97,19 +98,23 @@ private fun StopScreenUi(
             columnState = columnState,
             modifier = Modifier.pullRefresh(pullRefreshState)
         ) {
-            item { SearchButtons(navigate) }
+            item { SearchButtons(navController) }
             item {
                 ResponsiveListHeader(contentPadding = firstItemPadding()) {
                     Text(stringResource(R.string.favorites_header))
                 }
             }
             items(favorites) { stop ->
-                Chip(label = stop.name, onClick = { navigate.toStops(stop) })
+                Chip(
+                    label = stop.name,
+                    onClick = { navController.navigate(Screen.Timetable(stop)) })
             }
             (nearbyStopState as? NearbyStopState.StopsFound)?.let { nearbyStops ->
                 item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
                 items(nearbyStops.stops.take(3)) { stop ->
-                    Chip(label = stop.name, onClick = { navigate.toStops(stop) })
+                    Chip(
+                        label = stop.name,
+                        onClick = { navController.navigate(Screen.Timetable(stop)) })
                 }
             }
         }
@@ -123,7 +128,7 @@ private fun StopScreenUi(
 }
 
 @Composable
-fun SearchButtons(navigate: NavigationControl) {
+fun SearchButtons(navController: NavController) {
     Row(
         modifier = Modifier.fillMaxWidth(0.8f),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -144,7 +149,7 @@ fun SearchButtons(navigate: NavigationControl) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            onClick = navigate::toNearby,
+            onClick = { navController.navigate(Screen.Nearby) },
             contentDescription = stringResource(id = R.string.nearby_button)
         )
     }
@@ -157,7 +162,7 @@ fun SearchButtonsPreview() {
     OntimeTheme {
         ScreenScaffold {
             ScalingLazyColumn(columnState = rememberResponsiveColumnState()) {
-                item { SearchButtons(NavigationControlMock) }
+                item { SearchButtons(rememberNavController()) }
             }
         }
     }

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Button
@@ -36,7 +37,7 @@ import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.ui.navigation.NavigationControl
+import dev.hansffu.ontime.ui.navigation.Screen
 
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState
@@ -48,13 +49,13 @@ sealed interface NearbyStopState {
 @Composable
 fun NearbyStopsScreen(
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
-    navigate: NavigationControl,
+    navController: NavController,
 ) {
     val nearbyStopState by nearbyViewModel.nearbyStopState.collectAsState()
     NearbyStopsUi(
         nearbyViewModel = nearbyViewModel,
         nearbyStopState = nearbyStopState,
-        navigate = navigate
+        navController = navController,
     )
 }
 
@@ -62,7 +63,7 @@ fun NearbyStopsScreen(
 fun NearbyStopsUi(
     nearbyViewModel: NearbyViewModel,
     nearbyStopState: NearbyStopState,
-    navigate: NavigationControl,
+    navController: NavController,
     columnState: ScalingLazyColumnState = rememberColumnState()
 ) {
     ScreenScaffold {
@@ -76,7 +77,9 @@ fun NearbyStopsUi(
                 is NearbyStopState.StopsFound -> {
                     item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
                     items(nearbyStopState.stops) {
-                        Chip(label = it.name, onClick = { navigate.toStops(it) })
+                        Chip(
+                            label = it.name,
+                            onClick = { navController.navigate(Screen.Timetable(it)) })
                     }
                 }
 

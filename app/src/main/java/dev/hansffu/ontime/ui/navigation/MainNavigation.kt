@@ -18,16 +18,15 @@ fun MainNavigation() {
     OntimeTheme {
         AppScaffold {
             val navController = rememberSwipeDismissableNavController()
-            val navigate = NavigationControlImpl(navController)
             SwipeDismissableNavHost(
                 navController = navController,
                 startDestination = Screen.Favorites
             ) {
                 composable<Screen.Favorites> {
-                    StopsScreen(navigate = navigate)
+                    StopsScreen(navController = navController)
                 }
                 composable<Screen.Nearby> {
-                    NearbyStopsScreen(navigate = navigate)
+                    NearbyStopsScreen(navController = navController)
                 }
                 composable<Screen.Timetable> {
                     val route = it.toRoute<Screen.Timetable>()
