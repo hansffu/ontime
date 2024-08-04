@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NearMe
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -44,6 +43,7 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.components.SearchButton
 import dev.hansffu.ontime.ui.navigation.Screen
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopState
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyViewModel
@@ -133,14 +133,12 @@ fun SearchButtons(navController: NavController) {
         modifier = Modifier.fillMaxWidth(0.8f),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Button(
-            imageVector = Icons.Default.Search,
-            buttonSize = ButtonSize.Small,
+        SearchButton(
+            onSubmit = { navController.navigate(Screen.TextSearch(it)) },
+            label = stringResource(id = R.string.search_for_stops),
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            onClick = { navController.navigate(Screen.TextSearch) },
-            contentDescription = stringResource(id = R.string.search_button)
         )
 
         Button(

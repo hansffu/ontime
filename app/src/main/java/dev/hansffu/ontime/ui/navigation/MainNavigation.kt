@@ -29,8 +29,9 @@ fun MainNavigation() {
                 composable<Screen.Nearby> {
                     NearbyStopsScreen(navController = navController)
                 }
-                composable<Screen.TextSearch>{
-                    SearchScreen()
+                composable<Screen.TextSearch> {
+                    val route = it.toRoute<Screen.TextSearch>()
+                    SearchScreen(searchString = route.searchString)
                 }
                 composable<Screen.Timetable> {
                     val route = it.toRoute<Screen.Timetable>()
