@@ -67,6 +67,7 @@ dependencies {
 
     implementation(libs.androidx.wear.compose.material)
     implementation(libs.androidx.wear.compose.foundation)
+    implementation(libs.androidx.wear.input)
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.material.icons.extended)

@@ -9,6 +9,7 @@ import com.google.android.horologist.compose.nav.SwipeDismissableNavHost
 import com.google.android.horologist.compose.nav.composable
 import dev.hansffu.ontime.ui.stoplist.StopsScreen
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopsScreen
+import dev.hansffu.ontime.ui.stoplist.search.SearchScreen
 import dev.hansffu.ontime.ui.theme.OntimeTheme
 import dev.hansffu.ontime.ui.timetable.TimetableUi
 
@@ -27,6 +28,9 @@ fun MainNavigation() {
                 }
                 composable<Screen.Nearby> {
                     NearbyStopsScreen(navController = navController)
+                }
+                composable<Screen.TextSearch>{
+                    SearchScreen()
                 }
                 composable<Screen.Timetable> {
                     val route = it.toRoute<Screen.Timetable>()

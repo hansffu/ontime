@@ -11,6 +11,9 @@ sealed interface Screen {
     data object Nearby : Screen
 
     @Serializable
+    data object TextSearch: Screen
+
+    @Serializable
     data class Timetable(val stopName: String, val stopId: String) : Screen {
         constructor(stop: Stop) : this(
             stopId = stop.id,

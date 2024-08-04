@@ -139,7 +139,7 @@ fun SearchButtons(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            onClick = {},
+            onClick = { navController.navigate(Screen.TextSearch) },
             contentDescription = stringResource(id = R.string.search_button)
         )
 
