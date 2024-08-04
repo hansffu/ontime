@@ -12,5 +12,6 @@
     <string name="find_more">Finn flere stopp</string>
     <string name="search_for_stops">Søk etter stopp</string>
     <string name="nearby_button">Finn i nærheten</string>
+    <string name="search_results">Søkeresultater</string>
     <string name="empty_string" />
 </resources>

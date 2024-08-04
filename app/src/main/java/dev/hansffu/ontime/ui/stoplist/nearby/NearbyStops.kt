@@ -16,12 +16,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -32,11 +30,9 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import com.google.android.horologist.compose.layout.rememberColumnState
-import com.google.android.horologist.compose.material.Chip
-import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.ui.navigation.Screen
+import dev.hansffu.ontime.ui.components.stopListSection
 
 sealed interface NearbyStopState {
     data object Uninitialized : NearbyStopState
@@ -74,12 +70,7 @@ fun NearbyStopsUi(
 
                 is NearbyStopState.Loading -> item { LoadingState() }
                 is NearbyStopState.StopsFound -> {
-                    item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
-                    items(nearbyStopState.stops) {
-                        Chip(
-                            label = it.name,
-                            onClick = { navController.navigate(Screen.Timetable(it)) })
-                    }
+                    stopListSection(R.string.nearby_header, nearbyStopState.stops, navController)
                 }
 
             }

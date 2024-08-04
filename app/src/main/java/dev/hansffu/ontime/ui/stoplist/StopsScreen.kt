@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.wear.compose.foundation.lazy.items
-import androidx.wear.compose.material.Text
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
@@ -38,12 +36,10 @@ import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
 import com.google.android.horologist.compose.material.Button
 import com.google.android.horologist.compose.material.ButtonSize
-import com.google.android.horologist.compose.material.Chip
-import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
-import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.ui.components.SearchButton
+import dev.hansffu.ontime.ui.components.stopListSection
 import dev.hansffu.ontime.ui.navigation.Screen
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopState
 import dev.hansffu.ontime.ui.stoplist.nearby.NearbyViewModel
@@ -99,23 +95,9 @@ private fun StopScreenUi(
             modifier = Modifier.pullRefresh(pullRefreshState)
         ) {
             item { SearchButtons(navController) }
-            item {
-                ResponsiveListHeader(contentPadding = firstItemPadding()) {
-                    Text(stringResource(R.string.favorites_header))
-                }
-            }
-            items(favorites) { stop ->
-                Chip(
-                    label = stop.name,
-                    onClick = { navController.navigate(Screen.Timetable(stop)) })
-            }
+            stopListSection(R.string.favorites_header, favorites, navController)
             (nearbyStopState as? NearbyStopState.StopsFound)?.let { nearbyStops ->
-                item { ResponsiveListHeader { Text(text = stringResource(id = R.string.nearby_header)) } }
-                items(nearbyStops.stops.take(3)) { stop ->
-                    Chip(
-                        label = stop.name,
-                        onClick = { navController.navigate(Screen.Timetable(stop)) })
-                }
+                stopListSection(R.string.nearby_header, nearbyStops.stops.take(3), navController)
             }
         }
 

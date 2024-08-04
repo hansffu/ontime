@@ -31,7 +31,7 @@ fun MainNavigation() {
                 }
                 composable<Screen.TextSearch> {
                     val route = it.toRoute<Screen.TextSearch>()
-                    SearchScreen(searchString = route.searchString)
+                    SearchScreen(searchString = route.searchString, navController = navController)
                 }
                 composable<Screen.Timetable> {
                     val route = it.toRoute<Screen.Timetable>()

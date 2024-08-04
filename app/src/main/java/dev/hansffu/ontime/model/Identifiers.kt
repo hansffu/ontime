@@ -1,7 +1,6 @@
 package dev.hansffu.ontime.model
 
 import dev.hansffu.ontime.graphql.StopPlaceQuery
-import kotlinx.serialization.Serializable
 
 data class LineDirectionRef internal constructor(val lineRef: String, val destinationRef: String)
 

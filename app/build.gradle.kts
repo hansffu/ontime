@@ -32,6 +32,9 @@ android {
 
     kotlin {
         jvmToolchain(17)
+        kotlinOptions{
+            freeCompilerArgs += "-Xcontext-receivers"
+        }
     }
 
     namespace = "dev.hansffu.ontime"
@@ -81,6 +84,7 @@ dependencies {
     implementation(libs.coroutines.play.services)
 
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp)
 
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
