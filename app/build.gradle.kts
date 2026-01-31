@@ -104,7 +104,7 @@ apollo {
         mapScalar(
             "DateTime",
             "java.time.OffsetDateTime",
-            "com.apollographql.apollo3.adapter.JavaOffsetDateTimeAdapter"
+            "com.apollographql.apollo.adapter.JavaOffsetDateTimeAdapter"
         )
 //        customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
     }

@@ -2,8 +2,8 @@ package dev.hansffu.ontime.service
 
 import android.location.Location
 import android.util.Log
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.ApolloResponse
 import dev.hansffu.ontime.graphql.NearbyStopsQuery
 import dev.hansffu.ontime.graphql.StopPlaceQuery
 import dev.hansffu.ontime.model.Stop
@@ -23,7 +23,7 @@ class StopService @Inject constructor(
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-        ).execute()
+        ).executeV3()
         return response.data
             ?.nearest?.edges?.mapNotNull { it?.node?.place?.onStopPlace }
             ?.map { Stop(it.name, it.id) }
@@ -33,7 +33,7 @@ class StopService @Inject constructor(
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {
         Log.d(TAG, "requesting departures for $id")
         val response: ApolloResponse<StopPlaceQuery.Data> = withContext(Dispatchers.IO) {
-            enturApolloClient.query(StopPlaceQuery(id = id)).execute()
+            enturApolloClient.query(StopPlaceQuery(id = id)).executeV3()
         }
         return response.dataAssertNoErrors
     }

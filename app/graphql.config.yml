@@ -1,8 +1,0 @@
-schema: src/main/graphql/hansffu/ontime/schema.graphqls
-extensions:
-  endpoints:
-    Default GraphQL Endpoint:
-      url: https://api.entur.io/journey-planner/v3/graphql
-      headers:
-        user-agent: JS GraphQL
-      introspect: false
