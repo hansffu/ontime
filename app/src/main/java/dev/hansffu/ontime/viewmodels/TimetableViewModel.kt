@@ -1,14 +1,19 @@
 package dev.hansffu.ontime.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.hansffu.ontime.database.dao.FavoriteDeparture
+import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
 import dev.hansffu.ontime.database.dao.FavoriteStop
-import dev.hansffu.ontime.database.dao.FavoritesDao
+import dev.hansffu.ontime.database.dao.FavoriteStopDao
 import dev.hansffu.ontime.graphql.StopPlaceQuery
 import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.model.LineDirectionRef
@@ -23,11 +28,12 @@ private const val TAG = "TimetableViewModel"
 @HiltViewModel
 class TimetableViewModel @Inject constructor(
     private val stopService: StopService,
-    private val favoritesDao: FavoritesDao,
+    private val favoriteStopDao: FavoriteStopDao,
+    private val favoriteDepartureDao: FavoriteDepartureDao,
 ) : ViewModel() {
 
     private val favoriteStops: LiveData<List<Stop>> =
-        favoritesDao.getAll().map { stops ->
+        favoriteStopDao.getAll().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
 
@@ -45,15 +51,32 @@ class TimetableViewModel @Inject constructor(
             favoriteStops.any { it.id == stopId }
         }
 
-
-    fun toggleFavorite(id: String, name: String) = viewModelScope.launch(Dispatchers.IO) {
-        val existing = favoritesDao.getById(id)
+    fun toggleFavoriteStop(id: String, name: String) = viewModelScope.launch(Dispatchers.IO) {
+        val existing = favoriteStopDao.getById(id)
         if (existing != null) {
-            favoritesDao.delete(existing)
+            favoriteStopDao.delete(existing)
         } else {
-            favoritesDao.insertAll(FavoriteStop(id, name))
+            favoriteStopDao.insertAll(FavoriteStop(id, name))
         }
     }
+
+    fun getFavoriteDepartures(stopId: String) = favoriteDepartureDao.getByStopId(stopId)
+
+
+    fun toggleFavoriteDeparture(lineDirectionRef: LineDirectionRef, stopId: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            with(lineDirectionRef) {
+                val existing = favoriteDepartureDao.getById(lineRef, destinationRef, stopId)
+                Log.i(TAG, "existing: $existing")
+                if (existing != null) {
+                    favoriteDepartureDao.delete(existing)
+                } else {
+                    favoriteDepartureDao.insertAll(
+                        FavoriteDeparture(lineRef, destinationRef, stopId)
+                    )
+                }
+            }
+        }
 }
 
 object DepartureMappers {

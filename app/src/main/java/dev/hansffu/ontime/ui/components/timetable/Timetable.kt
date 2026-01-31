@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWearMaterialApi::class)
+
 package dev.hansffu.ontime.ui.components.timetable
 
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
@@ -25,13 +28,15 @@ import dev.hansffu.ontime.model.LineDeparture
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun Timetable(
+    stopId: String,
     stopName: String,
-    lineDepartures: List<LineDeparture>?,
+    timetableData: TimetableData,
     isFavorite: Boolean,
     toggleFavorite: () -> Unit,
     scalingLazyColumnState: ScalingLazyColumnState,
 ) {
 
+//    val lineDepartures: List<LineDeparture>,
     ScalingLazyColumn(scalingLazyColumnState) {
         item {
             ResponsiveListHeader(contentPadding = firstItemPadding()) {
@@ -39,10 +44,16 @@ fun Timetable(
             }
         }
 
-        if (lineDepartures != null) {
-            items(lineDepartures) { lineDeparture ->
+        if (!timetableData.loading) {
+            item { Row { Text("Favoritter (${timetableData.favoriteDepartures.size})") } }
+            items(timetableData.favoriteDepartures) { lineDeparture ->
                 val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(lineDeparture.lineDirectionRef, times)
+                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, true)
+            }
+            item { Row { Text("Andre") } }
+            items(timetableData.otherDepartures) { lineDeparture ->
+                val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
+                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, false)
             }
         } else {
             item {
@@ -71,3 +82,9 @@ fun Timetable(
         }
     }
 }
+
+data class TimetableData(
+    val loading: Boolean,
+    val favoriteDepartures: List<LineDeparture>,
+    val otherDepartures: List<LineDeparture>
+)

@@ -23,7 +23,7 @@ class StopService @Inject constructor(
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-        ).executeV3()
+        ).execute()
         return response.data
             ?.nearest?.edges?.mapNotNull { it?.node?.place?.onStopPlace }
             ?.map { Stop(it.name, it.id) }
@@ -33,7 +33,7 @@ class StopService @Inject constructor(
     suspend fun getDepartures(id: String): StopPlaceQuery.Data {
         Log.d(TAG, "requesting departures for $id")
         val response: ApolloResponse<StopPlaceQuery.Data> = withContext(Dispatchers.IO) {
-            enturApolloClient.query(StopPlaceQuery(id = id)).executeV3()
+            enturApolloClient.query(StopPlaceQuery(id = id)).execute()
         }
         return response.dataAssertNoErrors
     }

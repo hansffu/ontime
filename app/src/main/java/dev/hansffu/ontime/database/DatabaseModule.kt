@@ -6,7 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.hansffu.ontime.database.dao.FavoritesDao
+import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
+import dev.hansffu.ontime.database.dao.FavoriteStopDao
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -20,5 +21,9 @@ class DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideFavoritesDao(appDatabase: AppDatabase): FavoritesDao = appDatabase.favoritesDao()
+    fun provideFavoritesDao(appDatabase: AppDatabase): FavoriteStopDao = appDatabase.favoritesDao()
+
+    @Singleton
+    @Provides
+    fun provideFavoriteDeparturesDao(appDatabase: AppDatabase): FavoriteDepartureDao = appDatabase.favoriteDeparturesDao()
 }

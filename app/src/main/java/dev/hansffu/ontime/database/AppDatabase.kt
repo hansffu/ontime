@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import dev.hansffu.ontime.database.dao.FavoriteDeparture
+import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
 import dev.hansffu.ontime.database.dao.FavoriteStop
-import dev.hansffu.ontime.database.dao.FavoritesDao
+import dev.hansffu.ontime.database.dao.FavoriteStopDao
 
-@Database(entities = [FavoriteStop::class], version = 1)
+@Database(entities = [FavoriteStop::class, FavoriteDeparture::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {
@@ -20,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val db = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java, "app_db"
-                ).fallbackToDestructiveMigration().build()
+                ).fallbackToDestructiveMigration(true).build()
                 INSTANCE = db
                 db
             }
@@ -28,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 
-    abstract fun favoritesDao(): FavoritesDao
+    abstract fun favoritesDao(): FavoriteStopDao
+    abstract fun favoriteDeparturesDao(): FavoriteDepartureDao
 }
 

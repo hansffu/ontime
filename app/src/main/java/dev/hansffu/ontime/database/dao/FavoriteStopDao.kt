@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 
 @Dao
-interface FavoritesDao {
+interface FavoriteStopDao {
     @Query("select * from FavoriteStop")
     fun getAll(): LiveData<List<FavoriteStop>>
 
