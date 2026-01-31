@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         applicationId = "dev.hansffu.ontime"
         minSdk = 26
