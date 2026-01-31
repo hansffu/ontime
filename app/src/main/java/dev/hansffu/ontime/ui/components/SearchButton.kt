@@ -30,7 +30,8 @@ fun SearchButton(
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             RemoteInput.getResultsFromIntent(it.data)
-                .getString(RESULT_KEY)
+                .getCharSequence(RESULT_KEY)
+                ?.toString()
                 ?.let(onSubmit)
         }
     val remoteInputs = remember {
