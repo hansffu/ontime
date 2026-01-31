@@ -32,8 +32,8 @@ android {
 
     kotlin {
         jvmToolchain(21)
-        kotlinOptions{
-            freeCompilerArgs += "-Xcontext-receivers"
+        compilerOptions {
+//            freeCompilerArgs += "-Xcontext-receivers"
         }
     }
 
@@ -76,7 +76,6 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
 
-    implementation(libs.accompanist.placeholder.material)
     implementation(libs.accompanist.permissions)
 
     implementation(libs.coroutines.core)

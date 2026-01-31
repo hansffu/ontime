@@ -13,8 +13,7 @@ import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.ui.navigation.Screen
 
-context(ScalingLazyListScope)
-fun stopListSection(headerResource: Int, stops: List<Stop>, navController: NavController) {
+fun ScalingLazyListScope.stopListSection(headerResource: Int, stops: List<Stop>, navController: NavController) {
     item { ResponsiveListHeader { Text(stringResource(headerResource)) } }
     items(stops) {
         Chip(
