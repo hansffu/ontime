@@ -47,8 +47,8 @@ fun LineDepartureCard(
     lineDirectionRef: LineDirectionRef,
     departureTimes: List<OffsetDateTime>,
     isFavorite: Boolean,
+    toggleFavorite: (LineDirectionRef) -> Unit,
     revealState: RevealState = rememberRevealState(RevealValue.Covered),
-    timetableViewModel: TimetableViewModel = viewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     SwipeToRevealCard(
@@ -57,7 +57,7 @@ fun LineDepartureCard(
             SwipeToRevealPrimaryAction(
                 revealState = revealState,
                 onClick = {
-                    timetableViewModel.toggleFavoriteDeparture(lineDirectionRef, stopId)
+                    toggleFavorite(lineDirectionRef)
                     coroutineScope.launch { revealState.animateTo(RevealValue.Covered) }
                 },
                 icon = {
@@ -144,6 +144,7 @@ fun DefaultPreview() {
                 OffsetDateTime.now().plus(22, ChronoUnit.MINUTES),
             ),
             isFavorite = false,
+            toggleFavorite = {}
         )
     }
 }

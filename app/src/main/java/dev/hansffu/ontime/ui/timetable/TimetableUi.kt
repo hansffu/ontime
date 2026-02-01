@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScreenScaffold
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
@@ -31,6 +31,8 @@ fun TimetableUi(
     val isFavorite by timetableViewModel.isFavorite(stopId).observeAsState()
     Log.i("TimetableUi", "favorites: ${favoriteDepartures.map { it.destinationRef }}")
     val timetableData = remember(lineDeparturesState, favoriteDepartures) {
+        Log.i("TimetableUi", "rendering ${lineDeparturesState?.flatMap { it.departures }?.size} departures")
+        Log.i("TimetableUi", "recompose")
         lineDeparturesState?.partition { lineDeparture ->
             favoriteDepartures.any {
                 it.lineRef == lineDeparture.lineDirectionRef.lineRef
@@ -53,7 +55,8 @@ fun TimetableUi(
             timetableData,
             isFavorite = isFavorite ?: false,
             scalingLazyColumnState = columnState,
-            toggleFavorite = { timetableViewModel.toggleFavoriteStop(id = stopId, name = stopName) }
+            toggleFavorite = { timetableViewModel.toggleFavoriteStop(id = stopId, name = stopName) },
+            toggleFavoriteDeparture = {it -> timetableViewModel.toggleFavoriteDeparture(it, stopId)}
         )
 
     }

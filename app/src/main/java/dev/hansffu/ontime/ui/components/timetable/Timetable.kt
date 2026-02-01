@@ -24,6 +24,7 @@ import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.model.LineDeparture
+import dev.hansffu.ontime.model.LineDirectionRef
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
@@ -33,10 +34,10 @@ fun Timetable(
     timetableData: TimetableData,
     isFavorite: Boolean,
     toggleFavorite: () -> Unit,
+    toggleFavoriteDeparture: (LineDirectionRef) -> Unit,
     scalingLazyColumnState: ScalingLazyColumnState,
 ) {
 
-//    val lineDepartures: List<LineDeparture>,
     ScalingLazyColumn(scalingLazyColumnState) {
         item {
             ResponsiveListHeader(contentPadding = firstItemPadding()) {
@@ -48,12 +49,12 @@ fun Timetable(
             item { Row { Text("Favoritter (${timetableData.favoriteDepartures.size})") } }
             items(timetableData.favoriteDepartures) { lineDeparture ->
                 val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, true)
+                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, true, toggleFavoriteDeparture)
             }
             item { Row { Text("Andre") } }
             items(timetableData.otherDepartures) { lineDeparture ->
                 val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, false)
+                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, false, toggleFavoriteDeparture)
             }
         } else {
             item {
