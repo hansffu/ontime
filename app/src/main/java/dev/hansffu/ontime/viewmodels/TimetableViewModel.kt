@@ -86,7 +86,16 @@ object DepartureMappers {
             .asSequence()
             .filterNotNull()
             .groupBy(DepartureMappers::groupLines)
-            .map { (ref, departures) -> ref?.let { LineDeparture(it, departures) } }
+            .map { (ref, departures) ->
+                ref?.let {
+                    LineDeparture(
+                        it,
+                        departures,
+                        departures.firstOrNull()?.serviceJourney?.line?.presentation?.colour
+                            ?: "000000"
+                    )
+                }
+            }
             .filterNotNull()
             .sortedBy { lineDeparture ->
                 lineDeparture.departures

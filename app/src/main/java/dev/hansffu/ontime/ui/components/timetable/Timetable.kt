@@ -49,12 +49,24 @@ fun Timetable(
             item { Row { Text("Favoritter (${timetableData.favoriteDepartures.size})") } }
             items(timetableData.favoriteDepartures) { lineDeparture ->
                 val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, true, toggleFavoriteDeparture)
+                LineDepartureCard(
+                    lineDirectionRef = lineDeparture.lineDirectionRef,
+                    departureTimes = times,
+                    isFavorite = true,
+                    toggleFavorite = toggleFavoriteDeparture,
+                    color = lineDeparture.color
+                )
             }
             item { Row { Text("Andre") } }
             items(timetableData.otherDepartures) { lineDeparture ->
                 val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(stopId, lineDeparture.lineDirectionRef, times, false, toggleFavoriteDeparture)
+                LineDepartureCard(
+                    lineDirectionRef = lineDeparture.lineDirectionRef,
+                    departureTimes = times,
+                    isFavorite = false,
+                    toggleFavorite = toggleFavoriteDeparture,
+                    color = lineDeparture.color
+                )
             }
         } else {
             item {

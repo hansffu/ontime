@@ -1,6 +1,8 @@
 package dev.hansffu.ontime.ui.components.timetable
 
+import android.R
 import android.annotation.SuppressLint
+import android.graphics.Color.parseColor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,19 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.sharp.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.material.Card
+import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
@@ -30,10 +29,10 @@ import androidx.wear.compose.material.RevealValue
 import androidx.wear.compose.material.SwipeToRevealCard
 import androidx.wear.compose.material.SwipeToRevealPrimaryAction
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.contentColorFor
 import androidx.wear.compose.material.rememberRevealState
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.ui.theme.OntimeTheme
-import dev.hansffu.ontime.viewmodels.TimetableViewModel
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -43,11 +42,11 @@ import java.time.temporal.ChronoUnit
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun LineDepartureCard(
-    stopId: String,
     lineDirectionRef: LineDirectionRef,
     departureTimes: List<OffsetDateTime>,
     isFavorite: Boolean,
     toggleFavorite: (LineDirectionRef) -> Unit,
+    color: String,
     revealState: RevealState = rememberRevealState(RevealValue.Covered),
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -71,7 +70,10 @@ fun LineDepartureCard(
         },
         onFullSwipe = { coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealing) } })
     {
-        Card(onClick = { coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealing) } }) {
+        Card(
+            onClick = { coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealing) } },
+            backgroundPainter = CardDefaults.cardBackgroundPainter(Color(parseColor("#$color")))
+        ) {
             Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -93,20 +95,26 @@ fun LineDepartureCard(
                         )
                     }
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    departureTimes.forEach {
-                        Text(
-                            text = it.toTimeString(),
-                            overflow = TextOverflow.Ellipsis,
-                            softWrap = false,
-                            style = MaterialTheme.typography.body1,
-                            color = MaterialTheme.colors.onSurfaceVariant
-                        )
-                    }
-                }
+                DepartureTimes(departureTimes)
             }
+        }
+    }
+}
+
+@Composable
+private fun DepartureTimes(departureTimes: List<OffsetDateTime>) {
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        departureTimes.forEach {
+            Text(
+                text = it.toTimeString(),
+                overflow = TextOverflow.Ellipsis,
+                softWrap = false,
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onSurfaceVariant
+            )
         }
     }
 }
@@ -132,7 +140,6 @@ private fun OffsetDateTime.toTimeString(): String {
 fun DefaultPreview() {
     OntimeTheme {
         LineDepartureCard(
-            stopId = "",
             lineDirectionRef = LineDirectionRef(
                 lineRef = "23",
                 destinationRef = "Lysaker and very long text",
@@ -144,7 +151,8 @@ fun DefaultPreview() {
                 OffsetDateTime.now().plus(22, ChronoUnit.MINUTES),
             ),
             isFavorite = false,
-            toggleFavorite = {}
+            toggleFavorite = {},
+            color = "111111"
         )
     }
 }

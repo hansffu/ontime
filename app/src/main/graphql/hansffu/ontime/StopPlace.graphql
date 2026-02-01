@@ -9,6 +9,10 @@ query StopPlace($id: String!) {
                 serviceJourney{
                     line{
                         publicCode
+                        presentation {
+                           colour
+                            textColour
+                        }
                     }
                 }
             }
