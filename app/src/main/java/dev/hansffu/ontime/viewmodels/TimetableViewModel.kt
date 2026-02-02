@@ -1,9 +1,6 @@
 package dev.hansffu.ontime.viewmodels
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
@@ -81,12 +78,9 @@ class TimetableViewModel @Inject constructor(
 
 object DepartureMappers {
     fun toLineDepartures(stopPlace: StopPlaceQuery.StopPlace): List<LineDeparture> {
-        val quays = stopPlace.quays ?: emptyList()
-        return quays.flatMap { it?.estimatedCalls ?: emptyList() }
-            .asSequence()
-            .filterNotNull()
+        return stopPlace.estimatedCalls
             .groupBy(DepartureMappers::groupLines)
-            .map { (ref, departures) ->
+            .mapNotNull { (ref, departures) ->
                 ref?.let {
                     LineDeparture(
                         it,
@@ -96,12 +90,7 @@ object DepartureMappers {
                     )
                 }
             }
-            .filterNotNull()
-            .sortedBy { lineDeparture ->
-                lineDeparture.departures
-                    .mapNotNull { call -> call.expectedArrivalTime }
-                    .minOrNull()
-            }
+            .sortedBy { it.departures.minOfOrNull { call -> call.expectedArrivalTime } }
             .toList()
     }
 

@@ -1,23 +1,21 @@
 query StopPlace($id: String!) {
     stopPlace(id: $id) {
-        quays{
-            estimatedCalls(
-                numberOfDepartures: 100,
-                numberOfDeparturesPerLineAndDestinationDisplay: 4,
-                includeCancelledTrips: false,
-                timeRange: 3600,
-            ){
-                expectedArrivalTime
-                destinationDisplay{
-                    frontText
-                }
-                serviceJourney{
-                    line{
-                        publicCode
-                        presentation {
-                            colour
-                            textColour
-                        }
+        estimatedCalls(
+            numberOfDepartures: 100,
+            numberOfDeparturesPerLineAndDestinationDisplay: 4,
+            includeCancelledTrips: false,
+            timeRange: 3600,
+        ){
+            expectedArrivalTime
+            destinationDisplay{
+                frontText
+            }
+            serviceJourney{
+                line{
+                    publicCode
+                    presentation {
+                        colour
+                        textColour
                     }
                 }
             }
