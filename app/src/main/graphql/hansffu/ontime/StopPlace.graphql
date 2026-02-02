@@ -1,7 +1,12 @@
 query StopPlace($id: String!) {
     stopPlace(id: $id) {
         quays{
-            estimatedCalls(numberOfDepartures: 100, numberOfDeparturesPerLineAndDestinationDisplay: 4, includeCancelledTrips: false){
+            estimatedCalls(
+                numberOfDepartures: 100,
+                numberOfDeparturesPerLineAndDestinationDisplay: 4,
+                includeCancelledTrips: false,
+                timeRange: 3600,
+            ){
                 expectedArrivalTime
                 destinationDisplay{
                     frontText
@@ -10,7 +15,7 @@ query StopPlace($id: String!) {
                     line{
                         publicCode
                         presentation {
-                           colour
+                            colour
                             textColour
                         }
                     }

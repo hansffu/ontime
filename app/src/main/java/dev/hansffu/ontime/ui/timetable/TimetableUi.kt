@@ -39,7 +39,7 @@ fun TimetableUi(
                         && it.destinationRef == lineDeparture.lineDirectionRef.destinationRef
             }
         }
-            ?.let { TimetableData(false, it.first, it.second) }
+            ?.let { TimetableData(false, it.first.sorted(), it.second.sorted()) }
             ?: TimetableData(true, emptyList(), emptyList())
     }
 
