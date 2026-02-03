@@ -7,9 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.PullRefreshState
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,7 +33,7 @@ import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.viewmodels.TimetableUiState
 
-@OptIn(ExperimentalHorologistApi::class)
+@OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun Timetable(
     uiState: TimetableUiState,
@@ -35,8 +41,7 @@ fun Timetable(
     toggleFavoriteDeparture: (LineDirectionRef) -> Unit,
     scalingLazyColumnState: ScalingLazyColumnState,
 ) {
-
-    ScalingLazyColumn(scalingLazyColumnState) {
+    ScalingLazyColumn(columnState = scalingLazyColumnState) {
         item {
             ResponsiveListHeader(contentPadding = firstItemPadding()) {
                 Text(uiState.stopName)

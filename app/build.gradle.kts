@@ -12,7 +12,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "dev.hansffu.ontime"
-        minSdk = 26
+        minSdk = 36
         targetSdk = 33
         versionCode = 31
         versionName = "3.0"
