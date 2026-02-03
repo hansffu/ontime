@@ -25,14 +25,12 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.model.LineDirectionRef
+import dev.hansffu.ontime.viewmodels.TimetableUiState
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun Timetable(
-    stopId: String,
-    stopName: String,
-    timetableData: TimetableData,
-    isFavorite: Boolean,
+    uiState: TimetableUiState,
     toggleFavorite: () -> Unit,
     toggleFavoriteDeparture: (LineDirectionRef) -> Unit,
     scalingLazyColumnState: ScalingLazyColumnState,
@@ -41,57 +39,58 @@ fun Timetable(
     ScalingLazyColumn(scalingLazyColumnState) {
         item {
             ResponsiveListHeader(contentPadding = firstItemPadding()) {
-                Text(stopName)
+                Text(uiState.stopName)
             }
         }
-
-        if (!timetableData.loading) {
-            item { Row { Text("Favoritter (${timetableData.favoriteDepartures.size})") } }
-            items(timetableData.favoriteDepartures) { lineDeparture ->
-                val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(
-                    lineDirectionRef = lineDeparture.lineDirectionRef,
-                    departureTimes = times,
-                    isFavorite = true,
-                    toggleFavorite = toggleFavoriteDeparture,
-                    color = lineDeparture.color
-                )
-            }
-            item { Row { Text("Andre") } }
-            items(timetableData.otherDepartures) { lineDeparture ->
-                val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
-                LineDepartureCard(
-                    lineDirectionRef = lineDeparture.lineDirectionRef,
-                    departureTimes = times,
-                    isFavorite = false,
-                    toggleFavorite = toggleFavoriteDeparture,
-                    color = lineDeparture.color
-                )
-            }
-        } else {
-            item {
+        when (uiState) {
+            is TimetableUiState.Loading -> item {
                 Row {
                     Text(text = "Henter avganger...")
                 }
             }
-        }
 
-        item { Spacer(modifier = Modifier.size(8.dp)) }
-        item {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                ToggleChip(
-                    modifier = Modifier.fillMaxWidth(0.85f),
-                    checked = isFavorite,
-                    onCheckedChange = { toggleFavorite() },
-                    label = { Text("Favoritt") },
-                    appIcon = { Icon(Icons.Default.Favorite, "Favoritt") },
-                    toggleControl = { }
-                )
+            is TimetableUiState.Success -> {
+                item { Row { Text("Favoritter (${uiState.favoriteDepartures.size})") } }
+                items(uiState.favoriteDepartures) { lineDeparture ->
+                    val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
+                    LineDepartureCard(
+                        lineDirectionRef = lineDeparture.lineDirectionRef,
+                        departureTimes = times,
+                        isFavorite = true,
+                        toggleFavorite = toggleFavoriteDeparture,
+                        color = lineDeparture.color
+                    )
+                }
+                item { Row { Text("Andre") } }
+                items(uiState.otherDepartures) { lineDeparture ->
+                    val times = lineDeparture.departures.mapNotNull { it.expectedArrivalTime }
+                    LineDepartureCard(
+                        lineDirectionRef = lineDeparture.lineDirectionRef,
+                        departureTimes = times,
+                        isFavorite = false,
+                        toggleFavorite = toggleFavoriteDeparture,
+                        color = lineDeparture.color
+                    )
+                }
+
+                item { Spacer(modifier = Modifier.size(8.dp)) }
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        ToggleChip(
+                            modifier = Modifier.fillMaxWidth(0.85f),
+                            checked = uiState.isFavorite,
+                            onCheckedChange = { toggleFavorite() },
+                            label = { Text("Favoritt") },
+                            appIcon = { Icon(Icons.Default.Favorite, "Favoritt") },
+                            toggleControl = { }
+                        )
+                    }
+
+                }
             }
-
         }
     }
 }

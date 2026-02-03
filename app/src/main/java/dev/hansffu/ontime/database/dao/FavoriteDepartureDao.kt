@@ -9,11 +9,12 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import dev.hansffu.ontime.model.LineDirectionRef
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteDepartureDao {
     @Query("SELECT * FROM FavoriteDeparture WHERE stopId = :stopId")
-    fun getByStopId(stopId: String): LiveData<List<FavoriteDeparture>>
+    fun getByStopId(stopId: String): Flow<List<FavoriteDeparture>>
 
     @Query("SELECT * FROM FavoriteDeparture WHERE lineRef = :lineRef AND destinationRef = :destinationRef AND stopId = :stopId")
     fun getById(lineRef: String, destinationRef: String, stopId: String): FavoriteDeparture?

@@ -1,10 +1,8 @@
 package dev.hansffu.ontime.viewmodels
 
 import android.util.Log
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.hansffu.ontime.database.dao.FavoriteDeparture
@@ -17,6 +15,12 @@ import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.service.StopService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,26 +31,45 @@ class TimetableViewModel @Inject constructor(
     private val stopService: StopService,
     private val favoriteStopDao: FavoriteStopDao,
     private val favoriteDepartureDao: FavoriteDepartureDao,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val favoriteStops: LiveData<List<Stop>> =
+    private val stopId: String = checkNotNull(savedStateHandle["stopId"])
+    private val stopName: String = checkNotNull(savedStateHandle["stopName"])
+
+    private val allDepartures: Flow<List<LineDeparture>> = flow {
+        stopService.getDepartures(stopId).stopPlace
+            ?.let { DepartureMappers.toLineDepartures(it) }
+            .let { emit(it ?: emptyList()) }
+    }
+
+
+    private val favoriteStops: Flow<List<Stop>> =
         favoriteStopDao.getAll().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
+    val isFavorite = favoriteStops.map { favoriteStops -> favoriteStops.any { it.id == stopId } }
 
-    fun getDepartures(stopId: String): LiveData<List<LineDeparture>> {
-        Log.d(TAG, "updating departures for $stopId")
-        return liveData {
-            stopService.getDepartures(stopId).stopPlace
-                ?.let { DepartureMappers.toLineDepartures(it) }
-                ?.let { emit(it) }
+    val favoriteDepartureDtos = favoriteDepartureDao.getByStopId(stopId)
+    val groupedDepartures = combine(allDepartures, favoriteDepartureDtos) { all, favorites ->
+        all.partition { dep ->
+            favorites.any { it.lineRef == dep.lineDirectionRef.lineRef && it.destinationRef == dep.lineDirectionRef.destinationRef }
         }
     }
 
-    fun isFavorite(stopId: String): LiveData<Boolean> =
-        favoriteStops.map { favoriteStops ->
-            favoriteStops.any { it.id == stopId }
-        }
+    val uiState = combine(groupedDepartures, isFavorite) { dep, isFavorite ->
+        TimetableUiState.Success(
+            stopId, stopName,
+            favoriteDepartures = dep.first,
+            otherDepartures = dep.second,
+            isFavorite = isFavorite
+        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        TimetableUiState.Loading(stopId, stopName)
+    )
+
 
     fun toggleFavoriteStop(id: String, name: String) = viewModelScope.launch(Dispatchers.IO) {
         val existing = favoriteStopDao.getById(id)
@@ -56,8 +79,6 @@ class TimetableViewModel @Inject constructor(
             favoriteStopDao.insertAll(FavoriteStop(id, name))
         }
     }
-
-    fun getFavoriteDepartures(stopId: String) = favoriteDepartureDao.getByStopId(stopId)
 
 
     fun toggleFavoriteDeparture(lineDirectionRef: LineDirectionRef, stopId: String) =
@@ -74,6 +95,23 @@ class TimetableViewModel @Inject constructor(
                 }
             }
         }
+}
+
+sealed interface TimetableUiState {
+    val stopId: String
+    val stopName: String
+
+    data class Loading(override val stopId: String, override val stopName: String) :
+        TimetableUiState
+
+    data class Success(
+        override val stopId: String,
+        override val stopName: String,
+        val isFavorite: Boolean,
+        val favoriteDepartures: List<LineDeparture>,
+        val otherDepartures: List<LineDeparture>
+    ) :
+        TimetableUiState
 }
 
 object DepartureMappers {

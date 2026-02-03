@@ -12,7 +12,7 @@ import javax.inject.Inject
 class FavoritesViewModel @Inject constructor(favoriteStopDao: FavoriteStopDao) : ViewModel() {
 
     val favoriteStops: LiveData<List<Stop>> =
-        favoriteStopDao.getAll().map { stops ->
+        favoriteStopDao.getAllL().map { stops ->
             stops.map { Stop(it.name, it.id) }
         }
 

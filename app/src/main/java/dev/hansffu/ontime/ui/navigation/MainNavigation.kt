@@ -1,6 +1,7 @@
 package dev.hansffu.ontime.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.toRoute
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
@@ -12,6 +13,7 @@ import dev.hansffu.ontime.ui.stoplist.nearby.NearbyStopsScreen
 import dev.hansffu.ontime.ui.stoplist.search.SearchScreen
 import dev.hansffu.ontime.ui.theme.OntimeTheme
 import dev.hansffu.ontime.ui.timetable.TimetableUi
+import dev.hansffu.ontime.viewmodels.TimetableViewModel
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
@@ -35,9 +37,11 @@ fun MainNavigation() {
                 }
                 composable<Screen.Timetable> {
                     val route = it.toRoute<Screen.Timetable>()
+                    val timetableViewModel = hiltViewModel<TimetableViewModel>(it)
                     TimetableUi(
                         stopId = route.stopId,
-                        stopName = route.stopName
+                        stopName = route.stopName,
+                        timetableViewModel = timetableViewModel
                     )
                 }
             }
