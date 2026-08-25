@@ -1,25 +1,22 @@
-@file:OptIn(ExperimentalHorologistApi::class)
-
 package dev.hansffu.ontime.ui.stoplist.search
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.layout.ScalingLazyColumn
-import com.google.android.horologist.compose.layout.ScalingLazyColumnState
-import com.google.android.horologist.compose.layout.ScreenScaffold
-import com.google.android.horologist.compose.layout.rememberColumnState
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.ui.components.stopListSection
 
 @Composable
 fun SearchScreen(
     searchString: String,
-    columnState: ScalingLazyColumnState = rememberColumnState(),
+    columnState: ScalingLazyListState = rememberScalingLazyListState(),
     navController: NavController,
 ) {
     val searchViewModel: SearchViewModel = hiltViewModel()
@@ -27,8 +24,11 @@ fun SearchScreen(
     LaunchedEffect(key1 = searchString) {
         searchViewModel.search(searchString)
     }
-    ScreenScaffold {
-        ScalingLazyColumn(columnState = columnState) {
+    ScreenScaffold(scrollState = columnState) { contentPadding ->
+        ScalingLazyColumn(
+            state = columnState,
+            contentPadding = contentPadding,
+        ) {
             stopListSection(R.string.search_results, stops, navController)
         }
     }

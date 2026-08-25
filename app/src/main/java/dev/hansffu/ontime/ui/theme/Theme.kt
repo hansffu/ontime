@@ -1,12 +1,12 @@
 package dev.hansffu.ontime.ui.theme
 
 import androidx.compose.runtime.Composable
-import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material3.MaterialTheme
 
 @Composable
 fun OntimeTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colors = onTimeColorPalette,
+        colorScheme = onTimeColorScheme,
         typography = Typography,
         content = content
     )

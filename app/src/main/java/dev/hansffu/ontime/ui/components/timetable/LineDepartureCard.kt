@@ -1,6 +1,5 @@
 package dev.hansffu.ontime.ui.components.timetable
 
-import android.R
 import android.annotation.SuppressLint
 import android.graphics.Color.parseColor
 import androidx.compose.foundation.layout.Arrangement
@@ -19,18 +18,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Card
-import androidx.wear.compose.material.CardDefaults
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.RevealState
-import androidx.wear.compose.material.RevealValue
-import androidx.wear.compose.material.SwipeToRevealCard
-import androidx.wear.compose.material.SwipeToRevealPrimaryAction
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.contentColorFor
-import androidx.wear.compose.material.rememberRevealState
+import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.RevealState
+import androidx.wear.compose.material3.RevealValue
+import androidx.wear.compose.material3.SwipeToReveal
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.rememberRevealState
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.ui.theme.OntimeTheme
 import kotlinx.coroutines.launch
@@ -39,7 +35,6 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun LineDepartureCard(
     lineDirectionRef: LineDirectionRef,
@@ -50,11 +45,10 @@ fun LineDepartureCard(
     revealState: RevealState = rememberRevealState(RevealValue.Covered),
 ) {
     val coroutineScope = rememberCoroutineScope()
-    SwipeToRevealCard(
+    SwipeToReveal(
         revealState = revealState,
         primaryAction = {
-            SwipeToRevealPrimaryAction(
-                revealState = revealState,
+            PrimaryActionButton(
                 onClick = {
                     toggleFavorite(lineDirectionRef)
                     coroutineScope.launch { revealState.animateTo(RevealValue.Covered) }
@@ -65,14 +59,16 @@ fun LineDepartureCard(
                         "Favoritt"
                     )
                 },
-                label = { Text("Favoritt") },
+                text = { Text("Favoritt") },
             )
         },
-        onFullSwipe = { coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealing) } })
+        onSwipePrimaryAction = { toggleFavorite(lineDirectionRef) })
     {
         Card(
             onClick = { coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealing) } },
-            backgroundPainter = CardDefaults.cardBackgroundPainter(Color(parseColor("#$color")))
+            colors = CardDefaults.cardColors(
+                containerColor = Color(parseColor("#$color")),
+            )
         ) {
             Column {
                 Row(
@@ -82,16 +78,16 @@ fun LineDepartureCard(
                     Box(modifier = Modifier.weight(1f)) {
                         Text(
                             text = lineDirectionRef.destinationRef,
-                            style = MaterialTheme.typography.title3,
-                            color = MaterialTheme.colors.onSurface,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
                     Box(contentAlignment = Alignment.TopEnd) {
                         Text(
                             text = lineDirectionRef.lineRef,
-                            style = MaterialTheme.typography.title3,
-                            color = MaterialTheme.colors.onSurface,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -112,8 +108,8 @@ private fun DepartureTimes(departureTimes: List<OffsetDateTime>) {
                 text = it.toTimeString(),
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
-                style = MaterialTheme.typography.body1,
-                color = MaterialTheme.colors.onSurfaceVariant
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -130,7 +126,6 @@ private fun OffsetDateTime.toTimeString(): String {
 }
 
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Preview(
     showBackground = true,
     device = "spec:shape=Square,width=300,height=300,unit=px,dpi=240",
@@ -156,4 +151,3 @@ fun DefaultPreview() {
         )
     }
 }
-

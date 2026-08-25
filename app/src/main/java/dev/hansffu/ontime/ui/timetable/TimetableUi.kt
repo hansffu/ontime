@@ -8,19 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.layout.ScreenScaffold
-import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import dev.hansffu.ontime.ui.components.timetable.Timetable
-import dev.hansffu.ontime.viewmodels.TimetableUiState
 import dev.hansffu.ontime.viewmodels.TimetableViewModel
 
 
-@OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TimetableUi(
     timetableViewModel: TimetableViewModel,
@@ -30,7 +27,7 @@ fun TimetableUi(
 
     val state by timetableViewModel.uiState.collectAsState()
 
-    val columnState = rememberResponsiveColumnState()
+    val columnState = rememberScalingLazyListState()
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = state.refreshing,
@@ -44,13 +41,14 @@ fun TimetableUi(
     ScreenScaffold(
         scrollState = columnState,
         modifier = Modifier.pullRefresh(pullRefreshState)
-    ) {
+    ) { contentPadding ->
         PullRefreshIndicator(
             refreshing = state.refreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
         )
         Timetable(
+            contentPadding = contentPadding,
             uiState = state,
             scalingLazyColumnState = columnState,
             toggleFavorite = {

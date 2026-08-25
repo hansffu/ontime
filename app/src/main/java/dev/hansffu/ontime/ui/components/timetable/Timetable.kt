@@ -1,49 +1,42 @@
-@file:OptIn(ExperimentalWearMaterialApi::class)
-
 package dev.hansffu.ontime.ui.components.timetable
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.PullRefreshState
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.items
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.ToggleChip
-import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.layout.ScalingLazyColumn
-import com.google.android.horologist.compose.layout.ScalingLazyColumnState
-import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
-import com.google.android.horologist.compose.material.ResponsiveListHeader
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.SwitchButton
 import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.viewmodels.TimetableUiState
 
-@OptIn(ExperimentalHorologistApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun Timetable(
     uiState: TimetableUiState,
     toggleFavorite: () -> Unit,
     toggleFavoriteDeparture: (LineDirectionRef) -> Unit,
-    scalingLazyColumnState: ScalingLazyColumnState,
+    contentPadding: PaddingValues,
+    scalingLazyColumnState: ScalingLazyListState,
 ) {
-    ScalingLazyColumn(columnState = scalingLazyColumnState) {
+    ScalingLazyColumn(
+        state = scalingLazyColumnState,
+        contentPadding = contentPadding,
+    ) {
         item {
-            ResponsiveListHeader(contentPadding = firstItemPadding()) {
+            ListHeader {
                 Text(uiState.stopName)
             }
         }
@@ -84,13 +77,12 @@ fun Timetable(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.TopCenter
                     ) {
-                        ToggleChip(
+                        SwitchButton(
                             modifier = Modifier.fillMaxWidth(0.85f),
                             checked = uiState.isFavorite,
                             onCheckedChange = { toggleFavorite() },
                             label = { Text("Favoritt") },
-                            appIcon = { Icon(Icons.Default.Favorite, "Favoritt") },
-                            toggleControl = { }
+                            icon = { Icon(Icons.Default.Favorite, "Favoritt") },
                         )
                     }
 

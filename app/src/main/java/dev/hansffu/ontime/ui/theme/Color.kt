@@ -1,13 +1,14 @@
 package dev.hansffu.ontime.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import androidx.wear.compose.material.Colors
+import androidx.wear.compose.material3.ColorScheme
 
-internal val onTimeColorPalette: Colors = Colors(
+internal val onTimeColorScheme = ColorScheme(
     background = Color(0xFF000000),
-    surface = Color(0xFF212124),
-    onSurface = Color(0xffffffff),
-    onSurfaceVariant = Color(0xffdadce0),
-    onBackground = Color(0xffffffff),
-    primary = Color(0xfff44336),
+    surfaceContainer = Color(0xFF212124),
+    onSurface = Color(0xFFFFFFFF),
+    onSurfaceVariant = Color(0xFFDADCE0),
+    onBackground = Color(0xFFFFFFFF),
+    primary = Color(0xFFF44336),
+    onPrimary = Color(0xFFFFFFFF),
 )

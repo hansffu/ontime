@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinx.serialization)
@@ -9,11 +8,11 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "dev.hansffu.ontime"
         minSdk = 36
-        targetSdk = 33
+        targetSdk = 37
         versionCode = 31
         versionName = "3.0"
         vectorDrawables {
@@ -73,15 +72,15 @@ dependencies {
     //compose
     implementation(libs.androidx.ui.tooling.preview)
 
-    implementation(libs.androidx.wear.compose.material)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.wear.compose.material3)
+    implementation(libs.androidx.wear.compose.navigation)
     implementation(libs.androidx.wear.compose.foundation)
     implementation(libs.androidx.wear.input)
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
-
-    implementation(libs.accompanist.permissions)
 
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
@@ -94,9 +93,6 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
-    implementation(libs.horologist.compose.layout)
-    implementation(libs.horologist.compose.material)
-
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -108,7 +104,7 @@ apollo {
         mapScalar(
             "DateTime",
             "java.time.OffsetDateTime",
-            "com.apollographql.apollo.adapter.JavaOffsetDateTimeAdapter"
+            "com.apollographql.adapter.core.JavaOffsetDateTimeAdapter"
         )
 //        customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
     }
