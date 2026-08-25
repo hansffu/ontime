@@ -2,7 +2,8 @@
 
 package dev.hansffu.ontime.ui.stoplist
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -32,9 +33,8 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonGroup
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.ui.components.SearchButton
@@ -111,23 +111,23 @@ private fun StopScreenUi(
 
 @Composable
 fun SearchButtons(navController: NavController) {
-    ButtonGroup(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         SearchButton(
             onSubmit = { navController.navigate(Screen.TextSearch(it).route()) },
             label = stringResource(id = R.string.search_for_stops),
-            modifier = Modifier.weight(1f),
         )
 
-        Button(
-            modifier = Modifier.weight(1f),
+        FilledIconButton(
             onClick = { navController.navigate(Screen.Nearby.route) },
         ) {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Default.NearMe,
-                    contentDescription = stringResource(id = R.string.nearby_button),
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.NearMe,
+                contentDescription = stringResource(id = R.string.nearby_button),
+            )
         }
     }
 }
