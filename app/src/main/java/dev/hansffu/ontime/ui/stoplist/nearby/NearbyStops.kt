@@ -1,143 +1,186 @@
 package dev.hansffu.ontime.ui.stoplist.nearby
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.Text
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AlertDialog
+import androidx.wear.compose.material3.AlertDialogDefaults
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.components.listHeaderItem
+import dev.hansffu.ontime.ui.components.messageItem
+import dev.hansffu.ontime.ui.components.retryItem
 import dev.hansffu.ontime.ui.components.stopListSection
-
-sealed interface NearbyStopState {
-    data object Uninitialized : NearbyStopState
-    data object NoPermission : NearbyStopState
-    data object Loading : NearbyStopState
-    data class StopsFound(val stops: List<Stop>, val refresh: () -> Unit) : NearbyStopState
-}
 
 @Composable
 fun NearbyStopsScreen(
+    onStopSelected: (Stop) -> Unit,
+    onDismissPermission: () -> Unit,
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
-    navController: NavController,
 ) {
-    val nearbyStopState by nearbyViewModel.nearbyStopState.collectAsState()
-    NearbyStopsUi(
-        nearbyViewModel = nearbyViewModel,
-        nearbyStopState = nearbyStopState,
-        navController = navController,
+    val nearbyStopState = nearbyViewModel.nearbyStopState.collectAsStateWithLifecycle().value
+    val columnState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    val header = stringResource(R.string.nearby_header)
+    val loading = stringResource(R.string.loading_nearby)
+    val error = stringResource(R.string.nearby_error)
+    val retry = stringResource(R.string.retry)
+    val empty = stringResource(R.string.no_stops_found)
+
+    ScreenScaffold(scrollState = columnState) { contentPadding ->
+        TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
+            when (nearbyStopState) {
+                NearbyStopState.Loading -> {
+                    listHeaderItem("nearby-header", header, transformationSpec)
+                    messageItem("nearby-loading", loading, transformationSpec)
+                }
+
+                NearbyStopState.NoPermission -> Unit
+
+                NearbyStopState.Error -> {
+                    listHeaderItem("nearby-header", header, transformationSpec)
+                    retryItem(
+                        "nearby-error",
+                        error,
+                        retry,
+                        transformationSpec,
+                        nearbyViewModel::refresh,
+                    )
+                }
+
+                is NearbyStopState.Content -> {
+                    if (nearbyStopState.stops.isEmpty()) {
+                        listHeaderItem("nearby-header", header, transformationSpec)
+                        messageItem("nearby-empty", empty, transformationSpec)
+                    } else {
+                        stopListSection(
+                            headerKey = "nearby",
+                            header = header,
+                            stops = nearbyStopState.stops,
+                            transformationSpec = transformationSpec,
+                            onStopClick = onStopSelected,
+                        )
+                    }
+                    if (nearbyStopState.refreshFailed) {
+                        retryItem(
+                            "nearby-refresh-error",
+                            error,
+                            retry,
+                            transformationSpec,
+                            nearbyViewModel::refresh,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (nearbyStopState == NearbyStopState.NoPermission) {
+        LocationPermissionPrompt(
+            permissions = nearbyViewModel.locationPermissions,
+            onPermissionAvailable = nearbyViewModel::refresh,
+            onDismiss = onDismissPermission,
+        )
+    }
+}
+
+@Composable
+private fun LocationPermissionPrompt(
+    permissions: List<String>,
+    onPermissionAvailable: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    var requestAttempted by rememberSaveable { mutableStateOf(false) }
+    val transformationSpec = rememberTransformationSpec()
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+            if (results.values.any { it }) onPermissionAvailable() else requestAttempted = true
+        }
+    val settingsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (context.hasAnyPermission(permissions)) onPermissionAvailable()
+            else requestAttempted = true
+        }
+
+    AlertDialog(
+        visible = true,
+        onDismissRequest = onDismiss,
+        transformationSpec = transformationSpec,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier,
+            )
+        },
+        title = {
+            Text(
+                stringResource(
+                    if (requestAttempted) R.string.permission_denied_title
+                    else R.string.permission_title
+                )
+            )
+        },
+        text = {
+            Text(
+                stringResource(
+                    if (requestAttempted) R.string.permission_denied_explanation
+                    else R.string.permission_explanation
+                )
+            )
+        },
+        edgeButton = {
+            AlertDialogDefaults.EdgeButton(
+                onClick = {
+                    if (requestAttempted) {
+                        settingsLauncher.launch(context.applicationSettingsIntent())
+                    } else {
+                        permissionLauncher.launch(permissions.toTypedArray())
+                    }
+                }
+            ) {
+                Text(
+                    stringResource(
+                        if (requestAttempted) R.string.open_settings
+                        else R.string.grant_permission
+                    )
+                )
+            }
+        },
     )
 }
 
-@Composable
-fun NearbyStopsUi(
-    nearbyViewModel: NearbyViewModel,
-    nearbyStopState: NearbyStopState,
-    navController: NavController,
-    columnState: ScalingLazyListState = rememberScalingLazyListState()
-) {
-    ScreenScaffold(scrollState = columnState) { contentPadding ->
-        ScalingLazyColumn(
-            state = columnState,
-            contentPadding = contentPadding,
-        ) {
-            when (nearbyStopState) {
-                is NearbyStopState.Uninitialized,
-                NearbyStopState.NoPermission,
-                -> item { LocationPermissionChecker(nearbyViewModel) }
+private fun Context.hasAnyPermission(permissions: List<String>): Boolean =
+    permissions.any { checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
 
-                is NearbyStopState.Loading -> item { LoadingState() }
-                is NearbyStopState.StopsFound -> {
-                    stopListSection(R.string.nearby_header, nearbyStopState.stops, navController)
-                }
-
-            }
-        }
-    }
-}
-
-@Composable
-private fun LocationPermissionChecker(nearbyViewModel: NearbyViewModel) {
-    val context = LocalContext.current
-    val permissions = nearbyViewModel.locationPermissions
-    var allPermissionsGranted by remember(permissions) {
-        mutableStateOf(context.hasPermissions(permissions))
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        allPermissionsGranted = permissions.all { results[it] == true }
-    }
-
-    if (allPermissionsGranted) {
-        LaunchedEffect(Unit) {
-            Log.i("PermissionChecker", "Getting location")
-            nearbyViewModel.refresh()
-        }
-    } else {
-        PermissionRequester { permissionLauncher.launch(permissions.toTypedArray()) }
-    }
-}
-
-private fun Context.hasPermissions(permissions: List<String>): Boolean =
-    permissions.all { checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
-
-@Composable
-private fun LoadingState() {
-    Row {
-        Text(text = "Henter stopp...")
-    }
-}
-
-@Composable
-private fun PermissionRequester(launchRequest: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-    ) {
-        Text(
-            text = "For å kunne vise nærliggende holdeplasser trenger vi tilgang til posisjonen din.",
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.Center) {
-            Button(
-                onClick = launchRequest,
-                shape = RoundedCornerShape(2.dp),
-                modifier = Modifier.fillMaxWidth(0.7f)
-            ) {
-                Text("Gi tilgang")
-            }
-        }
-    }
-}
+private fun Context.applicationSettingsIntent(): Intent =
+    Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", packageName, null),
+    )

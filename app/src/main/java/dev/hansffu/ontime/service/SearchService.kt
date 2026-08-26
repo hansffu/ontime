@@ -1,7 +1,7 @@
 package dev.hansffu.ontime.service
 
-import android.util.Log
 import dev.hansffu.ontime.model.Stop
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -11,9 +11,6 @@ import kotlinx.serialization.json.decodeFromStream
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import javax.inject.Inject
-
-private const val TAG = "SearchService"
 
 class SearchService @Inject constructor(private val httpClient: OkHttpClient) {
     private val json = Json {
@@ -30,15 +27,16 @@ class SearchService @Inject constructor(private val httpClient: OkHttpClient) {
             .addQueryParameter("text", searchString)
             .build()
         val request = Request.Builder().get().url(url).build()
-        val response = withContext(Dispatchers.IO) {
-            val resp = httpClient.newCall(request).execute()
-            resp.body?.byteStream()?.let {
-                json.decodeFromStream<AutocompleteResponse>(it)
+        return withContext(Dispatchers.IO) {
+            httpClient.newCall(request).execute().use { response ->
+                check(response.isSuccessful) { "Search request failed" }
+                response.body.byteStream().use { stream ->
+                    json.decodeFromStream<AutocompleteResponse>(stream)
+                        .features
+                        .map { Stop(name = it.properties.name, id = it.properties.id) }
+                }
             }
         }
-        Log.i(TAG, response.toString())
-        return response?.features?.map { Stop(name = it.properties.name, id = it.properties.id) }
-            ?: emptyList()
     }
 }
 

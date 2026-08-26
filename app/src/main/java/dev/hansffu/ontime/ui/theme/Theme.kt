@@ -8,6 +8,6 @@ fun OntimeTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = onTimeColorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

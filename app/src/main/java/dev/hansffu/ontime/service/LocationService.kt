@@ -9,9 +9,9 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
@@ -22,7 +22,7 @@ class LocationService @Inject constructor(
     val locationPermissions =
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
         )
 
     suspend fun getLatestLocation(): LocationResult = when {
@@ -30,12 +30,15 @@ class LocationService @Inject constructor(
         isEmulator -> LocationResult.Success(getMockLocation())
         else -> {
             val location =
-                fusedLocationProviderClient.getCurrentLocation(
-                    CurrentLocationRequest.Builder()
-                        .setMaxUpdateAgeMillis(30.seconds.inWholeMilliseconds)
-                        .build(), null
-                ).await()
-            LocationResult.Success(location)
+                fusedLocationProviderClient
+                    .getCurrentLocation(
+                        CurrentLocationRequest.Builder()
+                            .setMaxUpdateAgeMillis(30.seconds.inWholeMilliseconds)
+                            .build(),
+                        null,
+                    )
+                    .await()
+            location?.let(LocationResult::Success) ?: LocationResult.Unavailable
         }
     }
 
@@ -59,4 +62,5 @@ private suspend fun getMockLocation(): Location {
 sealed interface LocationResult {
     data class Success(val location: Location) : LocationResult
     data object NoPermission : LocationResult
+    data object Unavailable : LocationResult
 }

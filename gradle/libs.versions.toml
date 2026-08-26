@@ -4,6 +4,7 @@ apollo = "5.1.0"
 apolloAdapters = "0.7.0"
 buildToolsGradle = "9.3.2"
 compose = "1.12.0"
+composeMaterial3 = "1.4.0"
 coroutines = "1.11.0"
 hilt = "2.60.1"
 hiltNavigationCompose = "1.4.0"
@@ -25,7 +26,9 @@ wearableVersion = "2.9.0"
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "composeMaterial3" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcons" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

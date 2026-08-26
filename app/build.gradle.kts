@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.wear)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.apollo.runtime)
     implementation(libs.apollo.adapters)
 
@@ -79,6 +80,7 @@ dependencies {
     implementation(libs.androidx.wear.input)
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
 
