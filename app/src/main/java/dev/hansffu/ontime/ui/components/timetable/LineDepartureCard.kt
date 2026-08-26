@@ -34,7 +34,6 @@ import androidx.wear.compose.material3.rememberRevealState
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.ui.theme.OntimeTheme
-import dev.hansffu.ontime.ui.theme.primaryTintedSurfaceColor
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -66,7 +65,6 @@ fun LineDepartureCard(
             else R.string.add_favorite_short
         )
     val transitColor = rememberTransitColor(color)
-    val containerColor = primaryTintedSurfaceColor()
     val accentColor =
         if (transitColor.luminance() < 0.2f) lerp(transitColor, Color.White, 0.38f)
         else transitColor
@@ -96,11 +94,7 @@ fun LineDepartureCard(
         },
     ) {
         Card(
-            colors =
-                CardDefaults.cardColors(
-                    containerColor = containerColor,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                ),
+            colors = CardDefaults.cardColors(),
             transformation = transformation,
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -120,13 +114,6 @@ fun LineDepartureCard(
                         text = lineDirectionRef.lineRef,
                         style = MaterialTheme.typography.titleSmall,
                         color = accentColor,
-                    )
-                    Icon(
-                        imageVector =
-                            if (isFavorite) Icons.Filled.Favorite
-                            else Icons.Outlined.FavoriteBorder,
-                        contentDescription = actionDescription,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 DepartureTimes(departureTimes = departureTimes, now = now)

@@ -1,7 +1,14 @@
 package dev.hansffu.ontime.ui.timetable
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -19,12 +26,16 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.ui.components.timetable.Timetable
 import dev.hansffu.ontime.ui.components.timetable.TimetableStrings
+import dev.hansffu.ontime.viewmodels.TimetableUiState
 import dev.hansffu.ontime.viewmodels.TimetableViewModel
 import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
@@ -46,10 +57,9 @@ fun TimetableUi(
             retry = stringResource(R.string.retry),
             favoriteDeparturesHeader = stringResource(R.string.favorite_departures_header),
             otherDeparturesHeader = stringResource(R.string.other_departures_header),
-            favoriteStop = stringResource(R.string.favorite_stop),
-            addStopFavorite = stringResource(R.string.add_stop_favorite),
-            removeStopFavorite = stringResource(R.string.remove_stop_favorite),
         )
+    val addStopFavoriteDescription = stringResource(R.string.add_stop_favorite)
+    val removeStopFavoriteDescription = stringResource(R.string.remove_stop_favorite)
     var now by remember { mutableStateOf(OffsetDateTime.now()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -59,6 +69,8 @@ fun TimetableUi(
     }
 
     val pullToRefreshState = rememberPullToRefreshState()
+    val edgeButtonOverscrollEffect = rememberOverscrollEffect()
+    val successState = uiState as? TimetableUiState.Success
     Box(
         modifier =
             Modifier.pullToRefresh(
@@ -68,14 +80,39 @@ fun TimetableUi(
                 onRefresh = timetableViewModel::loadDepartures,
             ),
     ) {
-        ScreenScaffold(scrollState = columnState) { contentPadding ->
+        ScreenScaffold(
+            scrollState = columnState,
+            edgeButton = {
+                if (successState != null) {
+                    EdgeButton(
+                        onClick = timetableViewModel::toggleFavoriteStop,
+                        modifier =
+                            Modifier.scrollable(
+                                state = columnState,
+                                orientation = Orientation.Vertical,
+                                reverseDirection = true,
+                                overscrollEffect = edgeButtonOverscrollEffect,
+                            ),
+                    ) {
+                        Icon(
+                            imageVector =
+                                if (successState.isFavorite) Icons.Filled.Favorite
+                                else Icons.Outlined.FavoriteBorder,
+                            contentDescription =
+                                if (successState.isFavorite) removeStopFavoriteDescription
+                                else addStopFavoriteDescription,
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                    }
+                }
+            },
+        ) { contentPadding ->
             TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
                 Timetable(
                     uiState = uiState,
                     strings = strings,
                     now = now,
                     transformationSpec = transformationSpec,
-                    toggleFavoriteStop = timetableViewModel::toggleFavoriteStop,
                     toggleFavoriteDeparture = timetableViewModel::toggleFavoriteDeparture,
                     retry = timetableViewModel::loadDepartures,
                 )

@@ -26,7 +26,6 @@
     <string name="refresh_failed">Kunne ikke oppdatere. Viser sist hentede avganger.</string>
     <string name="favorite_departures_header">Favoritter</string>
     <string name="other_departures_header">Andre avganger</string>
-    <string name="favorite_stop">Favorittstopp</string>
     <string name="add_stop_favorite">Legg stopp til i favoritter</string>
     <string name="remove_stop_favorite">Fjern stopp fra favoritter</string>
     <string name="add_departure_favorite">Legg avgang til i favoritter</string>

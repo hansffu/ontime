@@ -12,13 +12,11 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListHeaderDefaults
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import dev.hansffu.ontime.model.Stop
-import dev.hansffu.ontime.ui.theme.primaryTintedSurfaceColor
 
 fun TransformingLazyColumnScope.stopListSection(
     headerKey: String,
@@ -44,11 +42,7 @@ fun TransformingLazyColumnScope.stopListSection(
                     .transformedHeight(this, transformationSpec)
                     .animateItem(),
             onClick = { onStopClick(stop) },
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = primaryTintedSurfaceColor(),
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                ),
+            colors = ButtonDefaults.filledTonalButtonColors(),
             transformation = SurfaceTransformation(transformationSpec),
             label = { Text(stop.name) },
         )

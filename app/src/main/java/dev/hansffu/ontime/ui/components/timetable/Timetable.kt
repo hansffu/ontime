@@ -1,16 +1,11 @@
 package dev.hansffu.ontime.ui.components.timetable
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.SurfaceTransformation
-import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
@@ -26,7 +21,6 @@ fun TransformingLazyColumnScope.Timetable(
     strings: TimetableStrings,
     now: OffsetDateTime,
     transformationSpec: TransformationSpec,
-    toggleFavoriteStop: () -> Unit,
     toggleFavoriteDeparture: (LineDirectionRef) -> Unit,
     retry: () -> Unit,
 ) {
@@ -122,30 +116,6 @@ fun TransformingLazyColumnScope.Timetable(
                 messageItem("departures-empty", strings.empty, transformationSpec)
             }
 
-            item(key = "favorite-stop-toggle") {
-                SwitchButton(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .minimumVerticalContentPadding(
-                                ButtonDefaults.minimumVerticalListContentPadding
-                            )
-                            .transformedHeight(this, transformationSpec),
-                    checked = uiState.isFavorite,
-                    onCheckedChange = { toggleFavoriteStop() },
-                    label = { Text(strings.favoriteStop) },
-                    icon = {
-                        Icon(
-                            imageVector =
-                                if (uiState.isFavorite) Icons.Filled.Favorite
-                                else Icons.Outlined.FavoriteBorder,
-                            contentDescription =
-                                if (uiState.isFavorite) strings.removeStopFavorite
-                                else strings.addStopFavorite,
-                        )
-                    },
-                    transformation = SurfaceTransformation(transformationSpec),
-                )
-            }
         }
     }
 }
@@ -158,7 +128,4 @@ data class TimetableStrings(
     val retry: String,
     val favoriteDeparturesHeader: String,
     val otherDeparturesHeader: String,
-    val favoriteStop: String,
-    val addStopFavorite: String,
-    val removeStopFavorite: String,
 )
