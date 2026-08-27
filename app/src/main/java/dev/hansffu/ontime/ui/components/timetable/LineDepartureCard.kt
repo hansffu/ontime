@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
@@ -52,6 +53,8 @@ fun LineDepartureCard(
     modifier: Modifier = Modifier,
     transformation: SurfaceTransformation? = null,
     revealState: RevealState = rememberRevealState(RevealValue.Covered),
+    stopName: String? = null,
+    manageBoards: (() -> Unit)? = null,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val actionDescription =
@@ -68,16 +71,17 @@ fun LineDepartureCard(
     val accentColor =
         if (transitColor.luminance() < 0.2f) lerp(transitColor, Color.White, 0.38f)
         else transitColor
+    val toggleAndClose: () -> Unit = {
+        toggleFavorite(lineDirectionRef)
+        coroutineScope.launch { revealState.animateTo(RevealValue.Covered) }
+    }
 
     SwipeToReveal(
         modifier = modifier,
         revealState = revealState,
         primaryAction = {
             PrimaryActionButton(
-                onClick = {
-                    toggleFavorite(lineDirectionRef)
-                    coroutineScope.launch { revealState.animateTo(RevealValue.Covered) }
-                },
+                onClick = toggleAndClose,
                 icon = {
                     Icon(
                         imageVector =
@@ -89,15 +93,41 @@ fun LineDepartureCard(
                 text = { Text(actionLabel) },
             )
         },
-        onSwipePrimaryAction = {
-            coroutineScope.launch { revealState.animateTo(RevealValue.Covered) }
-        },
+        secondaryAction =
+            manageBoards?.let { openBoards ->
+                {
+                    SecondaryActionButton(
+                        onClick = {
+                            openBoards()
+                            coroutineScope.launch {
+                                revealState.animateTo(RevealValue.Covered)
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Default.Add,
+                                stringResource(R.string.add_to_board),
+                            )
+                        },
+                    )
+                }
+            },
+        onSwipePrimaryAction = toggleAndClose,
     ) {
         Card(
             colors = CardDefaults.cardColors(),
             transformation = transformation,
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                if (stopName != null) {
+                    Text(
+                        text = stopName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -157,7 +187,7 @@ private fun OffsetDateTime.toTimeString(now: OffsetDateTime): String {
 private fun rememberTransitColor(color: String): Color {
     val fallback = MaterialTheme.colorScheme.primary
     return androidx.compose.runtime.remember(color, fallback) {
-        runCatching { Color("#${color.removePrefix("#")}".toColorInt()) }.getOrDefault(fallback)
+        runCatching { Color(("#" + color.removePrefix("#")).toColorInt()) }.getOrDefault(fallback)
     }
 }
 
@@ -182,6 +212,8 @@ private fun LineDepartureCardPreview() {
             toggleFavorite = {},
             color = "E60000",
             now = OffsetDateTime.now(ZoneId.systemDefault()),
+            stopName = "Example stop",
+            manageBoards = {},
         )
     }
 }

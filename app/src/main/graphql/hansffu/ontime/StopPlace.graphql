@@ -1,5 +1,9 @@
 query StopPlace($id: String!) {
     stopPlace(id: $id) {
+        id
+        name
+        latitude
+        longitude
         estimatedCalls(
             numberOfDepartures: 100,
             numberOfDeparturesPerLineAndDestinationDisplay: 4,

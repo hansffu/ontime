@@ -11,6 +11,7 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.components.RefreshOnResume
 import dev.hansffu.ontime.ui.components.listHeaderItem
 import dev.hansffu.ontime.ui.components.messageItem
 import dev.hansffu.ontime.ui.components.retryItem
@@ -23,6 +24,7 @@ fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
     val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
+    RefreshOnResume { searchViewModel.search(searchString) }
     val columnState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
     val header = stringResource(R.string.search_results)

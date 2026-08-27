@@ -11,6 +11,8 @@ query NearbyStops($latitude: Float!, $longitude: Float!, $cursor: String) {
                     ... on StopPlace {
                         id
                         name
+                        latitude
+                        longitude
                     }
                 }
             }

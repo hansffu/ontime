@@ -1,24 +1,25 @@
 package dev.hansffu.ontime.database.dao
 
-import androidx.lifecycle.LiveData
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
-import androidx.room.PrimaryKey
 import androidx.room.Query
-import dev.hansffu.ontime.model.LineDirectionRef
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteDepartureDao {
+    @Query("SELECT * FROM FavoriteDeparture")
+    fun observeAll(): Flow<List<FavoriteDeparture>>
+
+    @Query("SELECT * FROM FavoriteDeparture")
+    suspend fun getAll(): List<FavoriteDeparture>
+
     @Query("SELECT * FROM FavoriteDeparture WHERE stopId = :stopId")
     fun getByStopId(stopId: String): Flow<List<FavoriteDeparture>>
 
     @Query("SELECT * FROM FavoriteDeparture WHERE lineRef = :lineRef AND destinationRef = :destinationRef AND stopId = :stopId")
     fun getById(lineRef: String, destinationRef: String, stopId: String): FavoriteDeparture?
-
 
     @Insert
     fun insertAll(vararg favorites: FavoriteDeparture)
@@ -31,5 +32,5 @@ interface FavoriteDepartureDao {
 data class FavoriteDeparture(
     val lineRef: String,
     val destinationRef: String,
-    val stopId: String
+    val stopId: String,
 )

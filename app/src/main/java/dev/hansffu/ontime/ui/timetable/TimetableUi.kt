@@ -1,14 +1,15 @@
 package dev.hansffu.ontime.ui.timetable
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -33,6 +34,9 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import dev.hansffu.ontime.R
+import dev.hansffu.ontime.model.LineDirectionRef
+import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.components.RefreshOnResume
 import dev.hansffu.ontime.ui.components.timetable.Timetable
 import dev.hansffu.ontime.ui.components.timetable.TimetableStrings
 import dev.hansffu.ontime.viewmodels.TimetableUiState
@@ -43,9 +47,15 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimetableUi(
+    onManageBoards: (Stop, LineDirectionRef) -> Unit,
     timetableViewModel: TimetableViewModel = hiltViewModel(),
 ) {
     val uiState by timetableViewModel.uiState.collectAsStateWithLifecycle()
+    var now by remember { mutableStateOf(OffsetDateTime.now()) }
+    RefreshOnResume {
+        now = OffsetDateTime.now()
+        timetableViewModel.loadDepartures()
+    }
     val columnState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
     val strings =
@@ -60,7 +70,6 @@ fun TimetableUi(
         )
     val addStopFavoriteDescription = stringResource(R.string.add_stop_favorite)
     val removeStopFavoriteDescription = stringResource(R.string.remove_stop_favorite)
-    var now by remember { mutableStateOf(OffsetDateTime.now()) }
     LaunchedEffect(Unit) {
         while (true) {
             delay(30_000)
@@ -73,7 +82,7 @@ fun TimetableUi(
     val successState = uiState as? TimetableUiState.Success
     Box(
         modifier =
-            Modifier.pullToRefresh(
+            Modifier.fillMaxSize().pullToRefresh(
                 isRefreshing = uiState.refreshing,
                 state = pullToRefreshState,
                 threshold = 40.dp,
@@ -114,6 +123,7 @@ fun TimetableUi(
                     now = now,
                     transformationSpec = transformationSpec,
                     toggleFavoriteDeparture = timetableViewModel::toggleFavoriteDeparture,
+                    manageBoards = { onManageBoards(uiState.stop, it) },
                     retry = timetableViewModel::loadDepartures,
                 )
             }

@@ -6,6 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dev.hansffu.ontime.database.dao.BoardDao
+import dev.hansffu.ontime.database.dao.BoardDepartureDao
 import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
 import dev.hansffu.ontime.database.dao.FavoriteStopDao
 import javax.inject.Singleton
@@ -15,15 +17,25 @@ import javax.inject.Singleton
 class DatabaseModule {
     @Singleton
     @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return AppDatabase.getDb(context)
-    }
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
+        AppDatabase.getDb(context)
 
     @Singleton
     @Provides
-    fun provideFavoritesDao(appDatabase: AppDatabase): FavoriteStopDao = appDatabase.favoritesDao()
+    fun provideFavoritesDao(appDatabase: AppDatabase): FavoriteStopDao =
+        appDatabase.favoritesDao()
 
     @Singleton
     @Provides
-    fun provideFavoriteDeparturesDao(appDatabase: AppDatabase): FavoriteDepartureDao = appDatabase.favoriteDeparturesDao()
+    fun provideFavoriteDeparturesDao(appDatabase: AppDatabase): FavoriteDepartureDao =
+        appDatabase.favoriteDeparturesDao()
+
+    @Singleton
+    @Provides
+    fun provideBoardsDao(appDatabase: AppDatabase): BoardDao = appDatabase.boardsDao()
+
+    @Singleton
+    @Provides
+    fun provideBoardDeparturesDao(appDatabase: AppDatabase): BoardDepartureDao =
+        appDatabase.boardDeparturesDao()
 }

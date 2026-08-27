@@ -30,6 +30,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.components.RefreshOnResume
 import dev.hansffu.ontime.ui.components.listHeaderItem
 import dev.hansffu.ontime.ui.components.messageItem
 import dev.hansffu.ontime.ui.components.retryItem
@@ -42,6 +43,7 @@ fun NearbyStopsScreen(
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
 ) {
     val nearbyStopState = nearbyViewModel.nearbyStopState.collectAsStateWithLifecycle().value
+    RefreshOnResume(nearbyViewModel::refresh)
     val columnState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
     val header = stringResource(R.string.nearby_header)

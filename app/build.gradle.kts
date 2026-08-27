@@ -28,14 +28,9 @@ android {
         viewBinding = true
         compose = true
     }
-
     kotlin {
         jvmToolchain(21)
-        compilerOptions {
-//            freeCompilerArgs += "-Xcontext-receivers"
-        }
     }
-
     namespace = "dev.hansffu.ontime"
     packaging {
         resources {
@@ -64,15 +59,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.apollo.runtime)
     implementation(libs.apollo.adapters)
-
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-
-
-    //compose
     implementation(libs.androidx.ui.tooling.preview)
-
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.wear.compose.material3)
     implementation(libs.androidx.wear.compose.navigation)
@@ -83,18 +73,16 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
-
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.play.services)
-
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
-
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
+    testImplementation(libs.junit)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -108,7 +96,5 @@ apollo {
             "java.time.OffsetDateTime",
             "com.apollographql.adapter.core.JavaOffsetDateTimeAdapter"
         )
-//        customScalarsMapping.set(mapOf("DateTime" to "java.time.OffsetDateTime"))
     }
 }
-

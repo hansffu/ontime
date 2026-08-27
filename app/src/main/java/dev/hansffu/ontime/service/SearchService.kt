@@ -13,27 +13,29 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class SearchService @Inject constructor(private val httpClient: OkHttpClient) {
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
-    private val baseUrl = HttpUrl.Builder().scheme("https").host("api.entur.io")
-        .addPathSegments("geocoder/v1/autocomplete")
-        .addQueryParameter("layers", "venue")
-        .build()
+    private val json = Json { ignoreUnknownKeys = true }
+    private val baseUrl =
+        HttpUrl.Builder().scheme("https").host("api.entur.io")
+            .addPathSegments("geocoder/v1/autocomplete")
+            .addQueryParameter("layers", "venue")
+            .build()
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun search(searchString: String): List<Stop> {
-        val url = baseUrl.newBuilder()
-            .addQueryParameter("text", searchString)
-            .build()
+        val url = baseUrl.newBuilder().addQueryParameter("text", searchString).build()
         val request = Request.Builder().get().url(url).build()
         return withContext(Dispatchers.IO) {
             httpClient.newCall(request).execute().use { response ->
                 check(response.isSuccessful) { "Search request failed" }
                 response.body.byteStream().use { stream ->
-                    json.decodeFromStream<AutocompleteResponse>(stream)
-                        .features
-                        .map { Stop(name = it.properties.name, id = it.properties.id) }
+                    json.decodeFromStream<AutocompleteResponse>(stream).features.map { feature ->
+                        Stop(
+                            name = feature.properties.name,
+                            id = feature.properties.id,
+                            longitude = feature.geometry?.coordinates?.getOrNull(0),
+                            latitude = feature.geometry?.coordinates?.getOrNull(1),
+                        )
+                    }
                 }
             }
         }
@@ -41,17 +43,16 @@ class SearchService @Inject constructor(private val httpClient: OkHttpClient) {
 }
 
 @Serializable
-data class AutocompleteResponse(
-    val features: List<Feature>
-)
+data class AutocompleteResponse(val features: List<Feature>)
 
 @Serializable
 data class Feature(
-    val properties: Properties
+    val properties: Properties,
+    val geometry: Geometry? = null,
 )
 
 @Serializable
-data class Properties(
-    val id: String,
-    val name: String,
-)
+data class Properties(val id: String, val name: String)
+
+@Serializable
+data class Geometry(val coordinates: List<Double>)

@@ -3,6 +3,7 @@ package dev.hansffu.ontime.ui.stoplist
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -12,19 +13,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonGroup
+import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.tooling.preview.devices.WearDevices
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.ui.components.RefreshOnResume
 import dev.hansffu.ontime.ui.components.SearchButton
+import dev.hansffu.ontime.ui.components.listHeaderItem
 import dev.hansffu.ontime.ui.components.messageItem
 import dev.hansffu.ontime.ui.components.retryItem
 import dev.hansffu.ontime.ui.components.stopListSection
@@ -38,26 +45,38 @@ fun StopsScreen(
     onSearch: (String) -> Unit,
     onNearby: () -> Unit,
     onStopSelected: (Stop) -> Unit,
+    onBoardSelected: (Long) -> Unit,
+    onManageBoards: () -> Unit,
     favoritesViewModel: FavoritesViewModel = hiltViewModel(),
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
 ) {
     val favorites = favoritesViewModel.favoriteStops.collectAsStateWithLifecycle().value
+    val activeBoards = favoritesViewModel.activeBoards.collectAsStateWithLifecycle().value
     val nearbyStopState = nearbyViewModel.nearbyStopState.collectAsStateWithLifecycle().value
+    RefreshOnResume {
+        favoritesViewModel.refresh()
+        nearbyViewModel.refresh()
+    }
     val columnState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
-    val favoritesHeader = stringResource(R.string.favorites_header)
-    val nearbyHeader = stringResource(R.string.nearby_header)
-    val favoritesTips = stringResource(R.string.favorites_tips)
-    val loadingNearby = stringResource(R.string.loading_nearby)
-    val nearbyError = stringResource(R.string.nearby_error)
-    val retry = stringResource(R.string.retry)
-    val noStopsFound = stringResource(R.string.no_stops_found)
+    val activeBoardsLabel = stringResource(R.string.active_boards)
+    val favoritesTipsLabel = stringResource(R.string.favorites_tips)
+    val favoritesHeaderLabel = stringResource(R.string.favorites_header)
+    val loadingNearbyLabel = stringResource(R.string.loading_nearby)
+    val nearbyErrorLabel = stringResource(R.string.nearby_error)
+    val retryLabel = stringResource(R.string.retry)
+    val noStopsLabel = stringResource(R.string.no_stops_found)
+    val nearbyHeaderLabel = stringResource(R.string.nearby_header)
 
-    ScreenScaffold(scrollState = columnState) { contentPadding ->
-        TransformingLazyColumn(
-            state = columnState,
-            contentPadding = contentPadding,
-        ) {
+    ScreenScaffold(
+        scrollState = columnState,
+        edgeButton = {
+            EdgeButton(onClick = onManageBoards) {
+                Icon(Icons.AutoMirrored.Filled.List, stringResource(R.string.manage_boards))
+            }
+        },
+    ) { contentPadding ->
+        TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
             item(key = "search-actions") {
                 SearchButtons(
                     onSearch = onSearch,
@@ -72,12 +91,48 @@ fun StopsScreen(
                 )
             }
 
+            if (activeBoards.isNotEmpty()) {
+                listHeaderItem(
+                    "active-boards-header",
+                    activeBoardsLabel,
+                    transformationSpec,
+                )
+                items(activeBoards, key = { it.board.id }) { active ->
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        onClick = { onBoardSelected(active.board.id) },
+                        transformation = SurfaceTransformation(transformationSpec),
+                        label = { Text(active.board.name) },
+                        secondaryLabel =
+                            active.distanceMeters?.let { meters ->
+                                {
+                                    Text(
+                                        stringResource(
+                                            R.string.distance_away,
+                                            meters / 1_000.0,
+                                        )
+                                    )
+                                }
+                            },
+                    )
+                }
+            }
+
             if (favorites.isEmpty()) {
-                messageItem("empty-favorites", favoritesTips, transformationSpec)
+                messageItem(
+                    "empty-favorites",
+                    favoritesTipsLabel,
+                    transformationSpec,
+                )
             } else {
                 stopListSection(
                     headerKey = "favorites",
-                    header = favoritesHeader,
+                    header = favoritesHeaderLabel,
                     stops = favorites,
                     transformationSpec = transformationSpec,
                     onStopClick = onStopSelected,
@@ -86,35 +141,40 @@ fun StopsScreen(
 
             when (nearbyStopState) {
                 NearbyStopState.Loading ->
-                    messageItem("nearby-loading", loadingNearby, transformationSpec)
-
+                    messageItem(
+                        "nearby-loading",
+                        loadingNearbyLabel,
+                        transformationSpec,
+                    )
                 NearbyStopState.NoPermission -> Unit
-
                 NearbyStopState.Error ->
                     retryItem(
                         "nearby-error",
-                        nearbyError,
-                        retry,
+                        nearbyErrorLabel,
+                        retryLabel,
                         transformationSpec,
                         nearbyViewModel::refresh,
                     )
-
                 is NearbyStopState.Content -> {
                     if (nearbyStopState.refreshFailed) {
                         retryItem(
                             "nearby-refresh-error",
-                            nearbyError,
-                            retry,
+                            nearbyErrorLabel,
+                            retryLabel,
                             transformationSpec,
                             nearbyViewModel::refresh,
                         )
                     }
                     if (nearbyStopState.stops.isEmpty()) {
-                        messageItem("nearby-empty", noStopsFound, transformationSpec)
+                        messageItem(
+                            "nearby-empty",
+                            noStopsLabel,
+                            transformationSpec,
+                        )
                     } else {
                         stopListSection(
                             headerKey = "nearby",
-                            header = nearbyHeader,
+                            header = nearbyHeaderLabel,
                             stops = nearbyStopState.stops.take(3),
                             transformationSpec = transformationSpec,
                             onStopClick = onStopSelected,
@@ -135,7 +195,6 @@ fun SearchButtons(
 ) {
     val searchInteraction = remember { MutableInteractionSource() }
     val nearbyInteraction = remember { MutableInteractionSource() }
-
     ButtonGroup(modifier = modifier, transformation = transformation) {
         SearchButton(
             onSubmit = onSearch,
@@ -171,7 +230,8 @@ fun SearchButtonsPreview() {
                         onSearch = {},
                         onNearby = {},
                         transformation = SurfaceTransformation(transformationSpec),
-                        modifier = Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                        modifier =
+                            Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
                     )
                 }
             }
