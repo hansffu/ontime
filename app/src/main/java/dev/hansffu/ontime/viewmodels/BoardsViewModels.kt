@@ -38,7 +38,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @HiltViewModel
-class BoardsViewModel @Inject constructor(private val boardDao: BoardDao) : ViewModel() {
+class BoardsViewModel @Inject constructor(
+    private val boardDao: BoardDao,
+    private val boardDepartureDao: BoardDepartureDao,
+) : ViewModel() {
     val boards =
         boardDao.observeAll().stateIn(
             scope = viewModelScope,
@@ -50,6 +53,12 @@ class BoardsViewModel @Inject constructor(private val boardDao: BoardDao) : View
         viewModelScope.launch(Dispatchers.IO) {
             val id = boardDao.insert(Board(name = "Ny tavle"))
             withContext(Dispatchers.Main) { onCreated(id) }
+        }
+
+    fun deleteBoard(boardId: Long) =
+        viewModelScope.launch(Dispatchers.IO) {
+            boardDepartureDao.deleteForBoard(boardId)
+            boardDao.deleteById(boardId)
         }
 }
 

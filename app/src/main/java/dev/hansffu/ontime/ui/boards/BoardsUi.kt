@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -17,12 +19,15 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.RevealValue
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SplitSwitchButton
 import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.SwipeToReveal
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.material3.rememberRevealState
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.database.dao.BoardDeparture
 import dev.hansffu.ontime.model.BoardDistance
@@ -33,10 +38,12 @@ import dev.hansffu.ontime.viewmodels.BoardAssignmentViewModel
 import dev.hansffu.ontime.viewmodels.BoardEditorViewModel
 import dev.hansffu.ontime.viewmodels.BoardsViewModel
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 @Composable
 fun BoardsScreen(
-    onBoardSelected: (Long) -> Unit,
+    onBoardOpened: (Long) -> Unit,
+    onBoardEdited: (Long) -> Unit,
     boardsViewModel: BoardsViewModel = hiltViewModel(),
 ) {
     val boards = boardsViewModel.boards.collectAsStateWithLifecycle().value
@@ -48,7 +55,7 @@ fun BoardsScreen(
     ScreenScaffold(
         scrollState = columnState,
         edgeButton = {
-            EdgeButton(onClick = { boardsViewModel.createBoard(onBoardSelected) }) {
+            EdgeButton(onClick = { boardsViewModel.createBoard(onBoardEdited) }) {
                 Icon(Icons.Default.Add, stringResource(R.string.create_board))
             }
         },
@@ -67,30 +74,67 @@ fun BoardsScreen(
                 )
             }
             items(boards, key = { it.id }) { board ->
-                Button(
+                val revealState = rememberRevealState(RevealValue.Covered)
+                val coroutineScope = rememberCoroutineScope()
+                val editAndClose: () -> Unit = {
+                    onBoardEdited(board.id)
+                    coroutineScope.launch {
+                        revealState.animateTo(RevealValue.Covered)
+                    }
+                }
+                SwipeToReveal(
                     modifier =
                         Modifier.fillMaxWidth()
                             .minimumVerticalContentPadding(
                                 ButtonDefaults.minimumVerticalListContentPadding
                             )
                             .transformedHeight(this, transformationSpec),
-                    onClick = { onBoardSelected(board.id) },
-                    transformation = SurfaceTransformation(transformationSpec),
-                    label = { Text(board.name) },
-                    secondaryLabel = {
-                        Text(
-                            when {
-                                board.distanceEnabled && board.timeEnabled ->
-                                    stringResource(R.string.distance_and_time)
-                                board.distanceEnabled ->
-                                    stringResource(R.string.distance_only)
-                                board.timeEnabled ->
-                                    stringResource(R.string.time_only)
-                                else -> stringResource(R.string.board_inactive)
-                            }
+                    revealState = revealState,
+                    primaryAction = {
+                        PrimaryActionButton(
+                            onClick = editAndClose,
+                            icon = {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    stringResource(R.string.edit_board),
+                                )
+                            },
+                            text = { Text(stringResource(R.string.edit)) },
                         )
                     },
-                )
+                    secondaryAction = {
+                        SecondaryActionButton(
+                            onClick = { boardsViewModel.deleteBoard(board.id) },
+                            icon = {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    stringResource(R.string.delete_board),
+                                )
+                            },
+                        )
+                    },
+                    onSwipePrimaryAction = editAndClose,
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { onBoardOpened(board.id) },
+                        transformation = SurfaceTransformation(transformationSpec),
+                        label = { Text(board.name) },
+                        secondaryLabel = {
+                            Text(
+                                when {
+                                    board.distanceEnabled && board.timeEnabled ->
+                                        stringResource(R.string.distance_and_time)
+                                    board.distanceEnabled ->
+                                        stringResource(R.string.distance_only)
+                                    board.timeEnabled ->
+                                        stringResource(R.string.time_only)
+                                    else -> stringResource(R.string.board_inactive)
+                                }
+                            )
+                        },
+                    )
+                }
             }
         }
     }

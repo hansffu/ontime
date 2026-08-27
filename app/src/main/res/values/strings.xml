@@ -60,6 +60,8 @@
     <string name="no_board_departures">Ingen avganger i tavlen</string>
     <string name="tap_to_remove">Trykk for å fjerne</string>
     <string name="delete_board">Slett tavle</string>
+    <string name="edit_board">Rediger tavle</string>
+    <string name="edit">Rediger</string>
     <string name="add_to_board">Legg til i tavle</string>
     <string name="no_boards_create">Opprett en tavle med knappen nederst</string>
     <string name="distance_and_time">Avstand og tid</string>

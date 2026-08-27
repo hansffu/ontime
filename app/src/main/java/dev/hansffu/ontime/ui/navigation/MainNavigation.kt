@@ -72,7 +72,12 @@ fun MainNavigation() {
                     )
                 }
                 composable(Screen.Boards.route) {
-                    BoardsScreen(onBoardSelected = openBoardEditor)
+                    BoardsScreen(
+                        onBoardOpened = {
+                            navController.navigate(Screen.BoardTimetable(it).route())
+                        },
+                        onBoardEdited = openBoardEditor,
+                    )
                 }
                 composable(
                     route = Screen.BoardEditor.route,
