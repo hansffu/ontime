@@ -25,6 +25,39 @@ sealed interface Screen {
         }
     }
 
+    data class BoardTimePicker(val boardId: Long, val startTime: Boolean) : Screen {
+        fun route() =
+            "boards/" + boardId + "/time/" + if (startTime) "start" else "end"
+
+        companion object {
+            const val route = "boards/{boardId}/time/{timeField}"
+        }
+    }
+
+    data class BoardTimeRequirement(val boardId: Long) : Screen {
+        fun route() = "boards/" + boardId + "/time"
+
+        companion object {
+            const val route = "boards/{boardId}/time"
+        }
+    }
+
+    data class BoardDistancePicker(val boardId: Long) : Screen {
+        fun route() = "boards/" + boardId + "/distance/value"
+
+        companion object {
+            const val route = "boards/{boardId}/distance/value"
+        }
+    }
+
+    data class BoardDistanceRequirement(val boardId: Long) : Screen {
+        fun route() = "boards/" + boardId + "/distance"
+
+        companion object {
+            const val route = "boards/{boardId}/distance"
+        }
+    }
+
     data class BoardTimetable(val boardId: Long) : Screen {
         fun route() = "boards/" + boardId
         companion object {

@@ -40,17 +40,22 @@
     <string name="no_boards">Ingen tavler ennå</string>
     <string name="board_name">Navn</string>
     <string name="board_name_prompt">Navn på tavlen</string>
-    <string name="distance_condition_configured">Aktiver innenfor %1$s km fra %2$s</string>
-    <string name="distance_condition_unset">Aktiver innenfor en avstand fra et stopp</string>
-    <string name="time_condition">Aktiver i et tidsrom</string>
+    <string name="distance_condition_configured">%1$d km fra %2$s</string>
+    <string name="distance_condition_unset">Velg stopp og avstand</string>
+    <string name="time_condition">Tid</string>
+    <string name="time_condition_configured">Mellom kl %1$s og %2$s</string>
+    <string name="toggle_distance_requirement">Bruk avstandskrav</string>
+    <string name="toggle_time_requirement">Bruk tidskrav</string>
+    <string name="activation_stop">Stopp</string>
     <string name="choose_activation_stop">Velg aktiveringsstopp</string>
+    <string name="activation_stop_error">Kunne ikke hente stoppdetaljer. Prøv igjen.</string>
     <string name="activation_radius">Avstand</string>
-    <string name="radius_prompt">Avstand i kilometer</string>
-    <string name="kilometers_format">%1$.1f km</string>
+    <string name="kilometers_format">%1$d km</string>
+    <string name="distance_picker_value">%1$d kilometer</string>
+    <string name="confirm">Bekreft</string>
     <string name="distance_away">%1$.1f km unna</string>
     <string name="start_time">Fra</string>
     <string name="end_time">Til</string>
-    <string name="time_prompt">Tid som TT:MM</string>
     <string name="board_departures">Avganger</string>
     <string name="no_board_departures">Ingen avganger i tavlen</string>
     <string name="tap_to_remove">Trykk for å fjerne</string>
@@ -61,4 +66,21 @@
     <string name="distance_only">Avstand</string>
     <string name="time_only">Tid</string>
     <string name="board_inactive">Mangler aktivering</string>
+    <string name="horologist_time_picker_hour">Time</string>
+    <string name="horologist_time_picker_minute">Minutt</string>
+    <string name="horologist_time_picker_second">Sekund</string>
+    <string name="horologist_time_picker_period">Periode</string>
+    <string name="horologist_picker_confirm_button_content_description">Bekreft</string>
+    <plurals name="horologist_time_picker_hours_content_description">
+        <item quantity="one">%1$d time</item>
+        <item quantity="other">%1$d timer</item>
+    </plurals>
+    <plurals name="horologist_time_picker_minutes_content_description">
+        <item quantity="one">%1$d minutt</item>
+        <item quantity="other">%1$d minutter</item>
+    </plurals>
+    <plurals name="horologist_time_picker_seconds_content_description">
+        <item quantity="one">%1$d sekund</item>
+        <item quantity="other">%1$d sekunder</item>
+    </plurals>
 </resources>

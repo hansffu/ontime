@@ -17,7 +17,7 @@ import dev.hansffu.ontime.database.dao.FavoriteStopDao
 
 @Database(
     entities = [FavoriteStop::class, FavoriteDeparture::class, Board::class, BoardDeparture::class],
-    version = 3,
+    version = 4,
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object {
@@ -31,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                         context.applicationContext,
                         AppDatabase::class.java,
                         "app_db",
-                    ).addMigrations(MIGRATION_2_3)
+                    ).addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                         .fallbackToDestructiveMigration(true)
                         .build()
                 INSTANCE = db
@@ -75,6 +75,35 @@ private val MIGRATION_2_3 =
                     destinationRef TEXT NOT NULL,
                     PRIMARY KEY(boardId, stopId, lineRef, destinationRef)
                 )
+                """.trimIndent()
+            )
+        }
+    }
+
+private val MIGRATION_3_4 =
+    object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE Board ADD COLUMN distanceEnabled INTEGER NOT NULL DEFAULT 0"
+            )
+            db.execSQL(
+                """
+                UPDATE Board
+                SET distanceEnabled = 1
+                WHERE maxDistanceMeters IS NOT NULL
+                  AND activationLatitude IS NOT NULL
+                  AND activationLongitude IS NOT NULL
+                """.trimIndent()
+            )
+            db.execSQL(
+                "ALTER TABLE Board ADD COLUMN timeEnabled INTEGER NOT NULL DEFAULT 0"
+            )
+            db.execSQL(
+                """
+                UPDATE Board
+                SET timeEnabled = 1
+                WHERE startMinuteOfDay IS NOT NULL
+                  AND endMinuteOfDay IS NOT NULL
                 """.trimIndent()
             )
         }

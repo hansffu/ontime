@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.horologist.composables)
     ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)

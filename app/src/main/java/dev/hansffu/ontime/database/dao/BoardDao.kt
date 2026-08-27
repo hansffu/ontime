@@ -38,7 +38,9 @@ data class Board(
     val activationStopName: String? = null,
     val activationLatitude: Double? = null,
     val activationLongitude: Double? = null,
-    val maxDistanceMeters: Int? = null,
-    val startMinuteOfDay: Int? = null,
-    val endMinuteOfDay: Int? = null,
+    val maxDistanceMeters: Int? = 3_000,
+    val startMinuteOfDay: Int? = 6 * 60,
+    val endMinuteOfDay: Int? = 9 * 60,
+    val distanceEnabled: Boolean = false,
+    val timeEnabled: Boolean = false,
 )

@@ -22,11 +22,14 @@ object BoardActivation {
     ): List<ActiveBoard> =
         boards.mapNotNull { board ->
             val hasDistanceCondition =
-                board.maxDistanceMeters != null &&
+                board.distanceEnabled &&
+                    board.maxDistanceMeters != null &&
                     board.activationLatitude != null &&
                     board.activationLongitude != null
             val hasTimeCondition =
-                board.startMinuteOfDay != null && board.endMinuteOfDay != null
+                board.timeEnabled &&
+                    board.startMinuteOfDay != null &&
+                    board.endMinuteOfDay != null
             if (!hasDistanceCondition && !hasTimeCondition) return@mapNotNull null
 
             val distance =

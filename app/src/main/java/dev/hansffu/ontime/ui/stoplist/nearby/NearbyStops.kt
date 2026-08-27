@@ -110,7 +110,7 @@ fun NearbyStopsScreen(
 }
 
 @Composable
-private fun LocationPermissionPrompt(
+internal fun LocationPermissionPrompt(
     permissions: List<String>,
     onPermissionAvailable: () -> Unit,
     onDismiss: () -> Unit,

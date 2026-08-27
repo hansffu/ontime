@@ -14,7 +14,13 @@ class BoardActivationTest {
 
     @Test
     fun timeOnlyBoardActivatesInsideWindow() {
-        val board = Board(name = "Morning", startMinuteOfDay = 6 * 60, endMinuteOfDay = 9 * 60)
+        val board =
+            Board(
+                name = "Morning",
+                startMinuteOfDay = 6 * 60,
+                endMinuteOfDay = 9 * 60,
+                timeEnabled = true,
+            )
 
         assertEquals(
             listOf(board),
@@ -40,6 +46,7 @@ class BoardActivationTest {
                 activationLatitude = 59.91,
                 activationLongitude = 10.75,
                 maxDistanceMeters = 1_000,
+                distanceEnabled = true,
             )
 
         assertTrue(BoardActivation.evaluate(listOf(board), null, noon).isEmpty())
@@ -70,6 +77,8 @@ class BoardActivationTest {
                 maxDistanceMeters = 3_000,
                 startMinuteOfDay = 6 * 60,
                 endMinuteOfDay = 9 * 60,
+                distanceEnabled = true,
+                timeEnabled = true,
             )
         val nearby = Coordinates(59.915, 10.75)
 
@@ -86,6 +95,7 @@ class BoardActivationTest {
                 activationLatitude = 59.911,
                 activationLongitude = 10.75,
                 maxDistanceMeters = 10_000,
+                distanceEnabled = true,
             )
         val far =
             Board(
@@ -94,9 +104,16 @@ class BoardActivationTest {
                 activationLatitude = 59.93,
                 activationLongitude = 10.75,
                 maxDistanceMeters = 10_000,
+                distanceEnabled = true,
             )
         val timeOnly =
-            Board(id = 3, name = "Always", startMinuteOfDay = 0, endMinuteOfDay = 0)
+            Board(
+                id = 3,
+                name = "Always",
+                startMinuteOfDay = 0,
+                endMinuteOfDay = 0,
+                timeEnabled = true,
+            )
 
         assertEquals(
             listOf(near, far, timeOnly),
@@ -117,6 +134,77 @@ class BoardActivationTest {
             )
 
         assertEquals(111_195.0, oneDegreeNorth, 100.0)
+    }
+
+    @Test
+    fun disabledRequirementsKeepValuesButDoNotActivateBoard() {
+        val board =
+            Board(
+                name = "Paused",
+                activationLatitude = 59.91,
+                activationLongitude = 10.75,
+                maxDistanceMeters = 10_000,
+                startMinuteOfDay = 0,
+                endMinuteOfDay = 0,
+                distanceEnabled = false,
+                timeEnabled = false,
+            )
+
+        assertTrue(
+            BoardActivation.evaluate(
+                listOf(board),
+                Coordinates(59.91, 10.75),
+                noon,
+            ).isEmpty()
+        )
+    }
+
+    @Test
+    fun disabledDistanceIsIgnoredWhileTimeRequirementIsEnabled() {
+        val board =
+            Board(
+                name = "Time only",
+                activationLatitude = 59.91,
+                activationLongitude = 10.75,
+                maxDistanceMeters = 1,
+                startMinuteOfDay = 6 * 60,
+                endMinuteOfDay = 18 * 60,
+                distanceEnabled = false,
+                timeEnabled = true,
+            )
+
+        assertEquals(
+            1,
+            BoardActivation.evaluate(
+                listOf(board),
+                Coordinates(60.0, 11.0),
+                noon,
+            ).size,
+        )
+    }
+
+    @Test
+    fun disabledTimeIsIgnoredWhileDistanceRequirementIsEnabled() {
+        val board =
+            Board(
+                name = "Distance only",
+                activationLatitude = 59.91,
+                activationLongitude = 10.75,
+                maxDistanceMeters = 1_000,
+                startMinuteOfDay = 6 * 60,
+                endMinuteOfDay = 9 * 60,
+                distanceEnabled = true,
+                timeEnabled = false,
+            )
+
+        assertEquals(
+            1,
+            BoardActivation.evaluate(
+                listOf(board),
+                Coordinates(59.91, 10.75),
+                noon,
+            ).size,
+        )
     }
 
     private val noon = LocalTime.NOON

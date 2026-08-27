@@ -8,6 +8,7 @@ composeMaterial3 = "1.4.0"
 coroutines = "1.11.0"
 hilt = "2.60.1"
 hiltNavigationCompose = "1.4.0"
+horologist = "0.8.4-alpha"
 kotlin = "2.4.10"
 kotlinxSerializationJson = "1.11.0"
 junit = "4.13.2"
@@ -54,6 +55,7 @@ coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+horologist-composables = { module = "com.google.android.horologist:horologist-composables", version.ref = "horologist" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 junit = { module = "junit:junit", version.ref = "junit" }
 material = { module = "com.google.android.material:material", version.ref = "material" }

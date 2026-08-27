@@ -18,12 +18,14 @@ import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SplitSwitchButton
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.database.dao.BoardDeparture
+import dev.hansffu.ontime.model.BoardDistance
 import dev.hansffu.ontime.ui.components.RemoteInputButton
 import dev.hansffu.ontime.ui.components.listHeaderItem
 import dev.hansffu.ontime.ui.components.messageItem
@@ -78,12 +80,11 @@ fun BoardsScreen(
                     secondaryLabel = {
                         Text(
                             when {
-                                board.maxDistanceMeters != null &&
-                                    board.startMinuteOfDay != null ->
+                                board.distanceEnabled && board.timeEnabled ->
                                     stringResource(R.string.distance_and_time)
-                                board.maxDistanceMeters != null ->
+                                board.distanceEnabled ->
                                     stringResource(R.string.distance_only)
-                                board.startMinuteOfDay != null ->
+                                board.timeEnabled ->
                                     stringResource(R.string.time_only)
                                 else -> stringResource(R.string.board_inactive)
                             }
@@ -97,7 +98,8 @@ fun BoardsScreen(
 
 @Composable
 fun BoardEditorScreen(
-    onSearchActivationStop: () -> Unit,
+    onConfigureDistance: () -> Unit,
+    onConfigureTime: () -> Unit,
     onDeleted: () -> Unit,
     boardEditorViewModel: BoardEditorViewModel = hiltViewModel(),
 ) {
@@ -124,20 +126,25 @@ fun BoardEditorScreen(
                 )
             }
             item("distance-condition") {
-                Button(
-                    onClick = onSearchActivationStop,
+                SplitSwitchButton(
+                    checked = board.distanceEnabled,
+                    onCheckedChange = boardEditorViewModel::setDistanceEnabled,
+                    toggleContentDescription =
+                        stringResource(R.string.toggle_distance_requirement),
+                    onContainerClick = onConfigureDistance,
                     modifier =
                         Modifier.fillMaxWidth()
                             .transformedHeight(this, transformationSpec),
                     transformation = SurfaceTransformation(transformationSpec),
-                    label = {
+                    label = { Text(stringResource(R.string.activation_radius)) },
+                    secondaryLabel = {
                         Text(
-                            if (board.activationStopName != null &&
-                                board.maxDistanceMeters != null
-                            ) {
+                            if (board.activationStopName != null) {
                                 stringResource(
                                     R.string.distance_condition_configured,
-                                    board.maxDistanceMeters.asKilometers(),
+                                    BoardDistance.fromMeters(
+                                        board.maxDistanceMeters ?: 3_000
+                                    ),
                                     board.activationStopName,
                                 )
                             } else {
@@ -147,60 +154,28 @@ fun BoardEditorScreen(
                     },
                 )
             }
-            if (board.activationStopName != null && board.maxDistanceMeters != null) {
-                item("activation-radius") {
-                    RemoteInputButton(
-                        label = stringResource(R.string.activation_radius),
-                        inputLabel = stringResource(R.string.radius_prompt),
-                        value =
-                            stringResource(
-                                R.string.kilometers_format,
-                                board.maxDistanceMeters / 1_000.0,
-                            ),
-                        onSubmit = boardEditorViewModel::setDistanceKilometers,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .transformedHeight(this, transformationSpec),
-                        transformation = SurfaceTransformation(transformationSpec),
-                    )
-                }
-            }
             item("time-toggle") {
-                CheckboxButton(
-                    checked = board.startMinuteOfDay != null,
+                SplitSwitchButton(
+                    checked = board.timeEnabled,
                     onCheckedChange = boardEditorViewModel::setTimeEnabled,
+                    toggleContentDescription =
+                        stringResource(R.string.toggle_time_requirement),
+                    onContainerClick = onConfigureTime,
                     modifier =
                         Modifier.fillMaxWidth()
                             .transformedHeight(this, transformationSpec),
                     transformation = SurfaceTransformation(transformationSpec),
                     label = { Text(stringResource(R.string.time_condition)) },
+                    secondaryLabel = {
+                        Text(
+                            stringResource(
+                                R.string.time_condition_configured,
+                                (board.startMinuteOfDay ?: 6 * 60).asTime(),
+                                (board.endMinuteOfDay ?: 9 * 60).asTime(),
+                            )
+                        )
+                    },
                 )
-            }
-            if (board.startMinuteOfDay != null && board.endMinuteOfDay != null) {
-                item("start-time") {
-                    RemoteInputButton(
-                        label = stringResource(R.string.start_time),
-                        inputLabel = stringResource(R.string.time_prompt),
-                        value = board.startMinuteOfDay.asTime(),
-                        onSubmit = boardEditorViewModel::setStartTime,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .transformedHeight(this, transformationSpec),
-                        transformation = SurfaceTransformation(transformationSpec),
-                    )
-                }
-                item("end-time") {
-                    RemoteInputButton(
-                        label = stringResource(R.string.end_time),
-                        inputLabel = stringResource(R.string.time_prompt),
-                        value = board.endMinuteOfDay.asTime(),
-                        onSubmit = boardEditorViewModel::setEndTime,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .transformedHeight(this, transformationSpec),
-                        transformation = SurfaceTransformation(transformationSpec),
-                    )
-                }
             }
             listHeaderItem(
                 "board-departures-header",
@@ -235,6 +210,110 @@ fun BoardEditorScreen(
                     transformation = SurfaceTransformation(transformationSpec),
                     icon = { Icon(Icons.Default.Delete, null) },
                     label = { Text(stringResource(R.string.delete_board)) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BoardDistanceRequirementScreen(
+    onPickStop: () -> Unit,
+    onPickDistance: () -> Unit,
+    boardEditorViewModel: BoardEditorViewModel = hiltViewModel(),
+) {
+    val board = boardEditorViewModel.uiState.collectAsStateWithLifecycle().value.board ?: return
+    val columnState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    val distanceLabel = stringResource(R.string.activation_radius)
+
+    ScreenScaffold(scrollState = columnState) { contentPadding ->
+        TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
+            listHeaderItem(
+                "distance-requirement-header",
+                distanceLabel,
+                transformationSpec,
+            )
+            item("activation-stop") {
+                Button(
+                    onClick = onPickStop,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .transformedHeight(this, transformationSpec),
+                    transformation = SurfaceTransformation(transformationSpec),
+                    label = { Text(stringResource(R.string.activation_stop)) },
+                    secondaryLabel = {
+                        Text(
+                            board.activationStopName
+                                ?: stringResource(R.string.choose_activation_stop)
+                        )
+                    },
+                )
+            }
+            item("activation-radius") {
+                Button(
+                    onClick = onPickDistance,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .transformedHeight(this, transformationSpec),
+                    transformation = SurfaceTransformation(transformationSpec),
+                    label = { Text(stringResource(R.string.activation_radius)) },
+                    secondaryLabel = {
+                        Text(
+                            stringResource(
+                                R.string.kilometers_format,
+                                BoardDistance.fromMeters(board.maxDistanceMeters ?: 3_000),
+                            )
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BoardTimeRequirementScreen(
+    onPickStartTime: () -> Unit,
+    onPickEndTime: () -> Unit,
+    boardEditorViewModel: BoardEditorViewModel = hiltViewModel(),
+) {
+    val board = boardEditorViewModel.uiState.collectAsStateWithLifecycle().value.board ?: return
+    val columnState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    val timeLabel = stringResource(R.string.time_condition)
+
+    ScreenScaffold(scrollState = columnState) { contentPadding ->
+        TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
+            listHeaderItem(
+                "time-requirement-header",
+                timeLabel,
+                transformationSpec,
+            )
+            item("start-time") {
+                Button(
+                    onClick = onPickStartTime,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .transformedHeight(this, transformationSpec),
+                    transformation = SurfaceTransformation(transformationSpec),
+                    label = { Text(stringResource(R.string.start_time)) },
+                    secondaryLabel = {
+                        Text((board.startMinuteOfDay ?: 6 * 60).asTime())
+                    },
+                )
+            }
+            item("end-time") {
+                Button(
+                    onClick = onPickEndTime,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .transformedHeight(this, transformationSpec),
+                    transformation = SurfaceTransformation(transformationSpec),
+                    label = { Text(stringResource(R.string.end_time)) },
+                    secondaryLabel = {
+                        Text((board.endMinuteOfDay ?: 9 * 60).asTime())
+                    },
                 )
             }
         }
@@ -307,10 +386,6 @@ fun BoardAssignmentScreen(
         }
     }
 }
-
-private fun Int.asKilometers(): String =
-    if (this % 1_000 == 0) (this / 1_000).toString()
-    else String.format(Locale.getDefault(), "%.1f", this / 1_000.0)
 
 private fun Int.asTime(): String =
     String.format(Locale.ROOT, "%02d:%02d", this / 60, this % 60)

@@ -12,6 +12,8 @@ import dev.hansffu.ontime.database.dao.FavoriteDeparture
 import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
 import dev.hansffu.ontime.graphql.StopPlaceQuery
 import dev.hansffu.ontime.model.BoardActivation
+import dev.hansffu.ontime.model.BoardDistance
+import dev.hansffu.ontime.model.BoardTime
 import dev.hansffu.ontime.model.BoardDepartureOrdering
 import dev.hansffu.ontime.model.Coordinates
 import dev.hansffu.ontime.model.LineDeparture
@@ -86,28 +88,48 @@ class BoardEditorViewModel @Inject constructor(
             activationLatitude = stop.latitude,
             activationLongitude = stop.longitude,
             maxDistanceMeters = maxDistanceMeters ?: 3_000,
+            distanceEnabled = true,
         )
     }
 
-    fun setDistanceKilometers(value: String) {
-        val meters = value.replace(',', '.').toDoubleOrNull()?.times(1_000)?.toInt()
-        if (meters != null && meters > 0) updateBoard { copy(maxDistanceMeters = meters) }
+    fun setDistanceKilometers(value: Int, onUpdated: () -> Unit = {}) =
+        updateBoard(onUpdated) {
+            copy(
+                maxDistanceMeters = BoardDistance.toMeters(value),
+                distanceEnabled = true,
+            )
+        }
+
+    fun setDistanceEnabled(enabled: Boolean) = updateBoard {
+        copy(
+            distanceEnabled = enabled,
+            maxDistanceMeters = maxDistanceMeters ?: 3_000,
+        )
     }
 
     fun setTimeEnabled(enabled: Boolean) = updateBoard {
-        if (enabled) {
-            copy(
-                startMinuteOfDay = startMinuteOfDay ?: 6 * 60,
-                endMinuteOfDay = endMinuteOfDay ?: 9 * 60,
-            )
-        } else {
-            copy(startMinuteOfDay = null, endMinuteOfDay = null)
-        }
+        copy(
+            timeEnabled = enabled,
+            startMinuteOfDay = startMinuteOfDay ?: 6 * 60,
+            endMinuteOfDay = endMinuteOfDay ?: 9 * 60,
+        )
     }
 
-    fun setStartTime(value: String) = setTime(value) { minute -> copy(startMinuteOfDay = minute) }
+    fun setStartTime(value: LocalTime, onUpdated: () -> Unit = {}) =
+        updateBoard(onUpdated) {
+            copy(
+                startMinuteOfDay = BoardTime.toMinuteOfDay(value),
+                timeEnabled = true,
+            )
+        }
 
-    fun setEndTime(value: String) = setTime(value) { minute -> copy(endMinuteOfDay = minute) }
+    fun setEndTime(value: LocalTime, onUpdated: () -> Unit = {}) =
+        updateBoard(onUpdated) {
+            copy(
+                endMinuteOfDay = BoardTime.toMinuteOfDay(value),
+                timeEnabled = true,
+            )
+        }
 
     fun removeDeparture(departure: BoardDeparture) =
         viewModelScope.launch(Dispatchers.IO) {
@@ -126,18 +148,13 @@ class BoardEditorViewModel @Inject constructor(
             withContext(Dispatchers.Main) { onDeleted() }
         }
 
-    private fun setTime(value: String, transform: Board.(Int) -> Board) {
-        val parts = value.trim().split(':')
-        val hour = parts.getOrNull(0)?.toIntOrNull()
-        val minute = parts.getOrNull(1)?.toIntOrNull()
-        if (hour != null && minute != null && hour in 0..23 && minute in 0..59) {
-            updateBoard { transform(hour * 60 + minute) }
-        }
-    }
-
-    private fun updateBoard(transform: Board.() -> Board) =
+    private fun updateBoard(
+        onUpdated: () -> Unit = {},
+        transform: Board.() -> Board,
+    ) =
         viewModelScope.launch(Dispatchers.IO) {
             boardDao.getById(boardId)?.let { boardDao.update(transform(it)) }
+            withContext(Dispatchers.Main) { onUpdated() }
         }
 }
 
