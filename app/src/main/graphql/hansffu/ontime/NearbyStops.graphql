@@ -7,12 +7,14 @@ query NearbyStops($latitude: Float!, $longitude: Float!, $cursor: String) {
     ) {
         edges {
             node {
+                distance
                 place {
                     ... on StopPlace {
                         id
                         name
                         latitude
                         longitude
+                        transportMode
                     }
                 }
             }

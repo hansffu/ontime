@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Entur Funicular icon, @entur/icons 8.4.4, EUPL-1.2. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#78469A"
+        android:pathData="m15,9.125 -14,4.01v0.99l14,-4.01z" />
+    <path
+        android:fillColor="#78469A"
+        android:fillType="evenOdd"
+        android:pathData="m2.38,11.52 11.253,-3.1A0.5,0.5 0,0 0,14 7.938V3.825a1.5,1.5 0,0 0,-1.885 -1.45L3.487,4.668A2,2 0,0 0,2 6.6v4.631a0.3,0.3 0,0 0,0.38 0.29m8.917,-6.08c0,0.111 0.09,0.2 0.2,0.2h1.6a0.2,0.2 0,0 0,0.2 -0.2V4.026a0.8,0.8 0,0 0,-0.983 -0.779l-0.863,0.202a0.2,0.2 0,0 0,-0.154 0.195zm-0.7,0.75a0.2,0.2 0,0 1,-0.2 0.2h-2.1a0.2,0.2 0,0 1,-0.2 -0.2V4.508a0.2,0.2 0,0 1,0.148 -0.194l2.1,-0.552a0.2,0.2 0,0 1,0.251 0.194zM4.194,7.598a0.2,0.2 0,0 1,-0.2 0.2h-1.1a0.2,0.2 0,0 1,-0.2 -0.2v-1.06a1,1 0,0 1,0.75 -0.968l0.5,-0.13a0.2,0.2 0,0 1,0.25 0.194zm3,-0.472a0.2,0.2 0,0 0,0.2 -0.2V4.808a0.2,0.2 0,0 0,-0.246 -0.194l-2.1,0.505a0.2,0.2 0,0 0,-0.153 0.195v1.61c0,0.111 0.09,0.2 0.2,0.2z" />
+</vector>

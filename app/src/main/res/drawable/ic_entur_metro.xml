@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Entur Metro icon, @entur/icons 8.4.4, EUPL-1.2. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#BF5826"
+        android:fillType="evenOdd"
+        android:pathData="M5.004,5L5.004,6.166L7.416,6.166L7.416,12L8.584,12L8.584,6.166L10.999,6.166L10.999,5z" />
+    <path
+        android:fillColor="#BF5826"
+        android:pathData="M8,2c3.308,0 6,2.692 6,6s-2.692,6 -6,6c-3.309,0 -6,-2.692 -6,-6s2.691,-6 6,-6m0,-1C4.14,1 1,4.14 1,8s3.14,7 7,7 7,-3.14 7,-7 -3.14,-7 -7,-7" />
+</vector>

@@ -3,7 +3,11 @@ package dev.hansffu.ontime.ui.stoplist.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.hansffu.ontime.model.BoardActivation
+import dev.hansffu.ontime.model.Coordinates
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.service.LocationResult
+import dev.hansffu.ontime.service.LocationService
 import dev.hansffu.ontime.service.SearchService
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -21,7 +25,10 @@ sealed interface SearchUiState {
 }
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(private val searchService: SearchService) : ViewModel() {
+class SearchViewModel @Inject constructor(
+    private val searchService: SearchService,
+    private val locationService: LocationService,
+) : ViewModel() {
     private val mutableUiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
     val uiState: StateFlow<SearchUiState> = mutableUiState.asStateFlow()
 
@@ -39,7 +46,24 @@ class SearchViewModel @Inject constructor(private val searchService: SearchServi
 
                 mutableUiState.value = SearchUiState.Loading(query)
                 try {
-                    mutableUiState.value = SearchUiState.Content(query, searchService.search(query))
+                    val stops = searchService.search(query)
+                    val location =
+                        (locationService.getLatestLocation() as? LocationResult.Success)?.location
+                            ?.let { Coordinates(it.latitude, it.longitude) }
+                    mutableUiState.value =
+                        SearchUiState.Content(
+                            query,
+                            stops.map { stop ->
+                                stop.copy(
+                                    distanceMeters =
+                                        location?.let { from ->
+                                            stop.coordinates?.let { to ->
+                                                BoardActivation.distanceMeters(from, to)
+                                            }
+                                        }
+                                )
+                            },
+                        )
                 } catch (cancellation: CancellationException) {
                     throw cancellation
                 } catch (_: Exception) {

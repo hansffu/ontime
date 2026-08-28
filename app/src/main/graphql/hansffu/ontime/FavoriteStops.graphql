@@ -1,0 +1,9 @@
+query FavoriteStops($ids: [String!]!) {
+    stopPlaces(ids: $ids) {
+        id
+        name
+        latitude
+        longitude
+        transportMode
+    }
+}

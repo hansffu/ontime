@@ -19,9 +19,33 @@ data class Stop(
     val id: String,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val transportModes: Set<StopTransportMode> = emptySet(),
+    val distanceMeters: Double? = null,
 ) {
     val coordinates: Coordinates?
         get() =
             if (latitude != null && longitude != null) Coordinates(latitude, longitude)
             else null
+}
+
+enum class StopTransportMode {
+    AIR,
+    BUS,
+    CABLEWAY,
+    COACH,
+    FUNICULAR,
+    LIFT,
+    METRO,
+    MONORAIL,
+    RAIL,
+    TAXI,
+    TRAM,
+    TROLLEYBUS,
+    WATER,
+    UNKNOWN;
+
+    companion object {
+        fun fromApiName(name: String): StopTransportMode =
+            entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: UNKNOWN
+    }
 }

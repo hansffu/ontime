@@ -54,6 +54,16 @@
     <string name="distance_picker_value">%1$d kilometer</string>
     <string name="confirm">Bekreft</string>
     <string name="distance_away">%1$.1f km unna</string>
+    <string name="distance">Avstand</string>
+    <string name="stop_distance_value">%1$s km</string>
+    <string name="transport_mode_air">Fly</string>
+    <string name="transport_mode_bus">Buss</string>
+    <string name="transport_mode_metro">T-bane</string>
+    <string name="transport_mode_rail">Tog</string>
+    <string name="transport_mode_taxi">Taxi</string>
+    <string name="transport_mode_tram">Trikk</string>
+    <string name="transport_mode_water">Båt</string>
+    <string name="transport_mode_other">Annen transport</string>
     <string name="start_time">Fra</string>
     <string name="end_time">Til</string>
     <string name="board_departures">Avganger</string>
