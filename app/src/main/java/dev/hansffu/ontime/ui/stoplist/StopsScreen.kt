@@ -51,7 +51,7 @@ fun StopsScreen(
     nearbyViewModel: NearbyViewModel = hiltViewModel(),
 ) {
     val favorites = favoritesViewModel.favoriteStops.collectAsStateWithLifecycle().value
-    val activeBoards = favoritesViewModel.activeBoards.collectAsStateWithLifecycle().value
+    val suggestedBoards = favoritesViewModel.suggestedBoards.collectAsStateWithLifecycle().value
     val nearbyStopState = nearbyViewModel.nearbyStopState.collectAsStateWithLifecycle().value
     RefreshOnResume {
         favoritesViewModel.refresh()
@@ -59,7 +59,7 @@ fun StopsScreen(
     }
     val columnState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
-    val activeBoardsLabel = stringResource(R.string.active_boards)
+    val suggestedBoardsLabel = stringResource(R.string.suggested_boards)
     val favoritesTipsLabel = stringResource(R.string.favorites_tips)
     val favoritesHeaderLabel = stringResource(R.string.favorites_header)
     val loadingNearbyLabel = stringResource(R.string.loading_nearby)
@@ -91,13 +91,13 @@ fun StopsScreen(
                 )
             }
 
-            if (activeBoards.isNotEmpty()) {
+            if (suggestedBoards.isNotEmpty()) {
                 listHeaderItem(
-                    "active-boards-header",
-                    activeBoardsLabel,
+                    "suggested-boards-header",
+                    suggestedBoardsLabel,
                     transformationSpec,
                 )
-                items(activeBoards, key = { it.board.id }) { active ->
+                items(suggestedBoards, key = { it.board.id }) { suggested ->
                     Button(
                         modifier =
                             Modifier.fillMaxWidth()
@@ -105,11 +105,11 @@ fun StopsScreen(
                                     ButtonDefaults.minimumVerticalListContentPadding
                                 )
                                 .transformedHeight(this, transformationSpec),
-                        onClick = { onBoardSelected(active.board.id) },
+                        onClick = { onBoardSelected(suggested.board.id) },
                         transformation = SurfaceTransformation(transformationSpec),
-                        label = { Text(active.board.name) },
+                        label = { Text(suggested.board.name) },
                         secondaryLabel =
-                            active.distanceMeters?.let { meters ->
+                            suggested.distanceMeters?.let { meters ->
                                 {
                                     Text(
                                         stringResource(

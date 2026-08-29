@@ -36,8 +36,14 @@
     <string name="remove_favorite_short">Fjern</string>
     <string name="now">Nå</string>
     <string name="minutes_format">%1$d min</string>
-    <string name="active_boards">Aktive tavler</string>
+    <string name="suggested_boards">Foreslåtte tavler</string>
     <string name="manage_boards">Administrer tavler</string>
+    <string name="activate_board">Aktiver tavle</string>
+    <string name="stop_board">Stopp tavle</string>
+    <string name="active_board">Aktiv tavle</string>
+    <string name="active_board_status">Trykk for å åpne tavlen</string>
+    <string name="active_board_notification_channel">Aktive tavler</string>
+    <string name="active_board_notification_channel_description">Viser tavlen som kjører på klokken</string>
     <string name="create_board">Ny tavle</string>
     <string name="no_boards">Ingen tavler ennå</string>
     <string name="board_name">Navn</string>

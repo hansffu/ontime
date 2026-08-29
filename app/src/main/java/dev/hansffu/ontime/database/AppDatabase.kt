@@ -17,7 +17,7 @@ import dev.hansffu.ontime.database.dao.FavoriteStopDao
 
 @Database(
     entities = [FavoriteStop::class, FavoriteDeparture::class, Board::class, BoardDeparture::class],
-    version = 4,
+    version = 5,
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object {
@@ -31,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                         context.applicationContext,
                         AppDatabase::class.java,
                         "app_db",
-                    ).addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+                    ).addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                         .fallbackToDestructiveMigration(true)
                         .build()
                 INSTANCE = db
@@ -106,5 +106,12 @@ private val MIGRATION_3_4 =
                   AND endMinuteOfDay IS NOT NULL
                 """.trimIndent()
             )
+        }
+    }
+
+private val MIGRATION_4_5 =
+    object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE Board ADD COLUMN active INTEGER NOT NULL DEFAULT 0")
         }
     }

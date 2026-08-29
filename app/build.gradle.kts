@@ -50,6 +50,7 @@ android {
 
 dependencies {
     implementation(fileTree("include" to "*.jar", "dir" to "libs"))
+    implementation(libs.androidx.core)
     implementation(libs.material)
     compileOnly(libs.wearable)
     implementation(libs.play.services.location)
@@ -67,6 +68,7 @@ dependencies {
     implementation(libs.androidx.wear.compose.material3)
     implementation(libs.androidx.wear.compose.navigation)
     implementation(libs.androidx.wear.compose.foundation)
+    implementation(libs.androidx.wear.ongoing)
     implementation(libs.androidx.wear.input)
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.compose.material)

@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.hansffu.ontime.database.dao.BoardDao
 import dev.hansffu.ontime.database.dao.FavoriteStopDao
-import dev.hansffu.ontime.model.ActiveBoard
-import dev.hansffu.ontime.model.BoardActivation
+import dev.hansffu.ontime.model.SuggestedBoard
+import dev.hansffu.ontime.model.BoardSuggestion
 import dev.hansffu.ontime.model.Coordinates
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.service.LocationResult
@@ -52,7 +52,7 @@ class FavoritesViewModel @Inject constructor(
                     distanceMeters =
                         coordinates?.let { from ->
                             stop.coordinates?.let { to ->
-                                BoardActivation.distanceMeters(from, to)
+                                BoardSuggestion.distanceMeters(from, to)
                             }
                         }
                 )
@@ -64,12 +64,12 @@ class FavoritesViewModel @Inject constructor(
                 initialValue = emptyList(),
             )
 
-    val activeBoards =
-        combine(boardDao.observeAll(), location, time, BoardActivation::evaluate)
+    val suggestedBoards =
+        combine(boardDao.observeAll(), location, time, BoardSuggestion::evaluate)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList<ActiveBoard>(),
+                initialValue = emptyList<SuggestedBoard>(),
             )
 
     init {

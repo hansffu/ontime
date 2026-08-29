@@ -3,7 +3,7 @@ package dev.hansffu.ontime.ui.stoplist.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.hansffu.ontime.model.BoardActivation
+import dev.hansffu.ontime.model.BoardSuggestion
 import dev.hansffu.ontime.model.Coordinates
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.service.LocationResult
@@ -58,7 +58,7 @@ class SearchViewModel @Inject constructor(
                                     distanceMeters =
                                         location?.let { from ->
                                             stop.coordinates?.let { to ->
-                                                BoardActivation.distanceMeters(from, to)
+                                                BoardSuggestion.distanceMeters(from, to)
                                             }
                                         }
                                 )

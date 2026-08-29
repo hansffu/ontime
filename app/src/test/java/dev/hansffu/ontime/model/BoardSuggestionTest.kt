@@ -6,14 +6,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class BoardActivationTest {
+class BoardSuggestionTest {
     @Test
-    fun boardWithoutConditionsIsInactive() {
-        assertTrue(BoardActivation.evaluate(listOf(Board(name = "Draft")), null, noon).isEmpty())
+    fun boardWithoutConditionsIsNotSuggested() {
+        assertTrue(BoardSuggestion.evaluate(listOf(Board(name = "Draft")), null, noon).isEmpty())
     }
 
     @Test
-    fun timeOnlyBoardActivatesInsideWindow() {
+    fun timeOnlyBoardIsSuggestedInsideWindow() {
         val board =
             Board(
                 name = "Morning",
@@ -24,18 +24,32 @@ class BoardActivationTest {
 
         assertEquals(
             listOf(board),
-            BoardActivation.evaluate(listOf(board), null, LocalTime.of(8, 59)).map { it.board },
+            BoardSuggestion.evaluate(listOf(board), null, LocalTime.of(8, 59)).map { it.board },
         )
         assertTrue(
-            BoardActivation.evaluate(listOf(board), null, LocalTime.of(9, 0)).isEmpty()
+            BoardSuggestion.evaluate(listOf(board), null, LocalTime.of(9, 0)).isEmpty()
         )
     }
 
     @Test
+    fun activeBoardIsNotSuggested() {
+        val board =
+            Board(
+                name = "Running",
+                startMinuteOfDay = 0,
+                endMinuteOfDay = 0,
+                timeEnabled = true,
+                active = true,
+            )
+
+        assertTrue(BoardSuggestion.evaluate(listOf(board), null, noon).isEmpty())
+    }
+
+    @Test
     fun overnightWindowWrapsAcrossMidnight() {
-        assertTrue(BoardActivation.isWithinWindow(23 * 60, 22 * 60, 2 * 60))
-        assertTrue(BoardActivation.isWithinWindow(60, 22 * 60, 2 * 60))
-        assertTrue(!BoardActivation.isWithinWindow(12 * 60, 22 * 60, 2 * 60))
+        assertTrue(BoardSuggestion.isWithinWindow(23 * 60, 22 * 60, 2 * 60))
+        assertTrue(BoardSuggestion.isWithinWindow(60, 22 * 60, 2 * 60))
+        assertTrue(!BoardSuggestion.isWithinWindow(12 * 60, 22 * 60, 2 * 60))
     }
 
     @Test
@@ -49,17 +63,17 @@ class BoardActivationTest {
                 distanceEnabled = true,
             )
 
-        assertTrue(BoardActivation.evaluate(listOf(board), null, noon).isEmpty())
+        assertTrue(BoardSuggestion.evaluate(listOf(board), null, noon).isEmpty())
         assertEquals(
             1,
-            BoardActivation.evaluate(
+            BoardSuggestion.evaluate(
                 listOf(board),
                 Coordinates(59.915, 10.75),
                 noon,
             ).size,
         )
         assertTrue(
-            BoardActivation.evaluate(
+            BoardSuggestion.evaluate(
                 listOf(board),
                 Coordinates(59.93, 10.75),
                 noon,
@@ -82,12 +96,12 @@ class BoardActivationTest {
             )
         val nearby = Coordinates(59.915, 10.75)
 
-        assertEquals(1, BoardActivation.evaluate(listOf(board), nearby, LocalTime.of(8, 0)).size)
-        assertTrue(BoardActivation.evaluate(listOf(board), nearby, LocalTime.of(10, 0)).isEmpty())
+        assertEquals(1, BoardSuggestion.evaluate(listOf(board), nearby, LocalTime.of(8, 0)).size)
+        assertTrue(BoardSuggestion.evaluate(listOf(board), nearby, LocalTime.of(10, 0)).isEmpty())
     }
 
     @Test
-    fun activeBoardsAreOrderedByDistanceThenName() {
+    fun suggestedBoardsAreOrderedByDistanceThenName() {
         val near =
             Board(
                 id = 1,
@@ -117,7 +131,7 @@ class BoardActivationTest {
 
         assertEquals(
             listOf(near, far, timeOnly),
-            BoardActivation.evaluate(
+            BoardSuggestion.evaluate(
                 listOf(timeOnly, far, near),
                 Coordinates(59.91, 10.75),
                 noon,
@@ -128,7 +142,7 @@ class BoardActivationTest {
     @Test
     fun distanceCalculationIsStableEnoughForRadiusChecks() {
         val oneDegreeNorth =
-            BoardActivation.distanceMeters(
+            BoardSuggestion.distanceMeters(
                 Coordinates(59.0, 10.0),
                 Coordinates(60.0, 10.0),
             )
@@ -137,7 +151,7 @@ class BoardActivationTest {
     }
 
     @Test
-    fun disabledRequirementsKeepValuesButDoNotActivateBoard() {
+    fun disabledRequirementsKeepValuesButDoNotSuggestBoard() {
         val board =
             Board(
                 name = "Paused",
@@ -151,7 +165,7 @@ class BoardActivationTest {
             )
 
         assertTrue(
-            BoardActivation.evaluate(
+            BoardSuggestion.evaluate(
                 listOf(board),
                 Coordinates(59.91, 10.75),
                 noon,
@@ -175,7 +189,7 @@ class BoardActivationTest {
 
         assertEquals(
             1,
-            BoardActivation.evaluate(
+            BoardSuggestion.evaluate(
                 listOf(board),
                 Coordinates(60.0, 11.0),
                 noon,
@@ -199,7 +213,7 @@ class BoardActivationTest {
 
         assertEquals(
             1,
-            BoardActivation.evaluate(
+            BoardSuggestion.evaluate(
                 listOf(board),
                 Coordinates(59.91, 10.75),
                 noon,

@@ -1,6 +1,7 @@
 package dev.hansffu.ontime.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -34,10 +35,21 @@ import dev.hansffu.ontime.viewmodels.BoardEditorViewModel
 import dev.hansffu.ontime.viewmodels.TimetableViewModel
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(
+    boardToOpen: Long? = null,
+    onBoardOpened: () -> Unit = {},
+) {
     OntimeTheme {
         val navController = rememberSwipeDismissableNavController()
         val currentEntry by navController.currentBackStackEntryAsState()
+        LaunchedEffect(boardToOpen) {
+            boardToOpen?.let { boardId ->
+                navController.navigate(Screen.BoardTimetable(boardId).route()) {
+                    launchSingleTop = true
+                }
+                onBoardOpened()
+            }
+        }
         val currentRoute = currentEntry?.destination?.route
         val pickerOpen =
             currentRoute == Screen.BoardTimePicker.route ||

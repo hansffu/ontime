@@ -1,8 +1,10 @@
 package dev.hansffu.ontime.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.hansffu.ontime.database.dao.Board
 import dev.hansffu.ontime.database.dao.BoardDao
@@ -11,14 +13,15 @@ import dev.hansffu.ontime.database.dao.BoardDepartureDao
 import dev.hansffu.ontime.database.dao.FavoriteDeparture
 import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
 import dev.hansffu.ontime.graphql.StopPlaceQuery
-import dev.hansffu.ontime.model.BoardActivation
-import dev.hansffu.ontime.model.BoardDistance
-import dev.hansffu.ontime.model.BoardTime
 import dev.hansffu.ontime.model.BoardDepartureOrdering
+import dev.hansffu.ontime.model.BoardDistance
+import dev.hansffu.ontime.model.BoardSuggestion
+import dev.hansffu.ontime.model.BoardTime
 import dev.hansffu.ontime.model.Coordinates
 import dev.hansffu.ontime.model.LineDeparture
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.model.Stop
+import dev.hansffu.ontime.service.ActiveBoardService
 import dev.hansffu.ontime.service.LocationResult
 import dev.hansffu.ontime.service.LocationService
 import dev.hansffu.ontime.service.StopService
@@ -30,10 +33,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -247,12 +255,20 @@ class BoardTimetableViewModel @Inject constructor(
     private val favoriteDepartureDao: FavoriteDepartureDao,
     private val stopService: StopService,
     private val locationService: LocationService,
+    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val boardId: Long = checkNotNull(savedStateHandle["boardId"])
     private val mutableUiState = MutableStateFlow<BoardTimetableState>(BoardTimetableState.Loading)
     val uiState = mutableUiState
+    val board =
+        boardDao.observeById(boardId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null,
+        )
     private var loadJob: Job? = null
+    private var latestLocation: Coordinates? = null
 
     init {
         viewModelScope.launch {
@@ -265,16 +281,53 @@ class BoardTimetableViewModel @Inject constructor(
                     if (board != null) load(board, departures, favorites)
                 }
         }
+        viewModelScope.launch {
+            board.map { it?.active == true }
+                .distinctUntilChanged()
+                .collectLatest { active ->
+                    if (active) {
+                        var refreshCount = 0
+                        while (isActive) {
+                            delay(DEPARTURE_REFRESH_INTERVAL_MILLIS)
+                            refreshCount += 1
+                            refresh(
+                                updateLocation =
+                                    refreshCount % LOCATION_REFRESH_EVERY_N_DEPARTURE_REFRESHES == 0
+                            )
+                        }
+                    }
+                }
+        }
     }
 
-    fun refresh() {
+    fun refresh() = refresh(updateLocation = true)
+
+    private fun refresh(updateLocation: Boolean) {
         viewModelScope.launch {
             val board = boardDao.getById(boardId) ?: return@launch
             val stored = boardDepartureDao.getForBoard(boardId)
             val favorites = favoriteDepartureDao.getAll()
-            load(board, stored, favorites, keepContent = true)
+            load(
+                board,
+                stored,
+                favorites,
+                keepContent = true,
+                updateLocation = updateLocation,
+            )
         }
     }
+
+    fun activate() =
+        viewModelScope.launch(Dispatchers.IO) {
+            val board = boardDao.getById(boardId) ?: return@launch
+            boardDao.activate(boardId)
+            ActiveBoardService.start(context, board.copy(active = true))
+        }
+
+    fun deactivate() =
+        viewModelScope.launch(Dispatchers.IO) {
+            boardDao.deactivate(boardId)
+        }
 
     fun toggleFavorite(row: BoardDepartureRow) =
         viewModelScope.launch(Dispatchers.IO) {
@@ -298,6 +351,7 @@ class BoardTimetableViewModel @Inject constructor(
         stored: List<BoardDeparture>,
         favorites: List<FavoriteDeparture>,
         keepContent: Boolean = false,
+        updateLocation: Boolean = true,
     ) {
         loadJob?.cancel()
         loadJob =
@@ -310,9 +364,12 @@ class BoardTimetableViewModel @Inject constructor(
                         BoardTimetableState.Loading
                     }
                 try {
-                    val location =
-                        (locationService.getLatestLocation() as? LocationResult.Success)?.location
-                            ?.let { Coordinates(it.latitude, it.longitude) }
+                    if (updateLocation || latestLocation == null) {
+                        latestLocation =
+                            (locationService.getLatestLocation() as? LocationResult.Success)?.location
+                                ?.let { Coordinates(it.latitude, it.longitude) }
+                    }
+                    val location = latestLocation
                     val callsByStop =
                         coroutineScope {
                             stored.distinctBy { it.stopId }.map { item ->
@@ -336,7 +393,7 @@ class BoardTimetableViewModel @Inject constructor(
                                 departure = line,
                                 distanceMeters =
                                     if (location != null && stopCoordinates != null) {
-                                        BoardActivation.distanceMeters(location, stopCoordinates)
+                                        BoardSuggestion.distanceMeters(location, stopCoordinates)
                                     } else null,
                                 isFavorite =
                                     favorites.any {
@@ -362,5 +419,10 @@ class BoardTimetableViewModel @Inject constructor(
                             ?: BoardTimetableState.Error(board.name)
                 }
             }
+    }
+
+    companion object {
+        private const val DEPARTURE_REFRESH_INTERVAL_MILLIS = 60_000L
+        private const val LOCATION_REFRESH_EVERY_N_DEPARTURE_REFRESHES = 2
     }
 }

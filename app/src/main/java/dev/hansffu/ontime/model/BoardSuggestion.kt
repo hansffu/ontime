@@ -9,18 +9,19 @@ import kotlin.math.sqrt
 
 data class Coordinates(val latitude: Double, val longitude: Double)
 
-data class ActiveBoard(
+data class SuggestedBoard(
     val board: Board,
     val distanceMeters: Double?,
 )
 
-object BoardActivation {
+object BoardSuggestion {
     fun evaluate(
         boards: List<Board>,
         location: Coordinates?,
         time: LocalTime,
-    ): List<ActiveBoard> =
+    ): List<SuggestedBoard> =
         boards.mapNotNull { board ->
+            if (board.active) return@mapNotNull null
             val hasDistanceCondition =
                 board.distanceEnabled &&
                     board.maxDistanceMeters != null &&
@@ -36,25 +37,25 @@ object BoardActivation {
                 if (hasDistanceCondition && location != null) {
                     distanceMeters(
                         location,
-                        Coordinates(board.activationLatitude!!, board.activationLongitude!!),
+                        Coordinates(board.activationLatitude, board.activationLongitude),
                     )
                 } else {
                     null
                 }
             val distanceMatches =
                 !hasDistanceCondition ||
-                    (distance != null && distance <= board.maxDistanceMeters!!)
+                    (distance != null && distance <= board.maxDistanceMeters)
             val timeMatches =
                 !hasTimeCondition ||
                     isWithinWindow(
                         time.toSecondOfDay() / 60,
-                        board.startMinuteOfDay!!,
-                        board.endMinuteOfDay!!,
+                        board.startMinuteOfDay,
+                        board.endMinuteOfDay,
                     )
 
-            if (distanceMatches && timeMatches) ActiveBoard(board, distance) else null
+            if (distanceMatches && timeMatches) SuggestedBoard(board, distance) else null
         }.sortedWith(
-            compareBy<ActiveBoard> { it.distanceMeters ?: Double.POSITIVE_INFINITY }
+            compareBy<SuggestedBoard> { it.distanceMeters ?: Double.POSITIVE_INFINITY }
                 .thenBy(String.CASE_INSENSITIVE_ORDER) { it.board.name }
                 .thenBy { it.board.id }
         )

@@ -1,8 +1,17 @@
 package dev.hansffu.ontime.ui.boards
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -14,19 +23,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.content.ContextCompat
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
+import androidx.wear.compose.material3.FilledIconButton
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.material3.touchTargetAwareSize
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.database.dao.BoardDeparture
 import dev.hansffu.ontime.model.BoardDepartureOrdering
@@ -49,6 +66,25 @@ fun BoardTimetableScreen(
     viewModel: BoardTimetableViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val board by viewModel.board.collectAsStateWithLifecycle()
+    val isActive = board?.active == true
+    val context = LocalContext.current
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) viewModel.activate()
+        }
+    val activateBoard: () -> Unit = {
+        if (
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            viewModel.activate()
+        } else {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
     var now by remember { mutableStateOf(OffsetDateTime.now()) }
     RefreshOnResume {
         now = OffsetDateTime.now()
@@ -81,7 +117,26 @@ fun BoardTimetableScreen(
                 onRefresh = viewModel::refresh,
             ),
     ) {
-        ScreenScaffold(scrollState = columnState) { contentPadding ->
+        ScreenScaffold(
+            scrollState = columnState,
+            edgeButton = {
+                if (isActive) {
+                    val stopLabel = stringResource(R.string.stop_board)
+                    EdgeButton(
+                        onClick = viewModel::deactivate,
+                        buttonSize = EdgeButtonSize.ExtraSmall,
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError,
+                                iconColor = MaterialTheme.colorScheme.onError,
+                            ),
+                    ) {
+                        Icon(Icons.Default.Stop, stopLabel)
+                    }
+                }
+            },
+        ) { contentPadding ->
             TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
                 when (val state = uiState) {
                     BoardTimetableState.Loading ->
@@ -89,6 +144,17 @@ fun BoardTimetableScreen(
 
                     is BoardTimetableState.Error -> {
                         listHeaderItem("board-header", state.boardName, transformationSpec)
+                        if (!isActive && board != null) {
+                            item("activate-board") {
+                                Box(
+                                    modifier =
+                                        Modifier.padding(bottom = 12.dp)
+                                            .transformedHeight(this, transformationSpec),
+                                ) {
+                                    ActivateBoardButton(onClick = activateBoard)
+                                }
+                            }
+                        }
                         retryItem(
                             "board-error",
                             errorLabel,
@@ -111,6 +177,17 @@ fun BoardTimetableScreen(
                                 row.departure.departures.minOfOrNull { it.expectedArrivalTime }
                             }
                         listHeaderItem("board-header", state.boardName, transformationSpec)
+                        if (!isActive && board != null) {
+                            item("activate-board") {
+                                Box(
+                                    modifier =
+                                        Modifier.padding(bottom = 12.dp)
+                                            .transformedHeight(this, transformationSpec),
+                                ) {
+                                    ActivateBoardButton(onClick = activateBoard)
+                                }
+                            }
+                        }
                         if (state.refreshFailed) {
                             retryItem(
                                 "board-refresh-error",
@@ -164,6 +241,23 @@ fun BoardTimetableScreen(
             state = pullState,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    }
+}
+
+@Composable
+private fun ActivateBoardButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val activateLabel = stringResource(R.string.activate_board)
+    FilledIconButton(
+        onClick = onClick,
+        modifier = modifier.touchTargetAwareSize(IconButtonDefaults.SmallButtonSize),
+    ) {
+        Icon(
+            Icons.Default.PlayArrow,
+            activateLabel,
+            Modifier.size(
+                IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallButtonSize)
+            ),
         )
     }
 }
