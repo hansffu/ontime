@@ -10,6 +10,7 @@ query StopPlace($id: String!) {
             includeCancelledTrips: false,
             timeRange: 3600,
         ){
+            aimedArrivalTime
             expectedArrivalTime
             destinationDisplay{
                 frontText

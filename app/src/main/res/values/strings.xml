@@ -24,6 +24,8 @@
     <string name="departures_error">Kunne ikke hente avganger</string>
     <string name="no_departures">Ingen kommende avganger</string>
     <string name="refresh_failed">Kunne ikke oppdatere. Viser sist hentede avganger.</string>
+    <string name="departure_card_collapsed">Sammenfoldet</string>
+    <string name="departure_card_expanded">Utvidet</string>
     <string name="favorite_departures_header">Favoritter</string>
     <string name="other_departures_header">Andre avganger</string>
     <string name="add_stop_favorite">Legg stopp til i favoritter</string>

@@ -1,6 +1,7 @@
 package dev.hansffu.ontime.ui.components.timetable
 
 import android.text.format.DateFormat
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +11,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,6 +23,9 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LineDepartureCard(
     lineDirectionRef: LineDirectionRef,
-    departureTimes: List<OffsetDateTime>,
+    departureTimes: List<DepartureTime>,
     isFavorite: Boolean,
     toggleFavorite: (LineDirectionRef) -> Unit,
     color: String,
@@ -56,6 +64,14 @@ fun LineDepartureCard(
     stopName: String? = null,
     manageBoards: (() -> Unit)? = null,
 ) {
+    var expanded by
+        rememberSaveable(
+            lineDirectionRef.lineRef,
+            lineDirectionRef.destinationRef,
+            stopName,
+        ) {
+            mutableStateOf(false)
+        }
     val coroutineScope = rememberCoroutineScope()
     val actionDescription =
         stringResource(
@@ -68,6 +84,11 @@ fun LineDepartureCard(
             else R.string.add_favorite_short
         )
     val transitColor = rememberTransitColor(color)
+    val expansionStateDescription =
+        stringResource(
+            if (expanded) R.string.departure_card_expanded
+            else R.string.departure_card_collapsed
+        )
     val accentColor =
         if (transitColor.luminance() < 0.2f) lerp(transitColor, Color.White, 0.38f)
         else transitColor
@@ -115,10 +136,15 @@ fun LineDepartureCard(
         onSwipePrimaryAction = toggleAndClose,
     ) {
         Card(
+            onClick = { expanded = !expanded },
+            modifier = Modifier.semantics { stateDescription = expansionStateDescription },
             colors = CardDefaults.cardColors(),
             transformation = transformation,
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Column(
+                modifier = Modifier.animateContentSize(),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
                 if (stopName != null) {
                     Text(
                         text = stopName,
@@ -146,21 +172,25 @@ fun LineDepartureCard(
                         color = accentColor,
                     )
                 }
-                DepartureTimes(departureTimes = departureTimes, now = now)
+                if (expanded) {
+                    ExpandedDepartureTimes(departureTimes = departureTimes, now = now)
+                } else {
+                    CollapsedDepartureTimes(departureTimes = departureTimes, now = now)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DepartureTimes(
-    departureTimes: List<OffsetDateTime>,
+private fun CollapsedDepartureTimes(
+    departureTimes: List<DepartureTime>,
     now: OffsetDateTime,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         departureTimes.take(3).forEach { departure ->
             Text(
-                text = departure.toTimeString(now),
+                text = departure.expected.toTimeString(now),
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
                 style = MaterialTheme.typography.bodyMedium,
@@ -168,6 +198,48 @@ private fun DepartureTimes(
             )
         }
     }
+}
+
+@Composable
+private fun ExpandedDepartureTimes(
+    departureTimes: List<DepartureTime>,
+    now: OffsetDateTime,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        departureTimes.forEach { departure ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = departure.expected.toTimeString(now),
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (departure.isDelayed) {
+                    Text(
+                        text = departure.aimed.toClockTimeString(),
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        textDecoration = TextDecoration.LineThrough,
+                    )
+                }
+            }
+        }
+    }
+}
+
+data class DepartureTime(
+    val aimed: OffsetDateTime,
+    val expected: OffsetDateTime,
+) {
+    val isDelayed: Boolean
+        get() = expected.isAfter(aimed)
 }
 
 @Composable
@@ -181,6 +253,12 @@ private fun OffsetDateTime.toTimeString(now: OffsetDateTime): String {
             formatter.format(Date.from(toInstant()))
         }
     }
+}
+
+@Composable
+private fun OffsetDateTime.toClockTimeString(): String {
+    val formatter = DateFormat.getTimeFormat(LocalContext.current)
+    return formatter.format(Date.from(toInstant()))
 }
 
 @Composable
@@ -199,19 +277,29 @@ private fun rememberTransitColor(color: String): Color {
 @Composable
 private fun LineDepartureCardPreview() {
     OntimeTheme {
+        val now = OffsetDateTime.now(ZoneId.systemDefault())
         LineDepartureCard(
             lineDirectionRef = LineDirectionRef("23", "Lysaker"),
             departureTimes =
                 listOf(
-                    OffsetDateTime.now(),
-                    OffsetDateTime.now().plus(8, ChronoUnit.MINUTES),
-                    OffsetDateTime.now().plus(24, ChronoUnit.MINUTES),
-                    OffsetDateTime.now().plus(44, ChronoUnit.MINUTES),
+                    DepartureTime(now, now),
+                    DepartureTime(
+                        aimed = now.plus(4, ChronoUnit.MINUTES),
+                        expected = now.plus(8, ChronoUnit.MINUTES),
+                    ),
+                    DepartureTime(
+                        now.plus(24, ChronoUnit.MINUTES),
+                        now.plus(24, ChronoUnit.MINUTES),
+                    ),
+                    DepartureTime(
+                        now.plus(44, ChronoUnit.MINUTES),
+                        now.plus(44, ChronoUnit.MINUTES),
+                    ),
                 ),
             isFavorite = true,
             toggleFavorite = {},
             color = "E60000",
-            now = OffsetDateTime.now(ZoneId.systemDefault()),
+            now = now,
             stopName = "Example stop",
             manageBoards = {},
         )

@@ -35,6 +35,7 @@ import dev.hansffu.ontime.ui.components.RefreshOnResume
 import dev.hansffu.ontime.ui.components.listHeaderItem
 import dev.hansffu.ontime.ui.components.messageItem
 import dev.hansffu.ontime.ui.components.retryItem
+import dev.hansffu.ontime.ui.components.timetable.DepartureTime
 import dev.hansffu.ontime.ui.components.timetable.LineDepartureCard
 import dev.hansffu.ontime.viewmodels.BoardDepartureRow
 import dev.hansffu.ontime.viewmodels.BoardTimetableState
@@ -133,7 +134,10 @@ fun BoardTimetableScreen(
                                 lineDirectionRef = row.departure.lineDirectionRef,
                                 departureTimes =
                                     row.departure.departures.map {
-                                        it.expectedArrivalTime
+                                        DepartureTime(
+                                            aimed = it.aimedArrivalTime,
+                                            expected = it.expectedArrivalTime,
+                                        )
                                     },
                                 isFavorite = row.isFavorite,
                                 toggleFavorite = { viewModel.toggleFavorite(row) },

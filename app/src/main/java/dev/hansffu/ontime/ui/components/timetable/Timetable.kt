@@ -125,7 +125,13 @@ private fun TransformingLazyColumnItemScope.DepartureItem(
 ) {
     LineDepartureCard(
         lineDirectionRef = line.lineDirectionRef,
-        departureTimes = line.departures.map { it.expectedArrivalTime },
+        departureTimes =
+            line.departures.map {
+                DepartureTime(
+                    aimed = it.aimedArrivalTime,
+                    expected = it.expectedArrivalTime,
+                )
+            },
         isFavorite = favorite,
         toggleFavorite = toggleFavorite,
         color = line.color,
