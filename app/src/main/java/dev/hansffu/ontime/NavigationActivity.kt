@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dagger.hilt.android.AndroidEntryPoint
 import dev.hansffu.ontime.ui.navigation.MainNavigation
+import dev.hansffu.ontime.ui.ambient.AmbientBoardHost
 
 @AndroidEntryPoint
 class NavigationActivity : ComponentActivity() {
@@ -19,10 +20,12 @@ class NavigationActivity : ComponentActivity() {
         boardToOpen = intent.boardId()
 
         setContent {
-            MainNavigation(
-                boardToOpen = boardToOpen,
-                onBoardOpened = { boardToOpen = null },
-            )
+            AmbientBoardHost {
+                MainNavigation(
+                    boardToOpen = boardToOpen,
+                    onBoardOpened = { boardToOpen = null },
+                )
+            }
         }
     }
 

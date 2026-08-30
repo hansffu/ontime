@@ -103,4 +103,6 @@
         <item quantity="one">%1$d sekund</item>
         <item quantity="other">%1$d sekunder</item>
     </plurals>
+    <string name="ambient_location_unknown">Posisjon ukjent</string>
+    <string name="ambient_stale_departures">Utdaterte avganger</string>
 </resources>

@@ -11,6 +11,8 @@ import dev.hansffu.ontime.model.BoardDepartureOrdering
 import dev.hansffu.ontime.model.BoardDepartureRow
 import dev.hansffu.ontime.model.BoardSuggestion
 import dev.hansffu.ontime.model.Coordinates
+import dev.hansffu.ontime.model.LineDeparture
+import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.viewmodels.DepartureMappers
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -62,12 +64,13 @@ class DefaultBoardTimetableSource @Inject constructor(
     ): List<BoardDepartureRow> {
         Log.d("BoardTimetable", "Refreshing departures for board ${inputs.board?.id}")
         val callsByStop = boardDeparturesService.getDepartures(inputs.departures)
-        val rows = inputs.departures.mapNotNull { item ->
-            val stopPlace = callsByStop[item.stopId] ?: return@mapNotNull null
-            val line = DepartureMappers.toLineDepartures(stopPlace).firstOrNull {
+        // Keep empty stops for ambient nearest-stop selection. Interactive lists already
+        // remove empty lines with withUpcomingDepartures.
+        val rows = inputs.departures.map { item ->
+            val line = callsByStop[item.stopId]?.let(DepartureMappers::toLineDepartures)?.firstOrNull {
                 it.lineDirectionRef.lineRef == item.lineRef &&
                     it.lineDirectionRef.destinationRef == item.destinationRef
-            } ?: return@mapNotNull null
+            } ?: LineDeparture(LineDirectionRef(item.lineRef, item.destinationRef), emptyList(), "000000")
             val stopCoordinates =
                 if (item.stopLatitude != null && item.stopLongitude != null) {
                     Coordinates(item.stopLatitude, item.stopLongitude)

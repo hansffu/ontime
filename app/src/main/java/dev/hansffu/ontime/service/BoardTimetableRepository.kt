@@ -135,7 +135,9 @@ class BoardTimetableRepository internal constructor(
                 val rows = withTimeoutOrNull(DEPARTURE_TIMEOUT_MILLIS) {
                     source.getRows(inputs, cache.location)
                 } ?: throw IOException("Board refresh timed out")
-                cache.state.value = BoardTimetableState.Content(board.name, rows)
+                cache.state.value = BoardTimetableState.Content(
+                    board.name, rows, updatedAtElapsedMillis = elapsedMillis(),
+                )
             } catch (cancellation: CancellationException) {
                 cache.state.value = previousState
                 cache.lastAttempt = previousAttempt

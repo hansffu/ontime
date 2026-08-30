@@ -9,6 +9,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.wear.compose.foundation.AmbientMode
+import androidx.wear.compose.foundation.LocalAmbientModeManager
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
@@ -54,9 +56,10 @@ fun MainNavigation(
         val pickerOpen =
             currentRoute == Screen.BoardTimePicker.route ||
                 currentRoute == Screen.BoardDistancePicker.route
+        val isAmbient = LocalAmbientModeManager.current?.currentAmbientMode is AmbientMode.Ambient
         AppScaffold(
             timeText = {
-                if (!pickerOpen) TimeText()
+                if (!pickerOpen && !isAmbient) TimeText()
             }
         ) {
             val openTimetable = { stop: Stop ->

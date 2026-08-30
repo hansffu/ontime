@@ -17,5 +17,6 @@ sealed interface BoardTimetableState {
         val rows: List<BoardDepartureRow>,
         val refreshing: Boolean = false,
         val refreshFailed: Boolean = false,
+        val updatedAtElapsedMillis: Long? = null,
     ) : BoardTimetableState
 }

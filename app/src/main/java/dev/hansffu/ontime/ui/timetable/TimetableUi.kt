@@ -25,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.wear.compose.foundation.AmbientMode
+import androidx.wear.compose.foundation.LocalAmbientModeManager
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.ButtonDefaults
@@ -70,7 +72,10 @@ fun TimetableUi(
         )
     val addStopFavoriteDescription = stringResource(R.string.add_stop_favorite)
     val removeStopFavoriteDescription = stringResource(R.string.remove_stop_favorite)
-    LaunchedEffect(Unit) {
+    val isAmbient = LocalAmbientModeManager.current?.currentAmbientMode is AmbientMode.Ambient
+    LaunchedEffect(isAmbient) {
+        if (isAmbient) return@LaunchedEffect
+        now = OffsetDateTime.now()
         while (true) {
             delay(30_000)
             now = OffsetDateTime.now()

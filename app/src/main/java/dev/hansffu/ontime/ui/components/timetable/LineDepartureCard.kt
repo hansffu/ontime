@@ -1,6 +1,5 @@
 package dev.hansffu.ontime.ui.components.timetable
 
-import android.text.format.DateFormat
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
@@ -43,11 +41,9 @@ import androidx.wear.compose.material3.rememberRevealState
 import dev.hansffu.ontime.R
 import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.ui.theme.OntimeTheme
-import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-import java.util.Date
 import kotlinx.coroutines.launch
 
 @Composable
@@ -190,7 +186,7 @@ private fun CollapsedDepartureTimes(
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         departureTimes.take(3).forEach { departure ->
             Text(
-                text = departure.expected.toTimeString(now),
+                text = departure.expected.toDepartureTimeString(now),
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
                 style = MaterialTheme.typography.bodyMedium,
@@ -213,7 +209,7 @@ private fun ExpandedDepartureTimes(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = departure.expected.toTimeString(now),
+                    text = departure.expected.toDepartureTimeString(now),
                     overflow = TextOverflow.Ellipsis,
                     softWrap = false,
                     style = MaterialTheme.typography.bodyMedium,
@@ -240,25 +236,6 @@ data class DepartureTime(
 ) {
     val isDelayed: Boolean
         get() = expected.isAfter(aimed)
-}
-
-@Composable
-private fun OffsetDateTime.toTimeString(now: OffsetDateTime): String {
-    val minutes = Duration.between(now, this).toMinutes()
-    return when {
-        minutes <= 0 -> stringResource(R.string.now)
-        minutes < 20 -> stringResource(R.string.minutes_format, minutes)
-        else -> {
-            val formatter = DateFormat.getTimeFormat(LocalContext.current)
-            formatter.format(Date.from(toInstant()))
-        }
-    }
-}
-
-@Composable
-private fun OffsetDateTime.toClockTimeString(): String {
-    val formatter = DateFormat.getTimeFormat(LocalContext.current)
-    return formatter.format(Date.from(toInstant()))
 }
 
 @Composable

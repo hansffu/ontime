@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.content.ContextCompat
+import androidx.wear.compose.foundation.AmbientMode
+import androidx.wear.compose.foundation.LocalAmbientModeManager
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -97,7 +99,10 @@ fun BoardTimetableScreen(
     val retryLabel = stringResource(R.string.retry)
     val refreshFailedLabel = stringResource(R.string.refresh_failed)
     val emptyLabel = stringResource(R.string.no_board_departures)
-    LaunchedEffect(Unit) {
+    val isAmbient = LocalAmbientModeManager.current?.currentAmbientMode is AmbientMode.Ambient
+    LaunchedEffect(isAmbient) {
+        if (isAmbient) return@LaunchedEffect
+        now = OffsetDateTime.now()
         while (true) {
             delay(30_000)
             now = OffsetDateTime.now()

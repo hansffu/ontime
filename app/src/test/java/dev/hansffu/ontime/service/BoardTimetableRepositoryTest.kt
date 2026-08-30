@@ -114,6 +114,7 @@ class BoardTimetableRepositoryTest {
         runCurrent()
         val failed = repository.cachedState(1) as BoardTimetableState.Content
         assertEquals(before.rows, failed.rows)
+        assertEquals(before.updatedAtElapsedMillis, failed.updatedAtElapsedMillis)
         assertTrue(failed.refreshFailed)
         assertFalse(failed.refreshing)
         repository.openBoard(1)
@@ -122,7 +123,9 @@ class BoardTimetableRepositoryTest {
         advanceTimeBy(60_000)
         runCurrent()
         assertEquals(3, source.requests.size)
-        assertFalse((repository.cachedState(1) as BoardTimetableState.Content).refreshFailed)
+        val recovered = repository.cachedState(1) as BoardTimetableState.Content
+        assertFalse(recovered.refreshFailed)
+        assertEquals(120_000L, recovered.updatedAtElapsedMillis)
     }
 
     @Test fun unavailableLocationIsAttemptedEveryTwoMinutesNotEveryTick() = runTest {
