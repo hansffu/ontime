@@ -1,15 +1,19 @@
 package dev.hansffu.ontime.service
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.location.LocationManager
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import androidx.wear.ongoing.OngoingActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dev.hansffu.ontime.NavigationActivity
@@ -23,14 +27,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ActiveBoardService : Service() {
     @Inject lateinit var boardDao: BoardDao
+    @Inject lateinit var timetableRepository: BoardTimetableRepository
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var activeBoardJob: Job? = null
+    private var locationForegroundEnabled = false
 
     override fun onCreate() {
         super.onCreate()
@@ -49,12 +56,13 @@ class ActiveBoardService : Service() {
         if (activeBoardJob == null) {
             activeBoardJob =
                 serviceScope.launch {
-                    boardDao.observeActive().collectLatest { board ->
+                    boardDao.observeActive().distinctUntilChanged().collectLatest { board ->
                         if (board == null) {
                             stopForeground(STOP_FOREGROUND_REMOVE)
                             stopSelf()
                         } else {
                             showOngoingActivity(board.id, board.name)
+                            timetableRepository.runActiveBoard(board.id) { locationForegroundEnabled }
                         }
                     }
                 }
@@ -90,7 +98,7 @@ class ActiveBoardService : Service() {
             NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(boardName)
                 .setContentText(getString(R.string.active_board_status))
-                .setSmallIcon(R.drawable.ic_board_activity)
+                .setSmallIcon(R.drawable.ic_app_monochrome)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setContentIntent(pendingIntent)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -100,16 +108,34 @@ class ActiveBoardService : Service() {
         OngoingActivity.Builder(this, NOTIFICATION_ID, notificationBuilder)
             .setTitle(boardName)
             .setContentDescription(boardName)
-            .setStaticIcon(R.drawable.ic_board_activity)
+            .setStaticIcon(R.drawable.ic_app_monochrome)
             .setTouchIntent(pendingIntent)
             .build()
             .apply(this)
 
-        startForeground(
-            NOTIFICATION_ID,
-            notificationBuilder.build(),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+        val notification = notificationBuilder.build()
+        val hasLocationPermission = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ).any { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+        val locationEnabled = LocationManagerCompat.isLocationEnabled(
+            getSystemService(LocationManager::class.java)
         )
+        locationForegroundEnabled = hasLocationPermission && locationEnabled
+        val serviceTypes = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
+            if (locationForegroundEnabled) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0
+        try {
+            startForeground(NOTIFICATION_ID, notification, serviceTypes)
+        } catch (permissionUnavailable: SecurityException) {
+            if (!locationForegroundEnabled) throw permissionUnavailable
+            // A background restart or revoked while-in-use grant must not stop departure polling.
+            locationForegroundEnabled = false
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+            )
+        }
     }
 
     private fun createNotificationChannel() {

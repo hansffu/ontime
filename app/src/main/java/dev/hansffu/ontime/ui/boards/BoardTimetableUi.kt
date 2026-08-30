@@ -54,8 +54,8 @@ import dev.hansffu.ontime.ui.components.messageItem
 import dev.hansffu.ontime.ui.components.retryItem
 import dev.hansffu.ontime.ui.components.timetable.DepartureTime
 import dev.hansffu.ontime.ui.components.timetable.LineDepartureCard
-import dev.hansffu.ontime.viewmodels.BoardDepartureRow
-import dev.hansffu.ontime.viewmodels.BoardTimetableState
+import dev.hansffu.ontime.model.BoardDepartureRow
+import dev.hansffu.ontime.model.BoardTimetableState
 import dev.hansffu.ontime.viewmodels.BoardTimetableViewModel
 import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
@@ -88,7 +88,7 @@ fun BoardTimetableScreen(
     var now by remember { mutableStateOf(OffsetDateTime.now()) }
     RefreshOnResume {
         now = OffsetDateTime.now()
-        viewModel.refresh()
+        viewModel.refreshOnResume()
     }
     val columnState = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()

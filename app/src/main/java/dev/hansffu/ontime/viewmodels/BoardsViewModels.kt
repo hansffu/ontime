@@ -12,36 +12,18 @@ import dev.hansffu.ontime.database.dao.BoardDeparture
 import dev.hansffu.ontime.database.dao.BoardDepartureDao
 import dev.hansffu.ontime.database.dao.FavoriteDeparture
 import dev.hansffu.ontime.database.dao.FavoriteDepartureDao
-import dev.hansffu.ontime.graphql.StopPlaceQuery
-import dev.hansffu.ontime.model.BoardDepartureOrdering
 import dev.hansffu.ontime.model.BoardDistance
-import dev.hansffu.ontime.model.BoardSuggestion
+import dev.hansffu.ontime.model.BoardDepartureRow
 import dev.hansffu.ontime.model.BoardTime
-import dev.hansffu.ontime.model.Coordinates
-import dev.hansffu.ontime.model.LineDeparture
-import dev.hansffu.ontime.model.LineDirectionRef
 import dev.hansffu.ontime.model.Stop
 import dev.hansffu.ontime.service.ActiveBoardService
-import dev.hansffu.ontime.service.LocationResult
-import dev.hansffu.ontime.service.LocationService
-import dev.hansffu.ontime.service.StopService
+import dev.hansffu.ontime.service.BoardTimetableRepository
 import java.time.LocalTime
 import javax.inject.Inject
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -230,91 +212,41 @@ class BoardAssignmentViewModel @Inject constructor(
         )
 }
 
-data class BoardDepartureRow(
-    val stored: BoardDeparture,
-    val departure: LineDeparture,
-    val distanceMeters: Double?,
-    val isFavorite: Boolean,
-)
-
-sealed interface BoardTimetableState {
-    data object Loading : BoardTimetableState
-    data class Error(val boardName: String) : BoardTimetableState
-    data class Content(
-        val boardName: String,
-        val rows: List<BoardDepartureRow>,
-        val refreshing: Boolean = false,
-        val refreshFailed: Boolean = false,
-    ) : BoardTimetableState
-}
-
 @HiltViewModel
 class BoardTimetableViewModel @Inject constructor(
     private val boardDao: BoardDao,
-    private val boardDepartureDao: BoardDepartureDao,
     private val favoriteDepartureDao: FavoriteDepartureDao,
-    private val stopService: StopService,
-    private val locationService: LocationService,
+    private val timetableRepository: BoardTimetableRepository,
     @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val boardId: Long = checkNotNull(savedStateHandle["boardId"])
-    private val mutableUiState = MutableStateFlow<BoardTimetableState>(BoardTimetableState.Loading)
-    val uiState = mutableUiState
+    val uiState =
+        timetableRepository.observe(boardId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = timetableRepository.cachedState(boardId),
+        )
     val board =
         boardDao.observeById(boardId).stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = null,
         )
-    private var loadJob: Job? = null
-    private var latestLocation: Coordinates? = null
 
     init {
         viewModelScope.launch {
-            combine(
-                boardDao.observeById(boardId),
-                boardDepartureDao.observeForBoard(boardId),
-                favoriteDepartureDao.observeAll(),
-            ) { board, departures, favorites -> Triple(board, departures, favorites) }
-                .collect { (board, departures, favorites) ->
-                    if (board != null) load(board, departures, favorites)
-                }
-        }
-        viewModelScope.launch {
-            board.map { it?.active == true }
-                .distinctUntilChanged()
-                .collectLatest { active ->
-                    if (active) {
-                        var refreshCount = 0
-                        while (isActive) {
-                            delay(DEPARTURE_REFRESH_INTERVAL_MILLIS)
-                            refreshCount += 1
-                            refresh(
-                                updateLocation =
-                                    refreshCount % LOCATION_REFRESH_EVERY_N_DEPARTURE_REFRESHES == 0
-                            )
-                        }
-                    }
-                }
+            timetableRepository.openBoard(boardId)
+            timetableRepository.watchConfiguration(boardId)
         }
     }
 
-    fun refresh() = refresh(updateLocation = true)
+    fun refresh() = viewModelScope.launch {
+        timetableRepository.refresh(boardId)
+    }
 
-    private fun refresh(updateLocation: Boolean) {
-        viewModelScope.launch {
-            val board = boardDao.getById(boardId) ?: return@launch
-            val stored = boardDepartureDao.getForBoard(boardId)
-            val favorites = favoriteDepartureDao.getAll()
-            load(
-                board,
-                stored,
-                favorites,
-                keepContent = true,
-                updateLocation = updateLocation,
-            )
-        }
+    fun refreshOnResume() = viewModelScope.launch {
+        timetableRepository.refreshOnResume(boardId)
     }
 
     fun activate() =
@@ -346,83 +278,4 @@ class BoardTimetableViewModel @Inject constructor(
             }
         }
 
-    private fun load(
-        board: Board,
-        stored: List<BoardDeparture>,
-        favorites: List<FavoriteDeparture>,
-        keepContent: Boolean = false,
-        updateLocation: Boolean = true,
-    ) {
-        loadJob?.cancel()
-        loadJob =
-            viewModelScope.launch {
-                val previousContent = mutableUiState.value as? BoardTimetableState.Content
-                mutableUiState.value =
-                    if (keepContent && previousContent != null) {
-                        previousContent.copy(refreshing = true, refreshFailed = false)
-                    } else {
-                        BoardTimetableState.Loading
-                    }
-                try {
-                    if (updateLocation || latestLocation == null) {
-                        latestLocation =
-                            (locationService.getLatestLocation() as? LocationResult.Success)?.location
-                                ?.let { Coordinates(it.latitude, it.longitude) }
-                    }
-                    val location = latestLocation
-                    val callsByStop =
-                        coroutineScope {
-                            stored.distinctBy { it.stopId }.map { item ->
-                                async { item.stopId to stopService.getDepartures(item.stopId).stopPlace }
-                            }.awaitAll().toMap()
-                        }
-                    val unsortedRows =
-                        stored.mapNotNull { item ->
-                            val stopPlace = callsByStop[item.stopId] ?: return@mapNotNull null
-                            val line =
-                                DepartureMappers.toLineDepartures(stopPlace).firstOrNull {
-                                    it.lineDirectionRef.lineRef == item.lineRef &&
-                                        it.lineDirectionRef.destinationRef == item.destinationRef
-                                } ?: return@mapNotNull null
-                            val stopCoordinates =
-                                if (item.stopLatitude != null && item.stopLongitude != null) {
-                                    Coordinates(item.stopLatitude, item.stopLongitude)
-                                } else null
-                            BoardDepartureRow(
-                                stored = item,
-                                departure = line,
-                                distanceMeters =
-                                    if (location != null && stopCoordinates != null) {
-                                        BoardSuggestion.distanceMeters(location, stopCoordinates)
-                                    } else null,
-                                isFavorite =
-                                    favorites.any {
-                                        it.stopId == item.stopId &&
-                                            it.lineRef == item.lineRef &&
-                                            it.destinationRef == item.destinationRef
-                                    },
-                            )
-                        }
-                    val rows =
-                        BoardDepartureOrdering.sort(
-                            unsortedRows,
-                            BoardDepartureRow::distanceMeters,
-                        ) { row ->
-                            row.departure.departures.minOfOrNull { it.expectedArrivalTime }
-                        }
-                    mutableUiState.value = BoardTimetableState.Content(board.name, rows)
-                } catch (cancellation: CancellationException) {
-                    throw cancellation
-                } catch (_: Exception) {
-                    mutableUiState.value =
-                        previousContent?.copy(refreshing = false, refreshFailed = true)
-                            ?: BoardTimetableState.Error(board.name)
-                }
-            }
-    }
-
-    companion object {
-        private const val DEPARTURE_REFRESH_INTERVAL_MILLIS = 60_000L
-        private const val LOCATION_REFRESH_EVERY_N_DEPARTURE_REFRESHES = 2
-    }
 }
