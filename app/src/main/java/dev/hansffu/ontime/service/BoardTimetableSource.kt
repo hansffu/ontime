@@ -13,9 +13,6 @@ import dev.hansffu.ontime.model.BoardSuggestion
 import dev.hansffu.ontime.model.Coordinates
 import dev.hansffu.ontime.viewmodels.DepartureMappers
 import javax.inject.Inject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
@@ -36,7 +33,7 @@ class DefaultBoardTimetableSource @Inject constructor(
     private val boardDao: BoardDao,
     private val boardDepartureDao: BoardDepartureDao,
     private val favoriteDepartureDao: FavoriteDepartureDao,
-    private val stopService: StopService,
+    private val boardDeparturesService: BoardDeparturesService,
     private val locationService: LocationService,
 ) : BoardTimetableSource {
     override fun observeInputs(boardId: Long): Flow<BoardTimetableInputs> =
@@ -64,11 +61,7 @@ class DefaultBoardTimetableSource @Inject constructor(
         location: Coordinates?,
     ): List<BoardDepartureRow> {
         Log.d("BoardTimetable", "Refreshing departures for board ${inputs.board?.id}")
-        val callsByStop = coroutineScope {
-            inputs.departures.distinctBy { it.stopId }.map { item ->
-                async { item.stopId to stopService.getDepartures(item.stopId).stopPlace }
-            }.awaitAll().toMap()
-        }
+        val callsByStop = boardDeparturesService.getDepartures(inputs.departures)
         val rows = inputs.departures.mapNotNull { item ->
             val stopPlace = callsByStop[item.stopId] ?: return@mapNotNull null
             val line = DepartureMappers.toLineDepartures(stopPlace).firstOrNull {

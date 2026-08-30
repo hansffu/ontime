@@ -1,4 +1,4 @@
-query StopPlace($id: String!) {
+query StopPlace($id: String!, $lineIds: [ID], $includeLineCatalog: Boolean! = false) {
     stopPlace(id: $id) {
         id
         name
@@ -9,6 +9,7 @@ query StopPlace($id: String!) {
             numberOfDeparturesPerLineAndDestinationDisplay: 4,
             includeCancelledTrips: false,
             timeRange: 3600,
+            whiteListed: { lines: $lineIds },
         ){
             aimedArrivalTime
             expectedArrivalTime
@@ -23,6 +24,12 @@ query StopPlace($id: String!) {
                         textColour
                     }
                 }
+            }
+        }
+        quays @include(if: $includeLineCatalog) {
+            lines {
+                id
+                publicCode
             }
         }
     }
